@@ -1,0 +1,29 @@
+.tooltip-modern {
+  .tooltip-inner {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    font-weight: bold;
+    padding: 6px 10px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+
+    & {
+      @media (min-width: 768px) {
+        font-size: 11px !important;
+      }
+
+      @media (min-width: 1400px) {
+        font-size: 14px !important;
+      }
+
+    }
+
+  }
+  
+
+  .tooltip-arrow {
+    display: none !important;
+  }
+}
