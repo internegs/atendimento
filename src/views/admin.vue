@@ -83,7 +83,6 @@ import ADDCHAMADO from '@/components/admin/acao/ADDCHAMADO.vue'
 import PLANOSAUDE from '@/components/admin/clinicas/PlanoSaude.vue'
 import HORARIOS_AGENDA from '@/components/admin/clinicas/HorariosMedicos.vue'
 import CLIENTES from '@/components/admin/clinicas/PacientesComponent.vue'
-import AGENDAMENTOS from '@/views/AgendamentoView.vue'
 
 import PLANOS from '@/components/admin/planos/PlanoComponent.vue'
 import SUBPLANOS from '@/components/admin/planos/SubplanoComponent.vue'
@@ -123,7 +122,6 @@ export default {
         CLIENTES,
         PLANOSAUDE,
         HORARIOS_AGENDA,
-        AGENDAMENTOS,
 
         PLANOS,
         SUBPLANOS,

@@ -34,6 +34,10 @@ body {
     background-color: #fff !important;
 }
 
+button {
+    border: none;
+}
+
 .font-oswald {
     font-family: 'Oswald', sans-serif;
 }
