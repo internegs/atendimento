@@ -12,7 +12,6 @@ export default defineConfig({
     },
 
     server: {
-        host: 'atendimento.inzupt',
         port: 8081,
     },
 
