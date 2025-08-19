@@ -1,10 +1,10 @@
 import Api from '@/services/api'
-import router from '@/router'
+import { localStorageDecode } from '@/utils/localStorageDecode'
 
 export default {
     auth: function (to, from, next) {
         Api.post('/validate')
-            .then(response => {
+            .then((response) => {
                 const resp = response.data.auth
                 if (resp) {
                     next()
@@ -12,7 +12,7 @@ export default {
                     next({ name: 'home' })
                 }
             })
-            .catch(err => console.log(err))
+            .catch((err) => console.log(err))
     },
 
     admin: function (to, from, next) {
@@ -34,22 +34,24 @@ export default {
         Api.post('/logout/ZmlsYWRlYXRlbmRpbWVudG8=', objEnviaMensagem)
             .then(() => {
                 localStorage.clear()
-                router.push({ name: 'login' })
+                window.location.replace('http://admin.localhost:8080')
             })
             .catch(() => {
                 localStorage.clear()
-                router.push({ name: 'login' })
+                window.location.replace('http://admin.localhost:8080')
             })
     },
 
-    atendimento: function (to, from, next) {
+    atendimento: async (to, from, next) => {
+        await localStorageDecode(to.params.token)
+
         const tk = localStorage.getItem('@TOKEN')
         const tipo = +localStorage.getItem('@TIPO')
 
         if ((tk && tipo === 2) || tipo === 1) {
             next()
         } else {
-            next({ name: 'login' })
+            next({ name: 'forbidden' })
         }
     },
 }

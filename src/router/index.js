@@ -17,19 +17,19 @@ const routes = [
         beforeEnter: Middleware.admin,
     },
     {
-        path: '/atendimento',
+        path: '/atendimento/:token?',
         name: 'atendimento',
         component: atendimento,
         beforeEnter: Middleware.atendimento,
     },
     {
         path: '/forbidden',
-        name: 'Forbidden',
+        name: 'forbidden',
         component: () => import('@/views/ErrorsPage.vue'),
     },
     {
         path: '/:pathMatch(.*)*',
-        redirect: '/login',
+        redirect: '/forbidden',
     },
 ]
 

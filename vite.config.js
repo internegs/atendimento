@@ -12,7 +12,8 @@ export default defineConfig({
     },
 
     server: {
-        port: 8080,
+        host: 'atendimento.localhost',
+        port: 8081,
     },
 
     optimizeDeps: {
