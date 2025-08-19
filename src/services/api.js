@@ -6,7 +6,7 @@ const api = Axios.create({
 })
 
 api.interceptors.request.use(
-    config => {
+    (config) => {
         const token_acess = localStorage.getItem('@TOKEN')
 
         if (token_acess) {
@@ -15,7 +15,7 @@ api.interceptors.request.use(
 
         return config
     },
-    error => {
+    (error) => {
         return Promise.reject(error)
     }
 )

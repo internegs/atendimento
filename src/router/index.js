@@ -1,21 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import login from '@/views/LoginPage.vue'
 import atendimento from '@/views/atendimento.vue'
-import admin from '@/views/admin.vue'
 import Middleware from '@/services/middleware'
 
 const routes = [
-    {
-        path: '/login',
-        name: 'login',
-        component: login,
-    },
-    {
-        path: '/admin',
-        name: 'admin',
-        component: admin,
-        beforeEnter: Middleware.admin,
-    },
     {
         path: '/atendimento/:token?',
         name: 'atendimento',
@@ -23,13 +10,13 @@ const routes = [
         beforeEnter: Middleware.atendimento,
     },
     {
-        path: '/forbidden',
-        name: 'forbidden',
+        path: '/',
+        name: 'error',
         component: () => import('@/views/ErrorsPage.vue'),
     },
     {
         path: '/:pathMatch(.*)*',
-        redirect: '/forbidden',
+        redirect: '/error',
     },
 ]
 

@@ -1062,8 +1062,6 @@ export default {
     },
 
     mounted() {
-        this.$validateTokenPage.start(this.$router)
-
         this.session = localStorage.getItem('@SESSION')
         this.alerta = localStorage.getItem('@MENSAGEM')
 
@@ -1089,8 +1087,6 @@ export default {
     },
 
     beforeUnmount() {
-        this.$validateTokenPage.start(this.$router)
-
         document.removeEventListener('click', this.handleClickOutside)
         document.removeEventListener('click', this.handleClickOutsideEmoji)
     },

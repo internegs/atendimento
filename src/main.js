@@ -8,7 +8,6 @@ import firebaseVue from './firebase/index'
 import '@fortawesome/fontawesome-free/css/all.css'
 import 'vue3-emoji-picker/css'
 import '@/assets/styles/index.scss'
-import validateTokenPage from './components/plugins/validateTokenPage'
 
 const app = createApp(App)
 
@@ -18,7 +17,6 @@ pinia.use(createPersistedState())
 app.use(router)
 app.use(pinia)
 app.use(firebaseVue)
-app.use(validateTokenPage)
 
 app.directive('mask', {
     mounted(el, binding) {

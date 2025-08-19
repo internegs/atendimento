@@ -5,7 +5,7 @@
         </header>
 
         <div>
-            <p>{{ errorMessage.status == 403 ? 'Acesso negado' : 'Página não encontrada' }}</p>
+            <p>{{ errorMessage.message || 'Página não encontrada' }}</p>
         </div>
     </main>
 </template>
@@ -27,8 +27,8 @@ onMounted(() => {
             errorMessage.value.message = decodeURIComponent(atob(route.query.error))
             errorMessage.value.status = route.query.code
         } catch (error) {
-            errorMessage.value.message = 'Erro ao decifrar mensagem.'
-            errorMessage.value.status = 400
+            errorMessage.value.message = 'Erro inesperado.'
+            errorMessage.value.status = 500
         }
     }
 

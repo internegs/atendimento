@@ -50,7 +50,7 @@ export default [
             'prettier/prettier': ['warn', { endOfLine: 'auto' }],
             'vue/attribute-hyphenation': 'off',
             'vue/require-default-prop': 'off',
-            'arrow-parens': ['warn', 'always'],
+            'arrow-parens': 'off',
         },
     },
     {

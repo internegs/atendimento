@@ -1,15 +1,14 @@
-import Axios from "axios";
-let token_acess = localStorage.getItem("@TOKEN");
-let apiImagem = Axios.create({
-  // baseURL: "https://inzupt.com.br/api", // baseURL inicial
-  baseURL: "https://inzupt.com/api", // baseURL inicial
-  headers: {
-    'Authorization':'Bearer '+token_acess, //configuracao do header padrao,7
-  },
-  "Content-Type": "multipart/form-data",
+import Axios from 'axios'
+const token_acess = localStorage.getItem('@TOKEN')
 
-  
-  timeout: 50000,
-});
+const apiImagem = Axios.create({
+    baseURL: 'https://inzupt.com/api', // baseURL inicial
+    headers: {
+        Authorization: 'Bearer ' + token_acess,
+    },
+    'Content-Type': 'multipart/form-data',
 
-export default apiImagem;
+    timeout: 15000,
+})
+
+export default apiImagem
