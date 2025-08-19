@@ -1,7 +1,7 @@
 import Api from '@/services/api'
 import { localStorageDecode } from '@/utils/localStorageDecode'
 
-const URL = 'http://admin.localhost:8080'
+const URL = 'http://admin.inzupt:8080'
 
 export default {
     logout: function (to, from, next) {
