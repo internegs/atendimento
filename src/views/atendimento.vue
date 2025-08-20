@@ -625,8 +625,7 @@
                                 >
                                     <button
                                         class="btn-menu"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#mandarArquivo"
+                                        @click="openFileManager"
                                     >
                                         <i
                                             class="fa-solid fa-file"
@@ -910,6 +909,12 @@
             :dataMediaSelected="modalMediaData"
             @close-modal="handleCloseModal"
         />
+
+        <DisplayDocument
+            :isVisible="openModalDocument"
+            :dataDocumentSelected="modalDocumentData"
+            @close-modal="handleCloseModal"
+        />
     </div>
 
     <div
@@ -944,6 +949,7 @@ import middleware from '@/services/middleware'
 import Swal from 'sweetalert2'
 import DisplayMedia from '@/components/modals/display-media/DisplayMedia.vue'
 import { ref, onValue } from 'firebase/database'
+import DisplayDocument from '@/components/modals/display-document/DisplayDocument.vue'
 
 export default {
     name: 'atendimento',
@@ -1023,17 +1029,11 @@ export default {
             mimetype: 'audio/webm',
 
             openOpt: false,
-            tooltipStates: {
-                transmissao: false,
-                editar: false,
-                transferir: false,
-                fechar: false,
 
-                adicionarContato: false,
-            },
-            tooltipTimeout: null,
             modalMediaData: {},
+            modalDocumentData: {},
             openModalMedia: false,
+            openModalDocument: false,
 
             showEmojiPicker: false,
         }
@@ -1514,8 +1514,6 @@ export default {
         abrirConversa(info_user) {
             this.selecionado = info_user.usuario
 
-            console.log(info_user)
-
             let objConversas = {
                 id: localStorage.getItem('@USER_ID'),
                 fone: this.selecionado.fone,
@@ -1913,8 +1911,115 @@ export default {
             this.openModalMedia = true
         },
 
+        formatSize(bytes) {
+            if (bytes < 1024) return `${bytes} bytes`
+
+            if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`
+
+            return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+        },
+
+        openFileManager() {
+            const allowedMimeTypes = [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'text/plain',
+                'application/rtf',
+                'text/csv',
+                'text/html',
+                'application/zip',
+                'application/vnd.rar',
+                'application/x-rar-compressed',
+                'application/x-7z-compressed',
+                'application/epub+zip',
+            ]
+
+            const maxSize = 30 * 1024 * 1024 // 30 MB
+
+            const input = document.createElement('input')
+            input.type = 'file'
+            input.accept =
+                '.pdf,.doc,.docx,.xlsx,.xls,.ppt,.pptx,.txt,.rtf,.csv,.zip,.rar,.7z,.html,.epub'
+
+            input.addEventListener(
+                'change',
+                (event) => {
+                    const file = event.target.files[0]
+
+                    if (file) {
+                        if (!allowedMimeTypes.includes(file.type)) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro',
+                                text: 'Tipo de arquivo não permitido.',
+
+                                didOpen: () => {
+                                    const confirmBtn = Swal.getConfirmButton()
+                                    const actionsContainer = confirmBtn.parentElement
+
+                                    actionsContainer.style.width = '100%'
+                                    actionsContainer.style.display = 'flex'
+                                    actionsContainer.style.justifyContent = 'center'
+
+                                    confirmBtn.style.width = '90%'
+                                },
+                            })
+
+                            return
+                        }
+
+                        if (file.size > maxSize) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro',
+                                text: `O arquivo selecionado é muito grande (${this.formatSize(file.size)}). 
+                                    Por favor, selecione um arquivo de até ${this.formatSize(maxSize)}.`,
+
+                                didOpen: () => {
+                                    const confirmBtn = Swal.getConfirmButton()
+                                    const actionsContainer = confirmBtn.parentElement
+
+                                    actionsContainer.style.width = '100%'
+                                    actionsContainer.style.display = 'flex'
+                                    actionsContainer.style.justifyContent = 'center'
+
+                                    confirmBtn.style.width = '90%'
+                                },
+                            })
+
+                            return
+                        }
+
+                        console.log('arquivo: ', file)
+                    }
+                },
+                { once: true }
+            )
+
+            input.click()
+        },
+
+        handleModalDocument(value) {
+            console.log(value)
+
+            // this.modalDocumentData = {
+            //     userPhoto: this.selecionado.foto,
+            //     userName: value.userName,
+            //     urlImage: value.url,
+            //     wook: value.wook,
+            // }
+
+            this.openModalDocument = true
+        },
+
         handleCloseModal() {
             this.openModalMedia = false
+            this.openModalDocument = false
         },
 
         filterMessages(msgs) {

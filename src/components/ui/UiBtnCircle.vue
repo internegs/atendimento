@@ -64,7 +64,7 @@ export default {
 
         flip: {
             type: String,
-            validator: value => ['left', 'right'].includes(value),
+            validator: (value) => ['left', 'right'].includes(value),
         },
     },
 
@@ -108,6 +108,8 @@ export default {
     border-radius: 50%;
     cursor: pointer;
     transition: transform 200ms ease;
+    will-change: transform;
+    backface-visibility: hidden;
     filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.25));
 }
 

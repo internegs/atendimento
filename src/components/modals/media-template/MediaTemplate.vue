@@ -1,5 +1,5 @@
 <template>
-    <BaseModal>
+    <base-modal>
         <header>
             <div class="header-wrapper">
                 <div class="user-wrapper">
@@ -9,6 +9,7 @@
                             :src="dataMedia.userPhoto"
                             alt="foto de perfil"
                         />
+
                         <div
                             v-else
                             class="callcenter-icon"
@@ -26,6 +27,7 @@
 
                 <div class="media-options">
                     <button
+                        v-if="download"
                         class="opt-btn-download"
                         @click="downloadImage(dataMedia.urlImage)"
                     >
@@ -39,7 +41,7 @@
                         class="opt-btn-close"
                         @click="$emit('close-modal')"
                     >
-                        <i class="fa-solid fa-xmark text-secondary"></i>
+                        <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
             </div>
@@ -53,7 +55,7 @@
         </div>
 
         <footer></footer>
-    </BaseModal>
+    </base-modal>
 </template>
 
 <script>
@@ -62,15 +64,20 @@ import BaseModal from '../BaseModal.vue'
 export default {
     name: 'MediaTemplate',
 
-    emits: ['close-modal'],
-
-    props: {
-        dataMedia: [Object, Array],
-    },
-
     components: {
         BaseModal,
     },
+
+    props: {
+        dataMedia: [Object, Array],
+
+        download: {
+            type: Boolean,
+            default: false,
+        },
+    },
+
+    emits: ['close-modal'],
 
     methods: {
         downloadImage(url) {
@@ -171,7 +178,7 @@ header {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px 15px;
+    padding: 10px;
 
     border-radius: 50%;
     background-color: transparent;
@@ -183,7 +190,7 @@ header {
 }
 
 .media-options .opt-btn-close i {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     color: #3b4a54;
 }
 
