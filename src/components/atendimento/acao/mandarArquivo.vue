@@ -198,7 +198,7 @@ export default {
 
         geraMidia() {
             if (this.midia === '') return
-            // console.log(this.midia);
+
             const tipo = 0
             let form = ''
 

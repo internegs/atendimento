@@ -5,8 +5,8 @@
                 <div class="user-wrapper">
                     <div class="user-photo">
                         <img
-                            v-if="dataMedia.wook !== 'onack'"
-                            :src="dataMedia.userPhoto"
+                            v-if="dataMedia?.wook !== 'onack'"
+                            :src="dataMedia?.userPhoto"
                             alt="foto de perfil"
                         />
 
@@ -20,7 +20,7 @@
 
                     <div class="user-info">
                         <span class="user-name ps-2">
-                            {{ dataMedia.wook !== 'onack' ? dataMedia.userName : 'Você' }}
+                            {{ dataMedia?.wook !== 'onack' ? dataMedia?.userName : 'Você' }}
                         </span>
                     </div>
                 </div>
@@ -54,7 +54,9 @@
             <slot></slot>
         </div>
 
-        <footer></footer>
+        <footer>
+            <slot name="footer"></slot>
+        </footer>
     </base-modal>
 </template>
 
@@ -200,6 +202,15 @@ header {
     width: 100%;
     height: 80dvh;
     min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* FOOTER */
+
+footer {
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;

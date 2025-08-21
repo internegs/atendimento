@@ -917,6 +917,8 @@ export default {
         },
     },
 
+    emits: ['handleMedia'],
+
     data() {
         return {
             mostrar: '',
@@ -960,18 +962,6 @@ export default {
         },
     },
 
-    emits: ['handleMedia'],
-
-    mounted() {
-        this.scrollToBottom()
-    },
-
-    updated() {
-        this.$nextTick(() => {
-            this.scrollToBottom()
-        })
-    },
-
     watch: {
         mensagens: {
             handler() {
@@ -981,6 +971,16 @@ export default {
             },
             deep: true,
         },
+    },
+
+    mounted() {
+        this.scrollToBottom()
+    },
+
+    updated() {
+        this.$nextTick(() => {
+            this.scrollToBottom()
+        })
     },
 
     methods: {

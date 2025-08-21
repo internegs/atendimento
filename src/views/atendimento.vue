@@ -621,6 +621,7 @@
                             >
                                 <div
                                     v-if="abrirEscolha"
+                                    ref="optMenu"
                                     class="menu-escolhas"
                                 >
                                     <button
@@ -910,10 +911,11 @@
             @close-modal="handleCloseModal"
         />
 
-        <DisplayDocument
+        <display-document
             :isVisible="openModalDocument"
             :dataDocumentSelected="modalDocumentData"
             @close-modal="handleCloseModal"
+            @update-messages="atualizarConversa"
         />
     </div>
 
@@ -970,6 +972,7 @@ export default {
         ChatAtendimentoContatosInterno,
         encaminhaMensagens,
         DisplayMedia,
+        DisplayDocument,
     },
 
     data() {
@@ -1405,7 +1408,7 @@ export default {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Erro ',
-                                titleText: 'Erro ao encerrar atendimento.',
+                                text: 'Erro ao encerrar atendimento.',
                                 didOpen: () => {
                                     const confirmBtn = Swal.getConfirmButton()
                                     const actionsContainer = confirmBtn.parentElement
@@ -1956,7 +1959,7 @@ export default {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Erro',
-                                text: 'Tipo de arquivo não permitido.',
+                                text: 'Formato de arquivo não permitido.',
 
                                 didOpen: () => {
                                     const confirmBtn = Swal.getConfirmButton()
@@ -1995,26 +1998,19 @@ export default {
                             return
                         }
 
-                        console.log('arquivo: ', file)
+                        this.modalDocumentData = {
+                            dataFile: file,
+                            recipientFone: this.selecionado?.fone,
+                            wook: 'onack',
+                        }
+
+                        this.openModalDocument = true
                     }
                 },
                 { once: true }
             )
 
             input.click()
-        },
-
-        handleModalDocument(value) {
-            console.log(value)
-
-            // this.modalDocumentData = {
-            //     userPhoto: this.selecionado.foto,
-            //     userName: value.userName,
-            //     urlImage: value.url,
-            //     wook: value.wook,
-            // }
-
-            this.openModalDocument = true
         },
 
         handleCloseModal() {
