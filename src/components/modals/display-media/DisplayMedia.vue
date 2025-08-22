@@ -1,6 +1,9 @@
 <template>
     <transition name="modal-fade">
-        <base-modal v-if="isVisible">
+        <base-modal
+            v-if="isVisible"
+            @close-modal="handleCloseModal"
+        >
             <media-template
                 :download="true"
                 :dataMedia="choiseDataMedia"

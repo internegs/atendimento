@@ -498,8 +498,7 @@
                                 >
                                     <button
                                         class="btn-menu"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#mandarArquivoChatInterno"
+                                        @click="openFileManager(1)"
                                     >
                                         <i
                                             class="fa-solid fa-file"
@@ -626,7 +625,7 @@
                                 >
                                     <button
                                         class="btn-menu"
-                                        @click="openFileManager"
+                                        @click="openFileManager()"
                                     >
                                         <i
                                             class="fa-solid fa-file"
@@ -660,6 +659,19 @@
                                         ></i>
 
                                         <span>Contatos</span>
+                                    </button>
+
+                                    <button
+                                        class="btn-menu"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#templateMessages"
+                                    >
+                                        <i
+                                            class="fa-solid fa-align-left"
+                                            style="color: #e66100"
+                                        ></i>
+
+                                        <span>Template</span>
                                     </button>
                                 </div>
                             </transition>
@@ -915,8 +927,10 @@
             :isVisible="openModalDocument"
             :dataDocumentSelected="modalDocumentData"
             @close-modal="handleCloseModal"
-            @update-messages="atualizarConversa"
+            @update-messages="updateMessages"
         />
+
+        <display-template-message />
     </div>
 
     <div
@@ -952,6 +966,7 @@ import Swal from 'sweetalert2'
 import DisplayMedia from '@/components/modals/display-media/DisplayMedia.vue'
 import { ref, onValue } from 'firebase/database'
 import DisplayDocument from '@/components/modals/display-document/DisplayDocument.vue'
+import DisplayTemplateMessage from '@/components/modals/display-template-message/DisplayTemplateMessage.vue'
 
 export default {
     name: 'atendimento',
@@ -973,6 +988,7 @@ export default {
         encaminhaMensagens,
         DisplayMedia,
         DisplayDocument,
+        DisplayTemplateMessage,
     },
 
     data() {
@@ -1039,6 +1055,7 @@ export default {
             openModalDocument: false,
 
             showEmojiPicker: false,
+            isChatInternal: false,
         }
     },
 
@@ -1922,7 +1939,9 @@ export default {
             return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
         },
 
-        openFileManager() {
+        openFileManager(isInternal) {
+            this.isChatInternal = !!isInternal
+
             const allowedMimeTypes = [
                 'application/pdf',
                 'application/msword',
@@ -2013,6 +2032,16 @@ export default {
         handleCloseModal() {
             this.openModalMedia = false
             this.openModalDocument = false
+        },
+
+        updateMessages() {
+            if (!this.isChatInternal) {
+                this.atualizarConversa()
+
+                return
+            }
+
+            this.atualizarConversInterna()
         },
 
         filterMessages(msgs) {

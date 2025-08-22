@@ -3,7 +3,10 @@
         name="modal-slide"
         appear
     >
-        <base-modal v-if="isVisible">
+        <base-modal
+            v-if="isVisible"
+            @close-modal="handleCloseModal"
+        >
             <media-template
                 :data-media="dataDocumentSelected"
                 @close-modal="handleCloseModal"

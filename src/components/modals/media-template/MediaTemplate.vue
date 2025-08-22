@@ -47,10 +47,7 @@
             </div>
         </header>
 
-        <div
-            class="template-main"
-            @click="$emit('close-modal')"
-        >
+        <div class="template-main">
             <slot></slot>
         </div>
 
