@@ -1,53 +1,66 @@
 <template>
-    <base-modal v-if="isVisible">
-        <media-template
-            :data-media="dataDocumentSelected"
-            @close-modal="handleCloseModal"
-        >
-            <div
-                v-show="!pdfLoading"
-                class="pdf-container"
+    <transition
+        name="modal-slide"
+        appear
+    >
+        <base-modal v-if="isVisible">
+            <media-template
+                :data-media="dataDocumentSelected"
+                @close-modal="handleCloseModal"
             >
-                <canvas ref="pdfCanvas"></canvas>
-            </div>
+                <div
+                    v-show="!pdfLoading"
+                    class="doc-container"
+                >
+                    <canvas
+                        v-if="isPdf"
+                        ref="pdfCanvas"
+                    ></canvas>
 
-            <template
-                v-if="!pdfLoading"
-                #footer
-            >
-                <div class="btn-wrapper">
-                    <button
-                        type="button"
-                        class="btn-send"
-                        @click="sendDocument()"
-                    >
-                        <img
-                            v-if="!sendLoading"
-                            src="../../../assets/enviar.png"
-                            class="icon-send"
-                            alt="Enviar"
-                        />
-
-                        <div
-                            v-if="sendLoading"
-                            class="spinner-border text-light spinner-border-sm"
-                            role="status"
-                        >
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </button>
+                    <i
+                        v-else
+                        v-bind="fileIconConfig"
+                    ></i>
                 </div>
-            </template>
 
-            <div
-                v-if="pdfLoading"
-                class="spinner-border text-secondary"
-                role="status"
-            >
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </media-template>
-    </base-modal>
+                <template
+                    v-if="!pdfLoading"
+                    #footer
+                >
+                    <div class="btn-wrapper">
+                        <button
+                            type="button"
+                            class="btn-send"
+                            @click="sendDocument()"
+                        >
+                            <img
+                                v-if="!sendLoading"
+                                src="../../../assets/enviar.png"
+                                class="icon-send"
+                                alt="Enviar"
+                            />
+
+                            <div
+                                v-if="sendLoading"
+                                class="spinner-border text-light spinner-border-sm"
+                                role="status"
+                            >
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </button>
+                    </div>
+                </template>
+
+                <div
+                    v-if="pdfLoading"
+                    class="spinner-border text-secondary"
+                    role="status"
+                >
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </media-template>
+        </base-modal>
+    </transition>
 </template>
 
 <script>
@@ -86,6 +99,65 @@ export default {
     computed: {
         isPdf() {
             return this.dataDocumentSelected?.dataFile?.type === 'application/pdf'
+        },
+
+        fileIconConfig() {
+            const fileType = this.dataDocumentSelected?.dataFile?.type
+            let iconType
+            let color
+
+            switch (fileType) {
+                case 'application/msword':
+                case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+                    iconType = 'fa-file-word'
+                    color = '#2B579A'
+                    break
+
+                case 'application/vnd.ms-excel':
+                case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+                    iconType = 'fa-file-excel'
+                    color = '#217346'
+                    break
+
+                case 'application/vnd.ms-powerpoint':
+                case 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+                    iconType = 'fa-file-powerpoint'
+                    color = '#D24726'
+                    break
+
+                case 'text/plain':
+                    iconType = 'fa-file-lines'
+                    color = '#6C757D'
+                    break
+
+                case 'application/rtf':
+                    iconType = 'fa-file-word'
+                    color = '#6F42C1'
+                    break
+
+                case 'text/csv':
+                    iconType = 'fa-file-csv'
+                    color = '#198754'
+                    break
+
+                case 'application/zip':
+                case 'application/vnd.rar':
+                case 'application/x-rar-compressed':
+                case 'application/x-7z-compressed':
+                    iconType = 'fa-file-zipper'
+                    color = '#c01c28'
+                    break
+
+                default:
+                    iconType = 'fa-file'
+                    color = '#6C757D'
+                    break
+            }
+
+            return {
+                class: `fa-solid ${iconType}`,
+                style: `color: ${color};`,
+            }
         },
     },
 
@@ -199,7 +271,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.pdf-container {
+.doc-container {
     width: 100%;
     height: 100%;
     display: flex;
@@ -220,6 +292,16 @@ export default {
         @media (min-width: 1400px) {
             & {
                 transform: scale(0.7);
+            }
+        }
+    }
+
+    i {
+        font-size: 6rem;
+
+        @media (min-width: 1400px) {
+            & {
+                font-size: 8rem;
             }
         }
     }

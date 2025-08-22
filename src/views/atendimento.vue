@@ -1934,20 +1934,17 @@ export default {
                 'text/plain',
                 'application/rtf',
                 'text/csv',
-                'text/html',
                 'application/zip',
                 'application/vnd.rar',
                 'application/x-rar-compressed',
                 'application/x-7z-compressed',
-                'application/epub+zip',
             ]
 
             const maxSize = 30 * 1024 * 1024 // 30 MB
 
             const input = document.createElement('input')
             input.type = 'file'
-            input.accept =
-                '.pdf,.doc,.docx,.xlsx,.xls,.ppt,.pptx,.txt,.rtf,.csv,.zip,.rar,.7z,.html,.epub'
+            input.accept = '.pdf,.doc,.docx,.xlsx,.xls,.ppt,.pptx,.txt,.rtf,.csv,.zip,.rar,.7z'
 
             input.addEventListener(
                 'change',
