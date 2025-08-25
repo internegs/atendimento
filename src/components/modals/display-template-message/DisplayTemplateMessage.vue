@@ -46,16 +46,26 @@
                                     scope="col"
                                     class="col-1"
                                 ></th>
-                                <th scope="col">Mensagem</th>
+                                <th scope="col">Modelo</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            <tr>
+                            <tr
+                                v-for="(msg, i) in messages || []"
+                                :key="i"
+                                @click="handleRowInput(msg.id)"
+                            >
                                 <th scope="row">
-                                    <input type="radio" />
+                                    <input
+                                        :ref="`input[${msg.id}]`"
+                                        v-model="requestData.mensagem"
+                                        type="radio"
+                                        :value="msg.nome_modelo"
+                                    />
                                 </th>
-                                <td>Ola mundo</td>
+
+                                <td>{{ msg?.nome_modelo || 'N/A' }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -69,7 +79,10 @@
                                         aria-label="Previous"
                                         @click="decrement()"
                                     >
-                                        <span aria-hidden="true">&laquo;</span>
+                                        <i
+                                            class="fa-solid fa-angle-left"
+                                            style="color: #17a2b8"
+                                        ></i>
                                     </button>
                                 </li>
 
@@ -81,6 +94,7 @@
                                         <button
                                             class="page-link"
                                             :class="{ active: list.active }"
+                                            style="background-color: #17a2b8; border-color: #17a2b8"
                                             href="#"
                                             @click="selectPage(list.label)"
                                         >
@@ -96,7 +110,10 @@
                                         aria-label="Next"
                                         @click="increment()"
                                     >
-                                        <span aria-hidden="true">&raquo;</span>
+                                        <i
+                                            class="fa-solid fa-angle-right"
+                                            style="color: #17a2b8"
+                                        ></i>
                                     </button>
                                 </li>
                             </ul>
@@ -104,26 +121,44 @@
                     </div>
                 </div>
 
-                <div class="modal-footer">
-                    <button class="btn-send">
-                        <div v-if="!btnLoading">Enviar</div>
+                <transition name="fade-footer">
+                    <div
+                        v-if="requestData.mensagem"
+                        class="modal-footer"
+                    >
+                        <button class="btn-send">
+                            <div v-if="!btnLoading">Enviar</div>
 
-                        <div
-                            v-else
-                            class="spinner-border"
-                            role="status"
-                        >
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </button>
-                </div>
+                            <div
+                                v-else
+                                class="spinner-border"
+                                role="status"
+                            >
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </button>
+                    </div>
+                </transition>
             </form>
         </div>
     </div>
 </template>
 
 <script>
+import api from '@/services/api'
+
 export default {
+    name: 'DisplayTemplateMessage',
+
+    props: {
+        templateData: {
+            type: Object,
+            required: true,
+        },
+    },
+
+    emits: ['update-messages'],
+
     data() {
         return {
             messages: [],
@@ -131,26 +166,69 @@ export default {
             last_page: null,
             page_active: 1,
             search: null,
+            requestData: null,
 
             btnLoading: false,
         }
     },
 
-    mounted() {
-        const modal = document.getElementById('templateMessages')
-
-        modal.addEventListener(
-            'hidden.bs.modal',
-            () => {
-                console.log('hfhd')
+    watch: {
+        templateData: {
+            handler(newValue) {
+                if (newValue) {
+                    this.requestData = newValue
+                }
             },
-            { once: true }
-        )
+            deep: true,
+            immediate: true,
+        },
+    },
+
+    mounted() {
+        this.getTemplates()
+
+        const el = document.getElementById('templateMessages')
+
+        el.addEventListener('show.bs.modal', () => {
+            el.addEventListener('hidden.bs.modal', this.resetTemplateData, { once: true })
+        })
     },
 
     methods: {
-        sendMessage() {
-            console.log('ola')
+        async getTemplates() {
+            try {
+                const response = await api.post(
+                    'https://inzupt.com/api/templates_meta/ZmlsYWRlYXRlbmRpbWVudG8=',
+                    {
+                        dXNlcl9pZA: btoa(localStorage.getItem('@USER_ID')),
+                    }
+                )
+
+                this.messages = response.data.templates.data
+                this.list_page = response.data.templates.links.filter(
+                    (link) => link.label !== '&laquo; Previous' && link.label !== 'Next &raquo;'
+                )
+            } catch (error) {
+                console.error(error)
+            }
+        },
+
+        async sendMessage() {
+            this.btnLoading = true
+
+            try {
+                // api.post('/envia_mensagemnova/ZmlsYWRlYXRlbmRpbWVudG8=', this.requestData)
+
+                this.$emit('update-messages')
+
+                this.closeModal()
+            } catch (error) {
+                this.btnLoading = false
+
+                console.log(error)
+            } finally {
+                this.btnLoading = false
+            }
         },
 
         increment() {
@@ -168,12 +246,31 @@ export default {
         selectPage(id) {
             this.page_active = id
         },
+
+        handleRowInput(id) {
+            this.requestData.mensagem = this.messages.find((msg) => msg.id === id).nome_modelo
+        },
+
+        closeModal() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('templateMessages'))
+            modal.hide()
+        },
+
+        resetTemplateData() {
+            this.requestData.mensagem = null
+        },
+
+        teste(value) {
+            console.log(value)
+        },
     },
 }
 </script>
 
 <style lang="scss">
 .modal-header {
+    border: none;
+
     .modal-title {
         font-size: 18px;
         font-weight: 500;
@@ -215,10 +312,27 @@ export default {
 
     .table {
         border: solid 2px rgb(240, 240, 240);
+
+        tbody {
+            tr {
+                transition: background-color 0.3s ease;
+
+                &:hover {
+                    background-color: #f1f1f17c;
+                    cursor: pointer;
+                }
+
+                th input {
+                    accent-color: #199aad;
+                }
+            }
+        }
     }
 }
 
 .modal-footer {
+    border: none;
+
     .btn-send {
         padding: 8px 10px;
 

@@ -930,7 +930,10 @@
             @update-messages="updateMessages"
         />
 
-        <display-template-message />
+        <display-template-message
+            :templateData="templateData"
+            @update-messages="updateMessages"
+        />
     </div>
 
     <div
@@ -967,6 +970,7 @@ import DisplayMedia from '@/components/modals/display-media/DisplayMedia.vue'
 import { ref, onValue } from 'firebase/database'
 import DisplayDocument from '@/components/modals/display-document/DisplayDocument.vue'
 import DisplayTemplateMessage from '@/components/modals/display-template-message/DisplayTemplateMessage.vue'
+import api from '@/services/api'
 
 export default {
     name: 'atendimento',
@@ -1057,6 +1061,18 @@ export default {
             showEmojiPicker: false,
             isChatInternal: false,
         }
+    },
+
+    computed: {
+        templateData() {
+            return {
+                user_id: localStorage.getItem(`@USER_ID`),
+                fone: this.selecionado.fone,
+                mensagem: null,
+                mensagem_id: this.message_id,
+                status: 1, // 1 - mensagem normal || 2 - responder
+            }
+        },
     },
 
     watch: {
@@ -1310,7 +1326,6 @@ export default {
 
         enviarMensagem(status) {
             if (this.mensagem === '') return
-            // 1 - mensagem normal || 2 - responder
 
             const mensagem = this.mensagem
             const nome = localStorage.getItem(`@USER_NAME`) + '\r\n\t\t' + mensagem
@@ -1329,7 +1344,7 @@ export default {
                 fone: this.selecionado.fone,
                 mensagem: mensagem,
                 mensagem_id: this.message_id,
-                status: status,
+                status: status, // 1 - mensagem normal || 2 - responder
             }
 
             Api.post('/envia_mensagemnova/ZmlsYWRlYXRlbmRpbWVudG8=', objEnviaMensagem)

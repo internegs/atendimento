@@ -43,3 +43,20 @@
     opacity: 1;
     transform: translateY(0);
 }
+
+// =================================
+
+.fade-footer-enter-active,
+.fade-footer-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.fade-footer-enter-from,
+.fade-footer-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.fade-footer-enter-to,
+.fade-footer-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
