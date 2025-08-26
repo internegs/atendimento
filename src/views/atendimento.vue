@@ -671,7 +671,7 @@
                                             style="color: #e66100"
                                         ></i>
 
-                                        <span>Template</span>
+                                        <span>Modelo</span>
                                     </button>
                                 </div>
                             </transition>
