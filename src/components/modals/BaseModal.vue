@@ -8,6 +8,19 @@
 export default {
     name: 'BaseModal',
 
+    emits: ['close-modal'],
+
+    mounted() {
+        window.addEventListener('keydown', this.handleKeyEsc, { once: true })
+    },
+
+    methods: {
+        handleKeyEsc(e) {
+            if (e.key === 'Escape') {
+                this.$emit('close-modal')
+            }
+        },
+    },
 }
 </script>
 
@@ -23,6 +36,5 @@ section {
 
     background-color: rgba(193, 193, 193, 0.4);
     backdrop-filter: blur(20px);
-
 }
 </style>

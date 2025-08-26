@@ -498,8 +498,7 @@
                                 >
                                     <button
                                         class="btn-menu"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#mandarArquivoChatInterno"
+                                        @click="openFileManager(1)"
                                     >
                                         <i
                                             class="fa-solid fa-file"
@@ -621,12 +620,12 @@
                             >
                                 <div
                                     v-if="abrirEscolha"
+                                    ref="optMenu"
                                     class="menu-escolhas"
                                 >
                                     <button
                                         class="btn-menu"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#mandarArquivo"
+                                        @click="openFileManager()"
                                     >
                                         <i
                                             class="fa-solid fa-file"
@@ -660,6 +659,19 @@
                                         ></i>
 
                                         <span>Contatos</span>
+                                    </button>
+
+                                    <button
+                                        class="btn-menu"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#templateMessages"
+                                    >
+                                        <i
+                                            class="fa-solid fa-align-left"
+                                            style="color: #e66100"
+                                        ></i>
+
+                                        <span>Template</span>
                                     </button>
                                 </div>
                             </transition>
@@ -910,6 +922,18 @@
             :dataMediaSelected="modalMediaData"
             @close-modal="handleCloseModal"
         />
+
+        <display-document
+            :isVisible="openModalDocument"
+            :dataDocumentSelected="modalDocumentData"
+            @close-modal="handleCloseModal"
+            @update-messages="updateMessages"
+        />
+
+        <display-template-message
+            :templateData="templateData"
+            @update-messages="updateMessages"
+        />
     </div>
 
     <div
@@ -944,6 +968,9 @@ import middleware from '@/services/middleware'
 import Swal from 'sweetalert2'
 import DisplayMedia from '@/components/modals/display-media/DisplayMedia.vue'
 import { ref, onValue } from 'firebase/database'
+import DisplayDocument from '@/components/modals/display-document/DisplayDocument.vue'
+import DisplayTemplateMessage from '@/components/modals/display-template-message/DisplayTemplateMessage.vue'
+import api from '@/services/api'
 
 export default {
     name: 'atendimento',
@@ -964,6 +991,8 @@ export default {
         ChatAtendimentoContatosInterno,
         encaminhaMensagens,
         DisplayMedia,
+        DisplayDocument,
+        DisplayTemplateMessage,
     },
 
     data() {
@@ -1023,20 +1052,27 @@ export default {
             mimetype: 'audio/webm',
 
             openOpt: false,
-            tooltipStates: {
-                transmissao: false,
-                editar: false,
-                transferir: false,
-                fechar: false,
 
-                adicionarContato: false,
-            },
-            tooltipTimeout: null,
             modalMediaData: {},
+            modalDocumentData: {},
             openModalMedia: false,
+            openModalDocument: false,
 
             showEmojiPicker: false,
+            isChatInternal: false,
         }
+    },
+
+    computed: {
+        templateData() {
+            return {
+                user_id: localStorage.getItem(`@USER_ID`),
+                fone: this.selecionado.fone,
+                mensagem: null,
+                mensagem_id: this.message_id,
+                status: 1, // 1 - mensagem normal || 2 - responder
+            }
+        },
     },
 
     watch: {
@@ -1290,7 +1326,6 @@ export default {
 
         enviarMensagem(status) {
             if (this.mensagem === '') return
-            // 1 - mensagem normal || 2 - responder
 
             const mensagem = this.mensagem
             const nome = localStorage.getItem(`@USER_NAME`) + '\r\n\t\t' + mensagem
@@ -1309,7 +1344,7 @@ export default {
                 fone: this.selecionado.fone,
                 mensagem: mensagem,
                 mensagem_id: this.message_id,
-                status: status,
+                status: status, // 1 - mensagem normal || 2 - responder
             }
 
             Api.post('/envia_mensagemnova/ZmlsYWRlYXRlbmRpbWVudG8=', objEnviaMensagem)
@@ -1405,7 +1440,7 @@ export default {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Erro ',
-                                titleText: 'Erro ao encerrar atendimento.',
+                                text: 'Erro ao encerrar atendimento.',
                                 didOpen: () => {
                                     const confirmBtn = Swal.getConfirmButton()
                                     const actionsContainer = confirmBtn.parentElement
@@ -1513,8 +1548,6 @@ export default {
 
         abrirConversa(info_user) {
             this.selecionado = info_user.usuario
-
-            console.log(info_user)
 
             let objConversas = {
                 id: localStorage.getItem('@USER_ID'),
@@ -1913,8 +1946,117 @@ export default {
             this.openModalMedia = true
         },
 
+        formatSize(bytes) {
+            if (bytes < 1024) return `${bytes} bytes`
+
+            if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`
+
+            return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+        },
+
+        openFileManager(isInternal) {
+            this.isChatInternal = !!isInternal
+
+            const allowedMimeTypes = [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'text/plain',
+                'application/rtf',
+                'text/csv',
+                'application/zip',
+                'application/vnd.rar',
+                'application/x-rar-compressed',
+                'application/x-7z-compressed',
+            ]
+
+            const maxSize = 30 * 1024 * 1024 // 30 MB
+
+            const input = document.createElement('input')
+            input.type = 'file'
+            input.accept = '.pdf,.doc,.docx,.xlsx,.xls,.ppt,.pptx,.txt,.rtf,.csv,.zip,.rar,.7z'
+
+            input.addEventListener(
+                'change',
+                (event) => {
+                    const file = event.target.files[0]
+
+                    if (file) {
+                        if (!allowedMimeTypes.includes(file.type)) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro',
+                                text: 'Formato de arquivo não permitido.',
+
+                                didOpen: () => {
+                                    const confirmBtn = Swal.getConfirmButton()
+                                    const actionsContainer = confirmBtn.parentElement
+
+                                    actionsContainer.style.width = '100%'
+                                    actionsContainer.style.display = 'flex'
+                                    actionsContainer.style.justifyContent = 'center'
+
+                                    confirmBtn.style.width = '90%'
+                                },
+                            })
+
+                            return
+                        }
+
+                        if (file.size > maxSize) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro',
+                                text: `O arquivo selecionado é muito grande (${this.formatSize(file.size)}). 
+                                    Por favor, selecione um arquivo de até ${this.formatSize(maxSize)}.`,
+
+                                didOpen: () => {
+                                    const confirmBtn = Swal.getConfirmButton()
+                                    const actionsContainer = confirmBtn.parentElement
+
+                                    actionsContainer.style.width = '100%'
+                                    actionsContainer.style.display = 'flex'
+                                    actionsContainer.style.justifyContent = 'center'
+
+                                    confirmBtn.style.width = '90%'
+                                },
+                            })
+
+                            return
+                        }
+
+                        this.modalDocumentData = {
+                            dataFile: file,
+                            recipientFone: this.selecionado?.fone,
+                            wook: 'onack',
+                        }
+
+                        this.openModalDocument = true
+                    }
+                },
+                { once: true }
+            )
+
+            input.click()
+        },
+
         handleCloseModal() {
             this.openModalMedia = false
+            this.openModalDocument = false
+        },
+
+        updateMessages() {
+            if (!this.isChatInternal) {
+                this.atualizarConversa()
+
+                return
+            }
+
+            this.atualizarConversInterna()
         },
 
         filterMessages(msgs) {

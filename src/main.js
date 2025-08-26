@@ -8,6 +8,10 @@ import firebaseVue from './firebase/index'
 import '@fortawesome/fontawesome-free/css/all.css'
 import 'vue3-emoji-picker/css'
 import '@/assets/styles/index.scss'
+import * as pdfjsLib from 'pdfjs-dist'
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.mjs?url'
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker
 
 const app = createApp(App)
 

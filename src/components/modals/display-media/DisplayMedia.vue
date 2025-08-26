@@ -1,20 +1,24 @@
 <template>
     <transition name="modal-fade">
-        <BaseModal v-if="isVisible">
-            <MediaTemplate
+        <base-modal
+            v-if="isVisible"
+            @close-modal="handleCloseModal"
+        >
+            <media-template
+                :download="true"
                 :dataMedia="choiseDataMedia"
                 @close-modal="handleCloseModal"
             >
                 <div class="display-main">
-                    <UiBtnCircle
+                    <ui-btn-circle
                         v-if="!isMobile"
-                        @click.stop
                         :size="2.3"
                         left="2%"
                         top="50%"
                         flip="left"
-                        @handle-btn-circle="handleBtnCircle('left')"
                         :disabled="imgSelectedIndex === 0 || isDisabledBtn"
+                        @click.stop
+                        @handle-btn-circle="handleBtnCircle('left')"
                     />
 
                     <div
@@ -36,8 +40,8 @@
 
                     <div
                         v-if="isMobile"
-                        class="carousel-grid"
                         ref="carousel"
+                        class="carousel-grid"
                     >
                         <div
                             v-for="(item, index) in dataMediaArray"
@@ -53,18 +57,18 @@
                         </div>
                     </div>
 
-                    <UiBtnCircle
+                    <ui-btn-circle
                         v-if="!isMobile"
-                        @click.stop
                         :size="2.3"
                         right="2%"
                         top="50%"
-                        @handle-btn-circle="handleBtnCircle('right')"
                         :disabled="imgSelectedIndex === dataMediaArray.length - 1 || isDisabledBtn"
+                        @click.stop
+                        @handle-btn-circle="handleBtnCircle('right')"
                     />
                 </div>
-            </MediaTemplate>
-        </BaseModal>
+            </media-template>
+        </base-modal>
     </transition>
 </template>
 
@@ -76,22 +80,24 @@ import MediaTemplate from '../media-template/MediaTemplate.vue'
 export default {
     name: 'DisplayMedia',
 
-    props: {
-        dataMediaSelected: [Object, Array],
-        isVisible: {
-            type: Boolean,
-            default: false,
-        },
-        dataMediaArray: [Array, Object, String],
-    },
-
-    emits: ['close-modal'],
-
     components: {
         BaseModal,
         MediaTemplate,
         UiBtnCircle,
     },
+
+    props: {
+        dataMediaSelected: [Object, Array],
+
+        isVisible: {
+            type: Boolean,
+            default: false,
+        },
+
+        dataMediaArray: [Array, Object, String],
+    },
+
+    emits: ['close-modal'],
 
     data() {
         return {
@@ -100,6 +106,23 @@ export default {
             isDisabledBtn: false,
             isMobile: false,
         }
+    },
+
+    computed: {
+        choiseDataMedia() {
+            if (this.imgSelectedIndex === null || !this.dataMediaArray[this.imgSelectedIndex]) {
+                return this.dataMediaSelected
+            }
+
+            console.log(this.dataMediaSelected)
+
+            return {
+                ...this.dataMediaSelected,
+                userName: this.dataMediaArray[this.imgSelectedIndex].name,
+                urlImage: this.dataMediaArray[this.imgSelectedIndex].url_link,
+                wook: this.dataMediaArray[this.imgSelectedIndex].wook,
+            }
+        },
     },
 
     watch: {
@@ -190,20 +213,9 @@ export default {
                 }
             }
         },
-    },
 
-    computed: {
-        choiseDataMedia() {
-            if (this.imgSelectedIndex === null || !this.dataMediaArray[this.imgSelectedIndex]) {
-                return this.dataMediaSelected
-            }
-
-            return {
-                ...this.dataMediaSelected,
-                userName: this.dataMediaArray[this.imgSelectedIndex].name,
-                urlImage: this.dataMediaArray[this.imgSelectedIndex].url_link,
-                wook: this.dataMediaArray[this.imgSelectedIndex].wook,
-            }
+        teste(value) {
+            console.log(value)
         },
     },
 }

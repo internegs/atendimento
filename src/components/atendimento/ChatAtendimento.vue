@@ -268,13 +268,6 @@
                     v-if="mensagem.type === 'button_reply'"
                     class="message-normal"
                 >
-                    <!-- <div class="message-replied">
-                        {{
-                            parsedMessage(mensagem)?.entry[0]?.changes[0]?.value?.messages[0]
-                                ?.context?.id || 'Mensagem inválida'
-                        }}
-                    </div> -->
-
                     <span
                         v-if="mensagem.status == 'DELETED'"
                         class="cinza"
@@ -924,6 +917,8 @@ export default {
         },
     },
 
+    emits: ['handleMedia'],
+
     data() {
         return {
             mostrar: '',
@@ -949,7 +944,7 @@ export default {
 
     computed: {
         parsedMessage() {
-            return mensagem => {
+            return (mensagem) => {
                 if (
                     mensagem.status !== 'DELETED' &&
                     mensagem.mensagem &&
@@ -967,18 +962,6 @@ export default {
         },
     },
 
-    emits: ['handleMedia'],
-
-    mounted() {
-        this.scrollToBottom()
-    },
-
-    updated() {
-        this.$nextTick(() => {
-            this.scrollToBottom()
-        })
-    },
-
     watch: {
         mensagens: {
             handler() {
@@ -988,6 +971,16 @@ export default {
             },
             deep: true,
         },
+    },
+
+    mounted() {
+        this.scrollToBottom()
+    },
+
+    updated() {
+        this.$nextTick(() => {
+            this.scrollToBottom()
+        })
     },
 
     methods: {
@@ -1063,9 +1056,9 @@ export default {
         getMessageById(id) {
             if (!id) return null
 
-            console.log(this.mensagens.find(msg => msg.message_id == id) || null)
+            console.log(this.mensagens.find((msg) => msg.message_id == id) || null)
 
-            return this.mensagens.find(msg => msg.message_id === id) || null
+            return this.mensagens.find((msg) => msg.message_id === id) || null
         },
 
         scrollToBottom() {

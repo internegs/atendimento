@@ -1,7 +1,7 @@
 import Api from '@/services/api'
+import LINKS from '@/utils/links'
 import { localStorageDecode } from '@/utils/localStorageDecode'
 
-const URL = 'http://localhost:8080'
 
 export default {
     logout: function (to, from, next) {
@@ -12,15 +12,15 @@ export default {
         Api.post('/logout/ZmlsYWRlYXRlbmRpbWVudG8=', objEnviaMensagem)
             .then(() => {
                 localStorage.clear()
-                window.location.replace(URL)
+                window.location.replace(LINKS.login)
             })
             .catch(() => {
                 localStorage.clear()
-                window.location.replace(URL)
+                window.location.replace(LINKS.login)
             })
     },
 
-    atendimento: async (to, from, next) => {
+    atendimento: async (to, _, next) => {
         if (!to.params?.token || to.params?.token?.length < 10) {
             console.log(to.params.token)
             console.log(to.params.token.length)
