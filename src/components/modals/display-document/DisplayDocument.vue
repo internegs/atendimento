@@ -228,11 +228,9 @@ export default {
 
                 const binaryObj = new FormData()
 
-                Object.entries(obj).forEach(([keyBy, value]) => {
-                    binaryObj.append(keyBy, value)
+                Object.entries(obj).forEach(([key, value]) => {
+                    binaryObj.append(key, value)
                 })
-
-                console.log(binaryObj)
 
                 await api.post('/envia_midianovo/ZmlsYWRlYXRlbmRpbWVudG8=', binaryObj)
 
@@ -248,6 +246,8 @@ export default {
                     icon: 'error',
                     title: 'Erro ',
                     text: 'Erro ao enviar documento.',
+                    confirmButtonColor: '#17a2b8',
+
                     didOpen: () => {
                         const confirmBtn = Swal.getConfirmButton()
                         const actionsContainer = confirmBtn.parentElement

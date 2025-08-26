@@ -150,7 +150,7 @@
 
                             <div
                                 v-else
-                                class="spinner-border"
+                                class="spinner-border spinner-border-sm"
                                 role="status"
                             >
                                 <span class="visually-hidden">Loading...</span>
@@ -166,6 +166,7 @@
 <script>
 import api from '@/services/api'
 import { debounce } from 'lodash-es'
+import Swal from 'sweetalert2'
 
 export default {
     name: 'DisplayTemplateMessage',
@@ -259,24 +260,6 @@ export default {
             }
         },
 
-        async sendMessage() {
-            this.loading.send = true
-
-            try {
-                // api.post('/envia_mensagemnova/ZmlsYWRlYXRlbmRpbWVudG8=', this.requestData)
-
-                this.$emit('update-messages')
-
-                this.closeModal()
-            } catch (error) {
-                this.loading.send = false
-
-                console.log(error)
-            } finally {
-                this.loading.send = false
-            }
-        },
-
         async searchTemplates() {
             if (this.search && this.search.length < 3) {
                 if (this.search.length > 0) return
@@ -312,6 +295,55 @@ export default {
                 if (error.name !== 'AbortError') {
                     console.error(error)
                 }
+            }
+        },
+
+        async sendMessage() {
+            this.loading.send = true
+
+            try {
+                const obj = {
+                    user_id: localStorage.getItem('@USER_ID'),
+                    fone: this.templateData?.fone,
+                    nome_modelo: this.requestData?.mensagem,
+                    type: 3,
+                }
+
+                const binaryObj = new FormData()
+
+                Object.entries(obj).forEach(([key, value]) => {
+                    binaryObj.append(key, value)
+                })
+
+                await api.post('/envia_midianovo/ZmlsYWRlYXRlbmRpbWVudG8=', binaryObj)
+
+                this.$emit('update-messages')
+
+                this.closeModal()
+            } catch (error) {
+                this.loading.send = false
+
+                console.log(error)
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: 'Erro ao enviar modelo de mensagem.',
+                    confirmButtonColor: '#17a2b8',
+
+                    didOpen: () => {
+                        const confirmBtn = Swal.getConfirmButton()
+                        const actionsContainer = confirmBtn.parentElement
+
+                        actionsContainer.style.width = '100%'
+                        actionsContainer.style.display = 'flex'
+                        actionsContainer.style.justifyContent = 'center'
+
+                        confirmBtn.style.width = '90%'
+                    },
+                })
+            } finally {
+                this.loading.send = false
             }
         },
 

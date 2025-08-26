@@ -109,7 +109,7 @@
                 </div>
 
                 <div class="search autocomplete d-flex flex-column">
-                    <div class="input d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2">
                         <span
                             class="icone-pesquisa"
                             :class="novaTransferencia ? 'layoutNovaTransferencia' : ''"
@@ -513,7 +513,6 @@
                             <button
                                 type="button"
                                 class="btn-escolhas border-0 shadow-none rounded-circle d-flex justify-content-center align-items-center"
-                                style="padding: 10px"
                                 @click="abrirEscolhas"
                             >
                                 <i
@@ -1129,10 +1128,10 @@ export default {
 
     methods: {
         startRecording() {
-            navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
                 this.mediaRecorder = new MediaRecorder(stream)
 
-                this.mediaRecorder.ondataavailable = (data) => {}
+                this.mediaRecorder.ondataavailable = data => {}
 
                 this.mediaRecorder.start()
 
@@ -1160,7 +1159,7 @@ export default {
 
             this.mediaRecorder.start()
 
-            this.mediaRecorder.ondataavailable = (event) => {
+            this.mediaRecorder.ondataavailable = event => {
                 this.chunks.push(event.data)
             }
         },
@@ -1229,12 +1228,12 @@ export default {
                 id: localStorage.getItem('@USER_ID'),
                 busca: this.pesquisa,
             })
-                .then((response) => {
+                .then(response => {
                     let data = response.data
 
                     this.listaContatosPesquisa = data.contatos.data
                 })
-                .catch((erro) => console.error(erro))
+                .catch(erro => console.error(erro))
         },
 
         callback(msg) {
@@ -1271,7 +1270,7 @@ export default {
 
             const dbRef = ref(this.$database, `/${instancia}`)
 
-            onValue(dbRef, (data) => {
+            onValue(dbRef, data => {
                 const values = data.val()
 
                 this.recebeuNovaTransferencia()
@@ -1283,7 +1282,7 @@ export default {
 
             const dbRef = ref(this.$database, `/${instancia}`)
 
-            onValue(dbRef, (data) => {
+            onValue(dbRef, data => {
                 const values = data.val()
 
                 if (this.audioStatus) {
@@ -1299,7 +1298,7 @@ export default {
 
             const dbRef = ref(this.$database, `/${instancia}`)
 
-            onValue(dbRef, (data) => {
+            onValue(dbRef, data => {
                 const values = data.val()
                 this.atualizarConversa()
 
@@ -1314,7 +1313,7 @@ export default {
 
             const dbRef = ref(this.$database, `/${instancia}`)
 
-            onValue(dbRef, (data) => {
+            onValue(dbRef, data => {
                 const values = data.val()
 
                 this.qtdmensagensinternas = 1
@@ -1348,7 +1347,7 @@ export default {
             }
 
             Api.post('/envia_mensagemnova/ZmlsYWRlYXRlbmRpbWVudG8=', objEnviaMensagem)
-                .then((response) => {
+                .then(response => {
                     if (response.data.erro == 'number_incorret') {
                         Swal.fire(
                             'Mensagem não enviada!',
@@ -1363,7 +1362,7 @@ export default {
                         this.atualizarConversa()
                     }
                 })
-                .catch((error) => {
+                .catch(error => {
                     console.error(error)
                 })
 
@@ -1393,7 +1392,7 @@ export default {
                 .then(() => {
                     this.atualizarConversInterna()
                 })
-                .catch((error) => {
+                .catch(error => {
                     console.error(error)
                 })
         },
@@ -1402,10 +1401,10 @@ export default {
             Api.post('/grupos/ZmlsYWRlYXRlbmRpbWVudG8=', {
                 id: localStorage.getItem('@USER_ID'),
             })
-                .then((response) => {
+                .then(response => {
                     this.grupos = response.data.grupos
                 })
-                .catch((err) => {
+                .catch(err => {
                     console.log(err)
                 })
         },
@@ -1421,7 +1420,7 @@ export default {
                 confirmButtonColor: '#2cacbf',
                 cancelButtonText: 'VOLTAR',
                 confirmButtonText: 'SIM, ENCERRAR',
-            }).then((result) => {
+            }).then(result => {
                 if (result.isConfirmed) {
                     Api.post('/fechar_atendimento/ZmlsYWRlYXRlbmRpbWVudG8=', {
                         id_atendimento: id_atendimento,
@@ -1434,13 +1433,15 @@ export default {
 
                             this.chamarMeusAtendimentos()
                         })
-                        .catch((error) => {
+                        .catch(error => {
                             console.error(error)
 
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Erro ',
                                 text: 'Erro ao encerrar atendimento.',
+                                confirmButtonColor: '#17a2b8',
+
                                 didOpen: () => {
                                     const confirmBtn = Swal.getConfirmButton()
                                     const actionsContainer = confirmBtn.parentElement
@@ -1464,7 +1465,7 @@ export default {
                 id: localStorage.getItem('@USER_ID'),
                 fone: this.selecionado.fone,
             })
-                .then((response) => {
+                .then(response => {
                     this.status_chat = true
 
                     let data = response.data
@@ -1481,7 +1482,7 @@ export default {
                         this.montarNotificacoes(listaQtdeMensagens)
                     }
                 })
-                .catch((error) => console.error(error))
+                .catch(error => console.error(error))
                 .finally(() => (this.processando = false))
         },
 
@@ -1496,7 +1497,7 @@ export default {
             }
 
             Api.post('/conversas_bd/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
-                .then((response) => {
+                .then(response => {
                     let data = response.data
 
                     let ativo = response.data.usuario
@@ -1507,7 +1508,7 @@ export default {
                     Api.post(`/busca_contatos/ZmlsYWRlYXRlbmRpbWVudG8=`, {
                         id: localStorage.getItem('@USER_ID'),
                         busca: info.mensagem,
-                    }).then((resposta) => {
+                    }).then(resposta => {
                         let dados = resposta.data
 
                         let contatoInfo = dados.contatos.data[0]
@@ -1541,7 +1542,7 @@ export default {
                         this.chamarMeusAtendimentos()
                     })
                 })
-                .catch((error) => {
+                .catch(error => {
                     console.error(error)
                 })
         },
@@ -1558,7 +1559,7 @@ export default {
             this.mensagens = []
 
             Api.post('/conversas_bd/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
-                .then((response) => {
+                .then(response => {
                     const data = response.data
                     const ativo = response.data?.usuario
                     const qtd = data.qtd
@@ -1592,7 +1593,7 @@ export default {
 
                     this.chamarMeusAtendimentos()
                 })
-                .catch((error) => console.error(error))
+                .catch(error => console.error(error))
 
             this.abrirMsg = true
 
@@ -1609,7 +1610,7 @@ export default {
 
             Api.post('/conversas/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
                 .then(() => {})
-                .catch((error) => console.error(error))
+                .catch(error => console.error(error))
         },
 
         atualizarFilaMeusAtendimentos() {
@@ -1617,7 +1618,7 @@ export default {
                 id: localStorage.getItem('@USER_ID'),
                 setor_id: localStorage.getItem('@SETOR_ID'),
             })
-                .then((response) => {
+                .then(response => {
                     const data = response.data
                     this.listaContatos = data.meusatendimentos
                     // this.notificacao = false;
@@ -1627,7 +1628,7 @@ export default {
 
                     this.montarNotificacoes(listaQtdeMensagens)
                 })
-                .catch((error) => console.error(error))
+                .catch(error => console.error(error))
         },
 
         async chamarMeusAtendimentos() {
@@ -1642,7 +1643,7 @@ export default {
                 id: localStorage.getItem('@USER_ID'),
                 setor_id: localStorage.getItem('@SETOR_ID'),
             })
-                .then((response) => {
+                .then(response => {
                     let data = response.data
                     this.listaContatos = data.meusatendimentos
 
@@ -1652,7 +1653,7 @@ export default {
 
                     this.montarNotificacoes(listaQtdeMensagens)
                 })
-                .catch((error) => console.error(error))
+                .catch(error => console.error(error))
         },
 
         async chamarTodosAtendimentos() {
@@ -1667,12 +1668,12 @@ export default {
                 dXNlcl9pZA: btoa(localStorage.getItem('@USER_ID')),
                 // setor_id: localStorage.getItem("@SETOR_ID"),
             })
-                .then((response) => {
+                .then(response => {
                     let data = response.data
 
                     this.listaContatos = data.fila
                 })
-                .catch((error) => console.error(error))
+                .catch(error => console.error(error))
         },
 
         recebeuNovaTransferencia() {
@@ -1692,17 +1693,17 @@ export default {
         },
 
         montarNotificacoes(lista_qtde_mensagens) {
-            const fones_enviados = lista_qtde_mensagens.map((usuarios) => usuarios.fone_enviado)
+            const fones_enviados = lista_qtde_mensagens.map(usuarios => usuarios.fone_enviado)
 
             this.lista_fones_notificados = []
 
             for (let i = 0; i < this.listaContatos.length; i++) {
-                let qtdeMensagensFone = lista_qtde_mensagens.filter((mensagem) => {
+                let qtdeMensagensFone = lista_qtde_mensagens.filter(mensagem => {
                     return mensagem.fone_enviado == this.listaContatos[i].fone
                 }).length
 
                 let index = fones_enviados.findIndex(
-                    (val) => val.fone_enviado == this.listaContatos[i].fone
+                    val => val.fone_enviado == this.listaContatos[i].fone
                 )
 
                 // // so rodar quando o numero que enviou mensagem não existe dentro de algum objeto do array
@@ -1731,7 +1732,7 @@ export default {
                 id: localStorage.getItem('@USER_ID'),
                 setor_id: localStorage.getItem('@SETOR_ID'),
             })
-                .then((response) => {
+                .then(response => {
                     let data = response.data
 
                     this.plano_id = data.plano
@@ -1741,7 +1742,7 @@ export default {
                     this.listaContatos = data.fila
                 })
 
-                .catch((error) => console.error(error))
+                .catch(error => console.error(error))
         },
 
         atualizaPerfil() {
@@ -1751,7 +1752,7 @@ export default {
 
             Api.post('/atualiza_perfil/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
                 .then(() => {})
-                .catch((error) => console.error(error))
+                .catch(error => console.error(error))
         },
 
         bloqueiaAtendimento(contato_id) {
@@ -1759,10 +1760,10 @@ export default {
                 id: localStorage.getItem('@USER_ID'),
                 contato_id: contato_id,
             })
-                .then((response) => {
+                .then(response => {
                     this.atendimentoStatus = response.data.status
                 })
-                .catch((error) => {
+                .catch(error => {
                     console.error(error)
                 })
         },
@@ -1805,13 +1806,13 @@ export default {
             Api.post('/meus_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', {
                 id: localStorage.getItem('@USER_ID'),
             })
-                .then((response) => {
+                .then(response => {
                     let data = response.data
 
                     this.qtdmensagensinternas = data.lido
                     this.listaContatosInterno = data.atendentes
                 })
-                .catch((error) => {
+                .catch(error => {
                     console.error(error)
                 })
         },
@@ -1825,7 +1826,7 @@ export default {
 
             this.mensagens = []
             Api.post('/conversa_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
-                .then((response) => {
+                .then(response => {
                     let data = response.data.conversas
 
                     // verificando se ta vindo vazio
@@ -1841,7 +1842,7 @@ export default {
                         this.qtdmensagensinternas = response.lido
                     }
                 })
-                .catch((error) => console.error(error))
+                .catch(error => console.error(error))
 
             this.abrirMsg = true
         },
@@ -1854,7 +1855,7 @@ export default {
 
             this.mensagens = []
             Api.post('/conversa_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
-                .then((response) => {
+                .then(response => {
                     let data = response.data.conversas
 
                     // verificando se ta vindo vazio
@@ -1864,7 +1865,7 @@ export default {
                         this.mensagens = data
                     }
                 })
-                .catch((error) => console.error(error))
+                .catch(error => console.error(error))
         },
 
         fecharAtendimentoContatoInterno() {
@@ -1886,7 +1887,7 @@ export default {
                 const btnServices = document.querySelector('#btn-atendimentos')
                 const btnAll = document.querySelector('#btn-todos')
 
-                ;[btnQueue, btnServices, btnAll].forEach((btn) => {
+                ;[btnQueue, btnServices, btnAll].forEach(btn => {
                     if (btn) btn.classList.remove('btn-active')
                 })
 
@@ -1982,7 +1983,7 @@ export default {
 
             input.addEventListener(
                 'change',
-                (event) => {
+                event => {
                     const file = event.target.files[0]
 
                     if (file) {
@@ -1991,6 +1992,7 @@ export default {
                                 icon: 'error',
                                 title: 'Erro',
                                 text: 'Formato de arquivo não permitido.',
+                                confirmButtonColor: '#17a2b8',
 
                                 didOpen: () => {
                                     const confirmBtn = Swal.getConfirmButton()
@@ -2013,6 +2015,7 @@ export default {
                                 title: 'Erro',
                                 text: `O arquivo selecionado é muito grande (${this.formatSize(file.size)}). 
                                     Por favor, selecione um arquivo de até ${this.formatSize(maxSize)}.`,
+                                confirmButtonColor: '#17a2b8',
 
                                 didOpen: () => {
                                     const confirmBtn = Swal.getConfirmButton()
@@ -2064,7 +2067,7 @@ export default {
 
             if (!msgs && !Array.isArray(msgs) && msgs.length === 0) return []
 
-            return msgs.filter((msg) => msg.type && msg.type === 'image')
+            return msgs.filter(msg => msg.type && msg.type === 'image')
         },
 
         teste(value) {
@@ -2278,6 +2281,24 @@ img {
     background: #2cacbf;
 }
 
+.header button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0;
+
+    background: #2cacbf;
+    border-radius: 5px;
+
+    transition: background-color 100ms ease;
+}
+
+.header button:focus {
+    outline: none;
+    border: 2px solid #fcb92c !important;
+    z-index: 10;
+}
+
 .headerConversation {
     width: 100%;
     padding: 10px 15px;
@@ -2287,17 +2308,6 @@ img {
 
     background-color: #ffff;
     border-bottom: 2px solid #eaeaea;
-    border-radius: 5px;
-}
-
-.header button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    padding: 10px 0;
-    background: #2cacbf;
-    transition: background-color 100ms ease;
     border-radius: 5px;
 }
 
@@ -2410,6 +2420,10 @@ img {
     font-size: 1.1rem;
 }
 
+.search input:focus {
+    border: 2px solid #c7c7c7c5;
+}
+
 .search .icone-pesquisa {
     position: absolute;
     left: 1rem;
@@ -2447,12 +2461,22 @@ img {
     height: 40px;
 
     background: #ffff;
-    transition: all 100ms ease-out;
+    transition:
+        transform 100ms ease-out,
+        background-color 100ms ease-out;
+
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 .perfil-container button:hover {
     background-color: #f4f4f4;
     transform: scale(1.1);
+}
+
+.perfil-container button:focus {
+    outline: none;
+    border: 2px solid #a7a6a6;
 }
 
 .perfil-container button i {
@@ -2499,7 +2523,10 @@ img {
 
 .input-group-prepend button {
     background-color: transparent;
-    transition: all 200ms ease;
+
+    transition:
+        background-color 200ms ease,
+        transform 200ms ease;
     will-change: transform;
     backface-visibility: hidden;
 }
@@ -2510,10 +2537,20 @@ img {
     }
 }
 
+.input-group-prepend .btn-escolhas {
+    padding: 6px 5px !important;
+}
+
 .input-group-prepend .btn-escolhas:hover,
 .btn-emoji:hover {
     background-color: #e8eaee;
     transform: scale(1.05);
+}
+
+.input-group-prepend .btn-escolhas:focus,
+.btn-emoji:focus {
+    outline: none;
+    border: 2px solid #bbb9b9 !important;
 }
 
 .input-group-prepend .btn-escolhas i,
@@ -2591,6 +2628,11 @@ img {
 
 .btn-send:hover {
     opacity: 0.9;
+}
+
+.btn-send:focus {
+    outline: none;
+    border: 2px solid #bbb9b9 !important;
 }
 
 .icon-send {

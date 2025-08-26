@@ -798,6 +798,7 @@
                     >
                         Documento deletado
                     </span>
+
                     <span v-if="mensagem.status != 'DELETED'">
                         <a
                             :href="mensagem.url_link"
@@ -809,6 +810,9 @@
                                 <i class="fa fa-download"></i>
                             </button>
                         </a>
+
+                        <!-- {{ teste(mensagem) }} -->
+
                         <div
                             v-if="mensagem.wook == 'onack'"
                             class="alinhadireita"
@@ -826,6 +830,7 @@
                                 class="fa-solid fa-check-double text-success"
                             ></i>
                         </div>
+
                         <div
                             v-if="!estadoEncaminharMensagens"
                             class="pd-2 cursor-pointer box_abre_selecoes"
@@ -944,7 +949,7 @@ export default {
 
     computed: {
         parsedMessage() {
-            return (mensagem) => {
+            return mensagem => {
                 if (
                     mensagem.status !== 'DELETED' &&
                     mensagem.mensagem &&
@@ -1056,9 +1061,9 @@ export default {
         getMessageById(id) {
             if (!id) return null
 
-            console.log(this.mensagens.find((msg) => msg.message_id == id) || null)
+            console.log(this.mensagens.find(msg => msg.message_id == id) || null)
 
-            return this.mensagens.find((msg) => msg.message_id === id) || null
+            return this.mensagens.find(msg => msg.message_id === id) || null
         },
 
         scrollToBottom() {
@@ -1067,6 +1072,10 @@ export default {
             if (container) {
                 container.scrollTop = container.scrollHeight
             }
+        },
+
+        teste(value) {
+            console.log(value)
         },
     },
 }
