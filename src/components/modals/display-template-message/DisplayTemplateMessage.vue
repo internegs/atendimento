@@ -309,13 +309,7 @@ export default {
                     type: 3,
                 }
 
-                const binaryObj = new FormData()
-
-                Object.entries(obj).forEach(([key, value]) => {
-                    binaryObj.append(key, value)
-                })
-
-                await api.post('/envia_midianovo/ZmlsYWRlYXRlbmRpbWVudG8=', binaryObj)
+                await api.post('/envia_midianovo/ZmlsYWRlYXRlbmRpbWVudG8=', obj)
 
                 this.$emit('update-messages')
 

@@ -15,15 +15,26 @@
                     v-show="!pdfLoading"
                     class="doc-container"
                 >
-                    <canvas
-                        v-if="isPdf"
-                        ref="pdfCanvas"
-                    ></canvas>
+                    <header>
+                        <h2>{{ dataDocumentSelected?.dataFile?.name }}</h2>
+                    </header>
 
-                    <i
-                        v-else
-                        v-bind="fileIconConfig"
-                    ></i>
+                    <div class="main-doc">
+                        <canvas
+                            v-if="isPdf"
+                            ref="pdfCanvas"
+                        ></canvas>
+
+                        <i
+                            v-else
+                            v-bind="fileIconConfig"
+                        ></i>
+
+                        <span>{{ fileSizeType }}</span>
+                    </div>
+
+                    <!-- SERVE SOMENTE PARA AJUDAR NO ALINHAMENTO -->
+                    <div></div>
                 </div>
 
                 <template
@@ -72,6 +83,7 @@ import BaseModal from '../BaseModal.vue'
 import MediaTemplate from '../media-template/MediaTemplate.vue'
 import * as pdflib from 'pdfjs-dist'
 import api from '@/services/api'
+import { formatSize } from '@/utils/formatters'
 
 export default {
     name: 'DisplayDocument',
@@ -161,6 +173,13 @@ export default {
                 class: `fa-solid ${iconType}`,
                 style: `color: ${color};`,
             }
+        },
+
+        fileSizeType() {
+            const size = formatSize(this.dataDocumentSelected?.dataFile?.size)
+            const type = this.dataDocumentSelected?.dataFile?.type
+
+            return `${size} - ${type}`
         },
     },
 
@@ -278,33 +297,82 @@ export default {
     width: 100%;
     height: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
 
     overflow: hidden;
 
-    canvas {
-        transform: scale(0.4);
+    header {
+        width: 90%;
 
-        @media (min-width: 1200px) {
-            & {
-                transform: scale(0.5);
+        h2 {
+            margin-top: 10px;
+
+            font-size: 14px;
+            font-weight: 500;
+            white-space: break-word;
+            overflow-wrap: break-word;
+            text-align: center;
+
+            @media (min-width: 768px) {
+                & {
+                    font-size: 16px;
+                }
             }
-        }
 
-        @media (min-width: 1400px) {
-            & {
-                transform: scale(0.7);
+            @media (min-width: 1400px) {
+                & {
+                    font-size: 18px;
+                }
             }
         }
     }
 
-    i {
-        font-size: 6rem;
+    .main-doc {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
 
-        @media (min-width: 1400px) {
-            & {
-                font-size: 8rem;
+        canvas {
+            transform: scale(0.4);
+
+            @media (min-width: 1200px) {
+                & {
+                    transform: scale(0.5);
+                }
+            }
+
+            @media (min-width: 1400px) {
+                & {
+                    transform: scale(0.7);
+                }
+            }
+        }
+
+        i {
+            font-size: 6rem;
+
+            @media (min-width: 1400px) {
+                & {
+                    font-size: 8rem;
+                }
+            }
+        }
+
+        span {
+            font-size: 14px;
+            font-weight: 400;
+            white-space: break-word;
+            overflow-wrap: break-word;
+            text-align: center;
+
+            @media (min-width: 1400px) {
+                & {
+                    font-size: 16px;
+                }
             }
         }
     }

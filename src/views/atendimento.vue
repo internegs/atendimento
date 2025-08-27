@@ -970,6 +970,7 @@ import { ref, onValue } from 'firebase/database'
 import DisplayDocument from '@/components/modals/display-document/DisplayDocument.vue'
 import DisplayTemplateMessage from '@/components/modals/display-template-message/DisplayTemplateMessage.vue'
 import api from '@/services/api'
+import { formatSize } from '@/utils/formatters'
 
 export default {
     name: 'atendimento',
@@ -1947,14 +1948,6 @@ export default {
             this.openModalMedia = true
         },
 
-        formatSize(bytes) {
-            if (bytes < 1024) return `${bytes} bytes`
-
-            if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`
-
-            return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
-        },
-
         openFileManager(isInternal) {
             this.isChatInternal = !!isInternal
 
@@ -2013,8 +2006,8 @@ export default {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Erro',
-                                text: `O arquivo selecionado é muito grande (${this.formatSize(file.size)}). 
-                                    Por favor, selecione um arquivo de até ${this.formatSize(maxSize)}.`,
+                                text: `O arquivo selecionado é muito grande (${formatSize(file.size)}). 
+                                    Por favor, selecione um arquivo de até ${formatSize(maxSize)}.`,
                                 confirmButtonColor: '#17a2b8',
 
                                 didOpen: () => {
@@ -2078,6 +2071,94 @@ export default {
 </script>
 
 <style scoped>
+* {
+    margin: 0;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+}
+
+.container-main {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    height: 100%;
+    width: 100%;
+}
+
+.box {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+
+    background-color: #fff;
+    box-shadow:
+        0 1px 1px 0 rgba(0, 0, 0, 0.06),
+        0 2px 5px 0 rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.box::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.box .leftSide {
+    position: relative;
+    flex: 30%;
+    background-color: #fff;
+}
+
+.box .rightSide {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 70%;
+    height: 100%;
+
+    background-color: #fff;
+    border-left: 3px solid #eaeaea;
+}
+
+.contatos {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+}
+
+/* Para o chat de mensagens dentro dos componentes filhos */
+.chat-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+}
+
+.rightSide.apresentacao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chatbox_wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    background-color: #f5f1eb;
+}
+
 .responsive {
     display: none;
     position: relative;
@@ -2191,85 +2272,6 @@ export default {
 
 .sub-menu button {
     margin-top: 5px;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-}
-
-img {
-    max-width: 100%;
-}
-
-.container-main {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    height: 100%;
-    width: 100%;
-}
-
-.box {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background-color: #fff;
-    overflow: hidden;
-    box-shadow:
-        0 1px 1px 0 rgba(0, 0, 0, 0.06),
-        0 2px 5px 0 rgba(0, 0, 0, 0.06);
-    display: flex;
-}
-
-.box .leftSide {
-    position: relative;
-    flex: 30%;
-    background-color: #fff;
-}
-
-.box .rightSide {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    flex: 70%;
-    height: 100%;
-
-    background-color: #fff;
-    border-left: 3px solid #eaeaea;
-}
-
-.contatos {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    min-height: 0;
-}
-
-/* Para o chat de mensagens dentro dos componentes filhos */
-.chat-container {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    min-height: 0;
-}
-
-.rightSide.apresentacao {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.chatbox_wrapper {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-
-    background-color: #f5f1eb;
 }
 
 .header {

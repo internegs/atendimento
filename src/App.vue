@@ -51,6 +51,7 @@ button {
 }
 ::-webkit-scrollbar {
     max-width: 8px;
+    max-height: 8px;
     background: transparent;
 }
 ::-webkit-scrollbar-thumb {
