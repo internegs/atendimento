@@ -4,12 +4,6 @@
         class="container-main"
     >
         <div
-            v-if="abrirEscolha"
-            class="fundo-transparente"
-            @click="fecharEscolhas"
-        ></div>
-
-        <div
             class="box"
             :class="abrirMsg ? 'chatAtivo' : ''"
         >
@@ -79,7 +73,7 @@
                         v-show="openOpt"
                         class="opt-modal"
                     >
-                        <ul ref="modalContent">
+                        <ul ref="dropdownContent">
                             <li>
                                 <button
                                     id="btn-atendimentos-internos"
@@ -494,6 +488,7 @@
                             >
                                 <div
                                     v-if="abrirEscolha"
+                                    ref="optMenu"
                                     class="menu-escolhas"
                                 >
                                     <button
@@ -623,6 +618,7 @@
                                     class="menu-escolhas"
                                 >
                                     <button
+                                        type="button"
                                         class="btn-menu"
                                         @click="openFileManager()"
                                     >
@@ -635,9 +631,9 @@
                                     </button>
 
                                     <button
+                                        type="button"
                                         class="btn-menu"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#mandarArquivo"
+                                        @click="openFileManagerMidia()"
                                     >
                                         <i
                                             class="fa-solid fa-photo-film"
@@ -648,6 +644,7 @@
                                     </button>
 
                                     <button
+                                        type="button"
                                         class="btn-menu"
                                         data-bs-toggle="modal"
                                         data-bs-target="#compartilharContato"
@@ -661,6 +658,7 @@
                                     </button>
 
                                     <button
+                                        type="button"
                                         class="btn-menu"
                                         data-bs-toggle="modal"
                                         data-bs-target="#templateMessages"
@@ -1083,6 +1081,16 @@ export default {
                 document.removeEventListener('click', this.handleClickOutsideEmoji)
             }
         },
+
+        abrirEscolha(newValue) {
+            if (newValue) {
+                this.$nextTick(() => {
+                    document.addEventListener('click', this.handleClickOutsideEscolha)
+                })
+            } else {
+                document.removeEventListener('click', this.handleClickOutsideEscolha)
+            }
+        },
     },
 
     mounted() {
@@ -1112,6 +1120,7 @@ export default {
 
     beforeUnmount() {
         document.removeEventListener('click', this.handleClickOutside)
+        document.removeEventListener('click', this.handleClickOutsideEscolha)
         document.removeEventListener('click', this.handleClickOutsideEmoji)
     },
 
@@ -1761,10 +1770,6 @@ export default {
             this.abrirEscolha = !this.abrirEscolha
         },
 
-        fecharEscolhas() {
-            this.abrirEscolha = false
-        },
-
         voltar() {
             this.abrirMsg = !this.abrirMsg
 
@@ -1862,11 +1867,24 @@ export default {
         },
 
         handleClickOutside(event) {
-            const modalContent = this.$refs.modalContent
+            const dropdownContent = this.$refs.dropdownContent
             const btnOptClick = event.target.closest('.btn-opt')
 
-            if (modalContent && !modalContent.contains(event.target) && !btnOptClick) {
+            if (dropdownContent && !dropdownContent.contains(event.target) && !btnOptClick) {
                 this.openOpt = false
+            }
+        },
+
+        handleClickOutsideEscolha(event) {
+            const optMenu = this.$refs.optMenu
+            const btnEscolhasClick = event.target.closest('.btn-escolhas')
+
+            console.log(`1: ${optMenu}`)
+            console.log(`2: ${optMenu.contains(event.target)}`)
+            console.log(`3: ${btnEscolhasClick}`)
+
+            if (optMenu && !optMenu.contains(event.target) && !btnEscolhasClick) {
+                this.abrirEscolha = false
             }
         },
 
@@ -1925,7 +1943,7 @@ export default {
             this.updateStyleTabs()
         },
 
-        handleModalMedia(value) {
+        handleModalMedia(value = [], e = null) {
             this.modalMediaData = {
                 userPhoto: this.selecionado.foto,
                 userName: value.userName,
@@ -1968,6 +1986,107 @@ export default {
                     const file = event.target.files[0]
 
                     if (file) {
+                        if (!allowedMimeTypes.includes(file.type)) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro',
+                                text: 'Formato de arquivo não permitido.',
+                                confirmButtonColor: '#17a2b8',
+
+                                didOpen: () => {
+                                    const confirmBtn = Swal.getConfirmButton()
+                                    const actionsContainer = confirmBtn.parentElement
+
+                                    actionsContainer.style.width = '100%'
+                                    actionsContainer.style.display = 'flex'
+                                    actionsContainer.style.justifyContent = 'center'
+
+                                    confirmBtn.style.width = '90%'
+                                },
+                            })
+
+                            return
+                        }
+
+                        if (file.size > maxSize) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro',
+                                text: `O arquivo selecionado é muito grande (${formatSize(file.size)}). 
+                                    Por favor, selecione um arquivo de até ${formatSize(maxSize)}.`,
+                                confirmButtonColor: '#17a2b8',
+
+                                didOpen: () => {
+                                    const confirmBtn = Swal.getConfirmButton()
+                                    const actionsContainer = confirmBtn.parentElement
+
+                                    actionsContainer.style.width = '100%'
+                                    actionsContainer.style.display = 'flex'
+                                    actionsContainer.style.justifyContent = 'center'
+
+                                    confirmBtn.style.width = '90%'
+                                },
+                            })
+
+                            return
+                        }
+
+                        this.modalDocumentData = {
+                            dataFile: file ?? null,
+                            recipientId: this.selecionado?.id ?? null,
+                            recipientFone: this.selecionado?.fone ?? null,
+                            isChatInternal: this.isChatInternal,
+                            wook: 'onack',
+                        }
+
+                        this.openModalDocument = true
+                    }
+                },
+                { once: true }
+            )
+
+            input.click()
+        },
+
+        openFileManagerMidia() {
+            const allowedMimeTypes = [
+                // Imagens
+                'image/jpeg',
+                'image/jpg',
+                'image/png',
+                'image/gif',
+                'image/webp',
+                'image/bmp',
+                'image/tiff',
+
+                // Vídeos
+                'video/mp4',
+                'video/quicktime', // .mov
+                'video/x-msvideo', // .avi
+                'video/x-ms-wmv', // .wmv
+                'video/3gpp', // .3gp
+                'video/x-flv', // .flv
+                'video/webm',
+                'video/x-matroska', // .mkv
+            ]
+
+            const maxSize = 30 * 1024 * 1024 // 30 MB
+
+            const input = document.createElement('input')
+            input.type = 'file'
+            input.accept =
+                '.jpeg,.jpg,.png,.gif,.webp,.bmp,.tiff,.tif,.mp4,.mov,.avi,.wmv,.3gp,.flv,.webm,.mkv'
+
+            input.addEventListener(
+                'change',
+                event => {
+                    const file = event.target.files[0]
+
+                    if (file) {
+                        console.log(file)
+
+                        return
+
                         if (!allowedMimeTypes.includes(file.type)) {
                             Swal.fire({
                                 icon: 'error',
@@ -2248,16 +2367,6 @@ img {
 
 .menu-escolhas.on {
     display: block !important;
-}
-
-.fundo-transparente {
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: transparent;
 }
 
 .sub-menu button {

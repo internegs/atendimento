@@ -98,11 +98,6 @@ export default {
         },
 
         dataMediaArray: [Array, Object, String],
-
-        btnDirectional: {
-            type: Boolean,
-            default: false,
-        },
     },
 
     emits: ['close-modal'],
