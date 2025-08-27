@@ -1,5 +1,8 @@
 <template>
-    <transition name="modal-fade">
+    <transition
+        name="modal-fade"
+        appear
+    >
         <base-modal
             v-if="isVisible"
             @close-modal="handleCloseModal"
@@ -33,7 +36,7 @@
                             <img
                                 :key="choiseDataMedia.urlImage"
                                 :src="choiseDataMedia.urlImage"
-                                alt="Imagem enviada no chat."
+                                alt="Imagem chat."
                             />
                         </transition>
                     </div>
@@ -95,6 +98,11 @@ export default {
         },
 
         dataMediaArray: [Array, Object, String],
+
+        btnDirectional: {
+            type: Boolean,
+            default: false,
+        },
     },
 
     emits: ['close-modal'],
@@ -131,7 +139,7 @@ export default {
             handler(newVal) {
                 if (newVal && this.dataMediaArray) {
                     this.imgSelectedIndex = this.dataMediaArray.findIndex(
-                        (media) => media.url_link === newVal.urlImage
+                        media => media.url_link === newVal.urlImage
                     )
                 }
             },
@@ -284,24 +292,6 @@ export default {
     object-fit: contain;
     scroll-snap-align: center;
     scroll-snap-stop: always;
-}
-
-/* Transição modal */
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-    transition:
-        opacity 500ms ease,
-        transform 500ms ease;
-}
-
-.modal-fade-enter-from {
-    opacity: 0;
-    transform: scale(0.8);
-}
-
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-    opacity: 0;
 }
 
 /* Transição da imagem */

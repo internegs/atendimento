@@ -11,6 +11,7 @@
                 :data-media="dataDocumentSelected"
                 @close-modal="handleCloseModal"
             >
+                {{ teste(dataDocumentSelected) }}
                 <div
                     v-show="!pdfLoading"
                     class="doc-container"
@@ -83,7 +84,7 @@ import BaseModal from '../BaseModal.vue'
 import MediaTemplate from '../media-template/MediaTemplate.vue'
 import * as pdflib from 'pdfjs-dist'
 import api from '@/services/api'
-import { formatSize } from '@/utils/formatters'
+import { formatSize, formatTypeDocument } from '@/utils/formatters'
 
 export default {
     name: 'DisplayDocument',
@@ -177,7 +178,7 @@ export default {
 
         fileSizeType() {
             const size = formatSize(this.dataDocumentSelected?.dataFile?.size)
-            const type = this.dataDocumentSelected?.dataFile?.type
+            const type = formatTypeDocument(this.dataDocumentSelected?.dataFile?.type)
 
             return `${size} - ${type}`
         },
@@ -238,20 +239,36 @@ export default {
             this.sendLoading = true
 
             try {
-                const obj = {
-                    user_id: localStorage.getItem('@USER_ID'),
-                    fone: this.dataDocumentSelected?.recipientFone,
-                    midia: this.dataDocumentSelected?.dataFile,
-                    type: 2,
+                if (!this.dataDocumentSelected?.isChatInternal) {
+                    const obj = {
+                        user_id: localStorage.getItem('@USER_ID'),
+                        fone: this.dataDocumentSelected?.recipientFone,
+                        midia: this.dataDocumentSelected?.dataFile,
+                        type: 2,
+                    }
+
+                    const binaryObj = new FormData()
+
+                    Object.entries(obj).forEach(([key, value]) => {
+                        binaryObj.append(key, value)
+                    })
+
+                    await api.post('/envia_midianovo/ZmlsYWRlYXRlbmRpbWVudG8=', binaryObj)
+                } else {
+                    const obj = {
+                        id: localStorage.getItem('@USER_ID'),
+                        id_transferido: this.dataDocumentSelected?.recipientId,
+                        midia: this.dataDocumentSelected?.dataFile,
+                    }
+
+                    const binaryObj = new FormData()
+
+                    Object.entries(obj).forEach(([key, value]) => {
+                        binaryObj.append(key, value)
+                    })
+
+                    await api.post('/envia_midia_interno/ZmlsYWRlYXRlbmRpbWVudG8=', obj)
                 }
-
-                const binaryObj = new FormData()
-
-                Object.entries(obj).forEach(([key, value]) => {
-                    binaryObj.append(key, value)
-                })
-
-                await api.post('/envia_midianovo/ZmlsYWRlYXRlbmRpbWVudG8=', binaryObj)
 
                 this.$emit('update-messages')
 
@@ -334,20 +351,27 @@ export default {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 2rem;
+        max-height: 500px;
+        gap: 1rem;
+
+        @media (min-width: 768px) {
+            & {
+                max-height: 700px;
+            }
+        }
 
         canvas {
-            transform: scale(0.4);
+            transform: scale(0.3);
 
             @media (min-width: 1200px) {
                 & {
-                    transform: scale(0.5);
+                    transform: scale(0.4);
                 }
             }
 
             @media (min-width: 1400px) {
                 & {
-                    transform: scale(0.7);
+                    transform: scale(0.6);
                 }
             }
         }

@@ -1,3 +1,23 @@
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+    transition:
+        opacity 0.4s ease,
+        transform 0.4ms ease;
+}
+
+.modal-fade-enter-from {
+    opacity: 0;
+    
+}
+
+.modal-fade-leave-to {
+    opacity: 0;
+    
+}
+
+// ======================================================
+
+
 .menu-slide-enter-active {
     transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 2);
     transform-origin: bottom center;

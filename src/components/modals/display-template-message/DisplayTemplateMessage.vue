@@ -304,6 +304,7 @@ export default {
             try {
                 const obj = {
                     user_id: localStorage.getItem('@USER_ID'),
+                    nome: this.templateData.nome,
                     fone: this.templateData?.fone,
                     nome_modelo: this.requestData?.mensagem,
                     type: 3,

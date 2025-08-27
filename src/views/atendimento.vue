@@ -83,7 +83,7 @@
                             <li>
                                 <button
                                     id="btn-atendimentos-internos"
-                                    @click="handleClickTabs($event)"
+                                    @click="(handleClickTabs($event), (openOpt = false))"
                                 >
                                     <span>Conversas Internas</span>
                                 </button>
@@ -885,24 +885,11 @@
             :atualizarConversa="atualizarConversa"
         />
 
-        <mandar-arquivo
-            :nome-selecionado="selecionado.nome"
-            :fone="selecionado.fone"
-            :atualiza-conversa="atualizarConversa"
-        />
-
-        <abreFoto />
-
-        <mandar-arquivo-chat-interno
-            :nome-selecionado="selecionado.nome"
-            :id_transferido="selecionado.id"
-            :atualiza-conversa="atualizarConversInterna"
-        />
-
         <compartilhar-contato
             :fone="selecionado.fone"
             :atualiza-conversa="atualizarConversa"
         />
+
         <encaminha-mensagens
             :fone="selecionado.fone"
             :name="selecionado.nome"
@@ -1067,6 +1054,7 @@ export default {
         templateData() {
             return {
                 user_id: localStorage.getItem(`@USER_ID`),
+                nome: this.selecionado.nome,
                 fone: this.selecionado.fone,
                 mensagem: null,
                 mensagem_id: this.message_id,
@@ -1320,7 +1308,7 @@ export default {
                 this.qtdmensagensinternas = 1
 
                 this.recebeumensageminterna()
-                this.atualizarConversInterna()
+                this.atualizarConversaInterna()
             })
         },
 
@@ -1391,7 +1379,7 @@ export default {
 
             Api.post('/mensagem_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', objEnviaMensagem)
                 .then(() => {
-                    this.atualizarConversInterna()
+                    this.atualizarConversaInterna()
                 })
                 .catch(error => {
                     console.error(error)
@@ -1848,7 +1836,7 @@ export default {
             this.abrirMsg = true
         },
 
-        atualizarConversInterna() {
+        atualizarConversaInterna() {
             let objConversas = {
                 id: localStorage.getItem('@USER_ID'),
                 id_transferido: this.selecionado.id,
@@ -2026,8 +2014,10 @@ export default {
                         }
 
                         this.modalDocumentData = {
-                            dataFile: file,
-                            recipientFone: this.selecionado?.fone,
+                            dataFile: file ?? null,
+                            recipientId: this.selecionado?.id ?? null,
+                            recipientFone: this.selecionado?.fone ?? null,
+                            isChatInternal: this.isChatInternal,
                             wook: 'onack',
                         }
 
@@ -2052,7 +2042,7 @@ export default {
                 return
             }
 
-            this.atualizarConversInterna()
+            this.atualizarConversaInterna()
         },
 
         filterMessages(msgs) {
