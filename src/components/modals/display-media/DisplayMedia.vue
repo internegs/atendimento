@@ -33,10 +33,10 @@
                             :name="'slide-' + slideDirection"
                             mode="out-in"
                         >
-                            <img
+                            <img-component
+                                v-if="choiseDataMedia.urlImage"
                                 :key="choiseDataMedia.urlImage"
-                                :src="choiseDataMedia.urlImage"
-                                alt="Imagem chat."
+                                :file-url="choiseDataMedia.urlImage"
                             />
                         </transition>
                     </div>
@@ -79,6 +79,7 @@
 import UiBtnCircle from '@/components/ui/UiBtnCircle.vue'
 import BaseModal from '../BaseModal.vue'
 import MediaTemplate from '../media-template/MediaTemplate.vue'
+import ImgComponent from '@/components/ui/ImgComponent.vue'
 
 export default {
     name: 'DisplayMedia',
@@ -87,6 +88,7 @@ export default {
         BaseModal,
         MediaTemplate,
         UiBtnCircle,
+        ImgComponent,
     },
 
     props: {
@@ -116,8 +118,6 @@ export default {
             if (this.imgSelectedIndex === null || !this.dataMediaArray[this.imgSelectedIndex]) {
                 return this.dataMediaSelected
             }
-
-            console.log(this.dataMediaSelected)
 
             return {
                 ...this.dataMediaSelected,

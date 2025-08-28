@@ -633,7 +633,7 @@
                                     <button
                                         type="button"
                                         class="btn-menu"
-                                        @click="openFileManagerMidia()"
+                                        @click="openFileManagerMidiaPreview()"
                                     >
                                         <i
                                             class="fa-solid fa-photo-film"
@@ -914,6 +914,13 @@
             @update-messages="updateMessages"
         />
 
+        <display-media-preview
+            :isVisible="openModalMediaPreview"
+            :data-media-selected="modalMediaPreviewData"
+            @close-modal="handleCloseModal"
+            @update-messages="updateMessages"
+        />
+
         <display-template-message
             :templateData="templateData"
             @update-messages="updateMessages"
@@ -936,11 +943,8 @@ import ChatAtendimentoContatosInterno from '@/components/atendimento/ChatAtendim
 import Api from '@/services/api'
 import EditarContato from '@/components/atendimento/acao/editarContato.vue'
 
-import abreFoto from '@/components/atendimento/acao/abrefoto.vue'
 import TransferirAtendimento from '@/components/atendimento/acao/transferirAtendimento.vue'
 import apagarMensagem from '@/components/atendimento/acao/apagaMensagem.vue'
-import mandarArquivo from '@/components/atendimento/acao/mandarArquivo.vue'
-import mandarArquivoChatInterno from '@/components/atendimento/acao/mandarArquivoChatInterno.vue'
 
 import compartilharContato from '@/components/atendimento/acao/compartilharContato.vue'
 import encaminhaMensagens from '@/components/atendimento/acao/encaminhaMensagens.vue'
@@ -954,8 +958,8 @@ import DisplayMedia from '@/components/modals/display-media/DisplayMedia.vue'
 import { ref, onValue } from 'firebase/database'
 import DisplayDocument from '@/components/modals/display-document/DisplayDocument.vue'
 import DisplayTemplateMessage from '@/components/modals/display-template-message/DisplayTemplateMessage.vue'
-import api from '@/services/api'
 import { formatSize } from '@/utils/formatters'
+import DisplayMediaPreview from '@/components/modals/display-media-preview/DisplayMediaPreview.vue'
 
 export default {
     name: 'atendimento',
@@ -964,11 +968,8 @@ export default {
         ListaAtendimentos,
         ChatAtendimento,
         EditarContato,
-        abreFoto,
         TransferirAtendimento,
         apagarMensagem,
-        mandarArquivo,
-        mandarArquivoChatInterno,
         compartilharContato,
         AdicionarContato,
         EmojiPicker,
@@ -978,6 +979,7 @@ export default {
         DisplayMedia,
         DisplayDocument,
         DisplayTemplateMessage,
+        DisplayMediaPreview,
     },
 
     data() {
@@ -1039,8 +1041,10 @@ export default {
             openOpt: false,
 
             modalMediaData: {},
+            modalMediaPreviewData: {},
             modalDocumentData: {},
             openModalMedia: false,
+            openModalMediaPreview: false,
             openModalDocument: false,
 
             showEmojiPicker: false,
@@ -1879,10 +1883,6 @@ export default {
             const optMenu = this.$refs.optMenu
             const btnEscolhasClick = event.target.closest('.btn-escolhas')
 
-            console.log(`1: ${optMenu}`)
-            console.log(`2: ${optMenu.contains(event.target)}`)
-            console.log(`3: ${btnEscolhasClick}`)
-
             if (optMenu && !optMenu.contains(event.target) && !btnEscolhasClick) {
                 this.abrirEscolha = false
             }
@@ -2048,9 +2048,8 @@ export default {
             input.click()
         },
 
-        openFileManagerMidia() {
+        openFileManagerMidiaPreview() {
             const allowedMimeTypes = [
-                // Imagens
                 'image/jpeg',
                 'image/jpg',
                 'image/png',
@@ -2059,7 +2058,6 @@ export default {
                 'image/bmp',
                 'image/tiff',
 
-                // Vídeos
                 'video/mp4',
                 'video/quicktime', // .mov
                 'video/x-msvideo', // .avi
@@ -2069,8 +2067,7 @@ export default {
                 'video/webm',
                 'video/x-matroska', // .mkv
             ]
-
-            const maxSize = 30 * 1024 * 1024 // 30 MB
+            const maxSize = 100 * 1024 ** 2 // 30 MB
 
             const input = document.createElement('input')
             input.type = 'file'
@@ -2083,10 +2080,6 @@ export default {
                     const file = event.target.files[0]
 
                     if (file) {
-                        console.log(file)
-
-                        return
-
                         if (!allowedMimeTypes.includes(file.type)) {
                             Swal.fire({
                                 icon: 'error',
@@ -2113,8 +2106,8 @@ export default {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Erro',
-                                text: `O arquivo selecionado é muito grande (${formatSize(file.size)}). 
-                                    Por favor, selecione um arquivo de até ${formatSize(maxSize)}.`,
+                                text: `A mídia selecionado é muito grande (${formatSize(file.size)}). 
+                                    Por favor, selecione uma mídia de até ${formatSize(maxSize)}.`,
                                 confirmButtonColor: '#17a2b8',
 
                                 didOpen: () => {
@@ -2132,15 +2125,14 @@ export default {
                             return
                         }
 
-                        this.modalDocumentData = {
+                        this.modalMediaPreviewData = {
                             dataFile: file ?? null,
                             recipientId: this.selecionado?.id ?? null,
                             recipientFone: this.selecionado?.fone ?? null,
-                            isChatInternal: this.isChatInternal,
                             wook: 'onack',
                         }
 
-                        this.openModalDocument = true
+                        this.openModalMediaPreview = true
                     }
                 },
                 { once: true }
@@ -2152,6 +2144,7 @@ export default {
         handleCloseModal() {
             this.openModalMedia = false
             this.openModalDocument = false
+            this.openModalMediaPreview = false
         },
 
         updateMessages() {

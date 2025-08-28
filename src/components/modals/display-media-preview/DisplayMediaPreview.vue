@@ -8,29 +8,22 @@
             @close-modal="handleCloseModal"
         >
             <media-template
-                :data-media="dataDocumentSelected"
+                :data-media="dataMediaSelected"
                 @close-modal="handleCloseModal"
             >
                 <div
-                    v-show="!pdfLoading"
-                    class="doc-container"
+                    v-show="!mediaLoading"
+                    class="midia-container"
                 >
                     <header>
-                        <h2>{{ dataDocumentSelected?.dataFile?.name }}</h2>
+                        <h2>{{ dataMediaSelected?.dataFile?.name }}</h2>
                     </header>
 
-                    <div class="main-doc">
-                        <canvas
-                            v-if="isPdf"
-                            ref="pdfCanvas"
-                        ></canvas>
-
-                        <i
-                            v-else
-                            v-bind="fileIconConfig"
-                        ></i>
-
-                        <span>{{ fileSizeType }}</span>
+                    <div class="midia-main">
+                        <img-component
+                            v-if="urlFile"
+                            :file-url="urlFile"
+                        />
                     </div>
 
                     <!-- SERVE SOMENTE PARA AJUDAR NO ALINHAMENTO -->
@@ -38,7 +31,7 @@
                 </div>
 
                 <template
-                    v-if="!pdfLoading"
+                    v-if="!mediaLoading"
                     #footer
                 >
                     <div class="btn-wrapper">
@@ -66,7 +59,7 @@
                 </template>
 
                 <div
-                    v-if="pdfLoading"
+                    v-if="mediaLoading"
                     class="spinner-border text-secondary"
                     role="status"
                 >
@@ -81,14 +74,14 @@
 import Swal from 'sweetalert2'
 import BaseModal from '../BaseModal.vue'
 import MediaTemplate from '../media-template/MediaTemplate.vue'
-import * as pdflib from 'pdfjs-dist'
 import api from '@/services/api'
 import { formatSize, formatTypeDocument } from '@/utils/formatters'
+import ImgComponent from '@/components/ui/ImgComponent.vue'
 
 export default {
-    name: 'DisplayDocument',
+    name: 'DisplayMediaPreview',
 
-    components: { BaseModal, MediaTemplate },
+    components: { BaseModal, MediaTemplate, ImgComponent },
 
     props: {
         isVisible: {
@@ -96,7 +89,7 @@ export default {
             default: false,
         },
 
-        dataDocumentSelected: {
+        dataMediaSelected: {
             type: Object,
             required: true,
         },
@@ -106,18 +99,41 @@ export default {
 
     data() {
         return {
-            pdfLoading: false,
+            urlFile: null,
+            mediaLoading: false,
             sendLoading: false,
         }
     },
 
     computed: {
-        isPdf() {
-            return this.dataDocumentSelected?.dataFile?.type === 'application/pdf'
+        isImage() {
+            const mimes = {
+                imgs: [
+                    'image/jpeg',
+                    'image/jpg',
+                    'image/png',
+                    'image/gif',
+                    'image/webp',
+                    'image/bmp',
+                    'image/tiff',
+                ],
+                videos: [
+                    'video/mp4',
+                    'video/quicktime', // .mov
+                    'video/x-msvideo', // .avi
+                    'video/x-ms-wmv', // .wmv
+                    'video/3gpp', // .3gp
+                    'video/x-flv', // .flv
+                    'video/webm',
+                    'video/x-matroska', // .mkv
+                ],
+            }
+
+            return mimes.imgs.some(img => img === this.dataMediaSelected?.dataFile?.type)
         },
 
         fileIconConfig() {
-            const fileType = this.dataDocumentSelected?.dataFile?.type
+            const fileType = this.dataMediaSelected?.dataFile?.type
             let iconType
             let color
 
@@ -176,20 +192,20 @@ export default {
         },
 
         fileSizeType() {
-            const size = formatSize(this.dataDocumentSelected?.dataFile?.size)
-            const type = formatTypeDocument(this.dataDocumentSelected?.dataFile?.type)
+            const size = formatSize(this.dataMediaSelected?.dataFile?.size)
+            const type = formatTypeDocument(this.dataMediaSelected?.dataFile?.type)
 
             return `${size} - ${type}`
         },
     },
 
     watch: {
-        dataDocumentSelected: {
+        dataMediaSelected: {
             async handler(newValue) {
-                if (newValue?.dataFile && this.isPdf) {
+                if (newValue?.dataFile) {
                     await this.$nextTick()
 
-                    this.loadPdf()
+                    await this.loadMedia()
                 }
             },
             immediate: true,
@@ -198,39 +214,26 @@ export default {
 
     methods: {
         handleCloseModal() {
-            if (this.pdfViewerUrl) {
-                URL.revokeObjectURL(this.pdfViewerUrl.split('file=')[1])
+            if (this.urlFile) {
+                URL.revokeObjectURL(this.urlFile)
             }
 
             this.$emit('close-modal')
         },
 
-        async loadPdf() {
-            this.pdfLoading = true
+        async loadMedia() {
+            this.mediaLoading = true
 
             try {
-                const file = this.dataDocumentSelected.dataFile
-                const arrayBuffer = await file.arrayBuffer()
-                const pdf = await pdflib.getDocument({
-                    data: arrayBuffer,
-                    disableAutoFetch: true, // desabilita o pré-carregamento
-                }).promise
-                const page = await pdf.getPage(1)
+                const file = this.dataMediaSelected.dataFile
 
-                const canvas = this.$refs.pdfCanvas
-                const context = canvas.getContext('2d')
-                const viewport = page.getViewport({ scale: 1 })
-
-                canvas.width = viewport.width
-                canvas.height = viewport.height
-
-                await page.render({ canvasContext: context, viewport }).promise
+                this.urlFile = URL.createObjectURL(file)
             } catch (error) {
-                console.error('Erro ao carregar PDF:', error)
+                console.error('Erro ao carregar mídia:', error)
 
-                this.pdfLoading = false
+                this.mediaLoading = false
             } finally {
-                this.pdfLoading = false
+                this.mediaLoading = false
             }
         },
 
@@ -238,11 +241,11 @@ export default {
             this.sendLoading = true
 
             try {
-                if (!this.dataDocumentSelected?.isChatInternal) {
+                if (!this.dataMediaSelected?.isChatInternal) {
                     const obj = {
                         user_id: localStorage.getItem('@USER_ID'),
-                        fone: this.dataDocumentSelected?.recipientFone,
-                        midia: this.dataDocumentSelected?.dataFile,
+                        fone: this.dataMediaSelected?.recipientFone,
+                        midia: this.dataMediaSelected?.dataFile,
                         type: 2,
                     }
 
@@ -256,8 +259,8 @@ export default {
                 } else {
                     const obj = {
                         id: localStorage.getItem('@USER_ID'),
-                        id_transferido: this.dataDocumentSelected?.recipientId,
-                        midia: this.dataDocumentSelected?.dataFile,
+                        id_transferido: this.dataMediaSelected?.recipientId,
+                        midia: this.dataMediaSelected?.dataFile,
                     }
 
                     const binaryObj = new FormData()
@@ -309,7 +312,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.doc-container {
+.midia-container {
     width: 100%;
     height: 100%;
     display: flex;
@@ -339,7 +342,7 @@ export default {
         }
     }
 
-    .main-doc {
+    .midia-main {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -350,46 +353,6 @@ export default {
         @media (min-width: 768px) {
             & {
                 max-height: auto;
-            }
-        }
-
-        canvas {
-            transform: scale(0.3);
-
-            @media (min-width: 1200px) {
-                & {
-                    transform: scale(0.4);
-                }
-            }
-
-            @media (min-width: 1400px) {
-                & {
-                    transform: scale(0.6);
-                }
-            }
-        }
-
-        i {
-            font-size: 6rem;
-
-            @media (min-width: 1400px) {
-                & {
-                    font-size: 8rem;
-                }
-            }
-        }
-
-        span {
-            font-size: 14px;
-            font-weight: 400;
-            white-space: break-word;
-            overflow-wrap: break-word;
-            text-align: center;
-
-            @media (min-width: 1400px) {
-                & {
-                    font-size: 16px;
-                }
             }
         }
     }
