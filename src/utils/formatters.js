@@ -1,4 +1,6 @@
 import moment from 'moment'
+import { format } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 
 export const formatBrMoney = value => {
     return (
@@ -31,6 +33,14 @@ export function formatEventTime(hour, use12 = false) {
     }
 
     return hour.format(hour.minutes() > 0 ? 'HH.mm' : 'HH')
+}
+
+export const formatDateTime = dateTime => {
+    if (!dateTime) return
+
+    const date = new Date(dateTime)
+
+    return format(date, 'Pp', { locale: ptBR })
 }
 
 export const capitalizeFirstLetter = string => {

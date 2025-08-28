@@ -21,9 +21,17 @@
 
                     <div class="midia-main">
                         <img-component
-                            v-if="urlFile"
+                            v-if="isImage && urlFile"
                             :file-url="urlFile"
                         />
+
+                        <video
+                            v-else
+                            :src="urlFile"
+                            controls
+                            muted
+                            preload="metadata"
+                        ></video>
                     </div>
 
                     <!-- SERVE SOMENTE PARA AJUDAR NO ALINHAMENTO -->
@@ -38,7 +46,7 @@
                         <button
                             type="button"
                             class="btn-send"
-                            @click="sendDocument()"
+                            @click="sendMedia()"
                         >
                             <img
                                 v-if="!sendLoading"
@@ -131,72 +139,6 @@ export default {
 
             return mimes.imgs.some(img => img === this.dataMediaSelected?.dataFile?.type)
         },
-
-        fileIconConfig() {
-            const fileType = this.dataMediaSelected?.dataFile?.type
-            let iconType
-            let color
-
-            switch (fileType) {
-                case 'application/msword':
-                case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-                    iconType = 'fa-file-word'
-                    color = '#2B579A'
-                    break
-
-                case 'application/vnd.ms-excel':
-                case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-                    iconType = 'fa-file-excel'
-                    color = '#217346'
-                    break
-
-                case 'application/vnd.ms-powerpoint':
-                case 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
-                    iconType = 'fa-file-powerpoint'
-                    color = '#D24726'
-                    break
-
-                case 'text/plain':
-                    iconType = 'fa-file-lines'
-                    color = '#6C757D'
-                    break
-
-                case 'application/rtf':
-                    iconType = 'fa-file-word'
-                    color = '#6F42C1'
-                    break
-
-                case 'text/csv':
-                    iconType = 'fa-file-csv'
-                    color = '#198754'
-                    break
-
-                case 'application/zip':
-                case 'application/vnd.rar':
-                case 'application/x-rar-compressed':
-                case 'application/x-7z-compressed':
-                    iconType = 'fa-file-zipper'
-                    color = '#c01c28'
-                    break
-
-                default:
-                    iconType = 'fa-file'
-                    color = '#6C757D'
-                    break
-            }
-
-            return {
-                class: `fa-solid ${iconType}`,
-                style: `color: ${color};`,
-            }
-        },
-
-        fileSizeType() {
-            const size = formatSize(this.dataMediaSelected?.dataFile?.size)
-            const type = formatTypeDocument(this.dataMediaSelected?.dataFile?.type)
-
-            return `${size} - ${type}`
-        },
     },
 
     watch: {
@@ -237,40 +179,24 @@ export default {
             }
         },
 
-        async sendDocument() {
+        async sendMedia() {
             this.sendLoading = true
 
             try {
-                if (!this.dataMediaSelected?.isChatInternal) {
-                    const obj = {
-                        user_id: localStorage.getItem('@USER_ID'),
-                        fone: this.dataMediaSelected?.recipientFone,
-                        midia: this.dataMediaSelected?.dataFile,
-                        type: 2,
-                    }
-
-                    const binaryObj = new FormData()
-
-                    Object.entries(obj).forEach(([key, value]) => {
-                        binaryObj.append(key, value)
-                    })
-
-                    await api.post('/envia_midianovo/ZmlsYWRlYXRlbmRpbWVudG8=', binaryObj)
-                } else {
-                    const obj = {
-                        id: localStorage.getItem('@USER_ID'),
-                        id_transferido: this.dataMediaSelected?.recipientId,
-                        midia: this.dataMediaSelected?.dataFile,
-                    }
-
-                    const binaryObj = new FormData()
-
-                    Object.entries(obj).forEach(([key, value]) => {
-                        binaryObj.append(key, value)
-                    })
-
-                    await api.post('/envia_midia_interno/ZmlsYWRlYXRlbmRpbWVudG8=', obj)
+                const obj = {
+                    user_id: localStorage.getItem('@USER_ID'),
+                    fone: this.dataMediaSelected?.recipientFone,
+                    midia: this.dataMediaSelected?.dataFile,
+                    type: 2,
                 }
+
+                const binaryObj = new FormData()
+
+                Object.entries(obj).forEach(([key, value]) => {
+                    binaryObj.append(key, value)
+                })
+
+                await api.post('/envia_midianovo/ZmlsYWRlYXRlbmRpbWVudG8=', binaryObj)
 
                 this.$emit('update-messages')
 
@@ -354,6 +280,15 @@ export default {
             & {
                 max-height: auto;
             }
+        }
+
+        video {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            border-radius: 8px;
+            object-fit: contain;
         }
     }
 }

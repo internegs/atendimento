@@ -861,7 +861,7 @@
                     class="info mt-2"
                     style="font-size: 0.7rem"
                 >
-                    {{ mensagem.name }} {{ mensagem.updated_at }}
+                    {{ mensagem.name }} {{ formatDateTime(mensagem.updated_at) }}
                 </span>
             </div>
         </div>
@@ -879,6 +879,8 @@
 </template>
 
 <script>
+import { formatDateTime } from '@/utils/formatters'
+
 export default {
     name: 'ChatAtendimento',
 
@@ -989,6 +991,8 @@ export default {
     },
 
     methods: {
+        formatDateTime,
+
         abreSelecoes(e) {
             this.limparBoxOpcoes()
 
