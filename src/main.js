@@ -5,11 +5,13 @@ import { createPinia } from 'pinia'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
 import { MaskInput } from 'maska'
 import firebaseVue from './firebase/index'
+import * as pdfjsLib from 'pdfjs-dist'
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.mjs?url'
 import '@fortawesome/fontawesome-free/css/all.css'
 import 'vue3-emoji-picker/css'
 import '@/assets/styles/index.scss'
-import * as pdfjsLib from 'pdfjs-dist'
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.mjs?url'
+import '@glidejs/glide/dist/css/glide.core.min.css'
+import '@glidejs/glide/dist/css/glide.theme.min.css'
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker
 

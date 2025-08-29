@@ -1260,8 +1260,6 @@ export default {
             const emojiButton = event.target.closest('.input-group-prepend button')
 
             if (emojiPickerElement && !emojiPickerElement.contains(event.target) && !emojiButton) {
-                console.log(emojiPickerElement)
-
                 this.showEmojiPicker = false
             }
         },
@@ -1883,6 +1881,9 @@ export default {
             const optMenu = this.$refs.optMenu
             const btnEscolhasClick = event.target.closest('.btn-escolhas')
 
+            console.log(event.target)
+            console.log(optMenu)
+
             if (optMenu && !optMenu.contains(event.target) && !btnEscolhasClick) {
                 this.abrirEscolha = false
             }
@@ -1943,11 +1944,12 @@ export default {
             this.updateStyleTabs()
         },
 
-        handleModalMedia(value = [], e = null) {
+        handleModalMedia(value = []) {
             this.modalMediaData = {
                 userPhoto: this.selecionado.foto,
                 userName: value.userName,
-                urlImage: value.url,
+                urlMedia: value.url,
+                type: value.type,
                 wook: value.wook,
             }
 
@@ -2162,7 +2164,7 @@ export default {
 
             if (!msgs && !Array.isArray(msgs) && msgs.length === 0) return []
 
-            return msgs.filter(msg => msg.type && msg.type === 'image')
+            return msgs.filter(msg => msg.type && (msg.type === 'image' || msg.type === 'video'))
         },
 
         teste(value) {

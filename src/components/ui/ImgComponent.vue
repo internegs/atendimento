@@ -2,6 +2,7 @@
     <img
         ref="zoomImage"
         :src="fileUrl"
+        loading="lazy"
         @click="handleZoom"
         @mousemove="handleMouseMove"
         @mouseleave="handleMouseLeave"

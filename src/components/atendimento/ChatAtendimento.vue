@@ -5,12 +5,6 @@
         class="chatBox"
         :class="estadoResponderMensagem ? 'layoutResponderAlturaTeclado' : ''"
     >
-        <div
-            v-if="abrirBoxOpcoes"
-            class="fundo-transparente"
-            @click="limparBoxOpcoes"
-        ></div>
-
         <div v-if="processando">Atualizando mensagens...</div>
 
         <div
@@ -39,6 +33,8 @@
                 <div
                     v-if="mensagem.type === 'text'"
                     class="message-normal"
+                    @mouseenter="onBoxOpt($event, mensagem.message_id)"
+                    @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
                         v-if="mensagem.status == 'DELETED'"
@@ -69,16 +65,22 @@
                         </div>
 
                         <div
-                            v-if="!estadoEncaminharMensagens"
+                            v-if="
+                                !estadoEncaminharMensagens && showBoxOptIcon === mensagem.message_id
+                            "
                             class="pd-2 cursor-pointer box_abre_selecoes"
-                            @click="abreSelecoes"
+                            @click="handleBoxOpt(mensagem.message_id)"
                         >
                             <i class="fa-solid fa-chevron-down abrir-selecoes"></i>
-                            <div class="box-opcoes">
+                            <div
+                                v-if="openBoxOpt === mensagem.message_id"
+                                ref="boxOpt"
+                                class="box-opcoes"
+                            >
                                 <span
                                     v-for="(opcoes, index) in option"
                                     :key="index"
-                                    class="d-block mb-2"
+                                    class="d-block"
                                     @click="
                                         escolhaSelecionado(
                                             opcoes.id,
@@ -98,7 +100,11 @@
                     v-if="mensagem.type === 'button'"
                     class="message-wrapper"
                 >
-                    <div class="message-normal">
+                    <div
+                        class="message-normal"
+                        @mouseenter="onBoxOpt($event, mensagem.message_id)"
+                        @mouseleave="onBoxOpt($event, mensagem.message_id)"
+                    >
                         <span
                             v-if="mensagem.status == 'DELETED'"
                             class="cinza"
@@ -135,17 +141,24 @@
                             </div>
 
                             <div
-                                v-if="!estadoEncaminharMensagens"
+                                v-if="
+                                    !estadoEncaminharMensagens &&
+                                    showBoxOptIcon === mensagem.message_id
+                                "
                                 class="pd-2 cursor-pointer box_abre_selecoes"
-                                @click="abreSelecoes"
+                                @click="handleBoxOpt(mensagem.message_id)"
                             >
                                 <i class="fa-solid fa-chevron-down abrir-selecoes"></i>
 
-                                <div class="box-opcoes">
+                                <div
+                                    v-if="openBoxOpt === mensagem.message_id"
+                                    ref="boxOpt"
+                                    class="box-opcoes"
+                                >
                                     <span
                                         v-for="(opcoes, index) in option"
                                         :key="index"
-                                        class="d-block mb-2"
+                                        class="d-block"
                                         @click="
                                             escolhaSelecionado(
                                                 opcoes.id,
@@ -177,7 +190,11 @@
                     v-if="mensagem.type === 'list'"
                     class="message-wrapper-list"
                 >
-                    <div class="message-normal">
+                    <div
+                        class="message-normal"
+                        @mouseenter="onBoxOpt($event, mensagem.message_id)"
+                        @mouseleave="onBoxOpt($event, mensagem.message_id)"
+                    >
                         <span
                             v-if="mensagem.status == 'DELETED'"
                             class="cinza"
@@ -210,17 +227,24 @@
                             </div>
 
                             <div
-                                v-if="!estadoEncaminharMensagens"
+                                v-if="
+                                    !estadoEncaminharMensagens &&
+                                    showBoxOptIcon === mensagem.message_id
+                                "
                                 class="pd-2 cursor-pointer box_abre_selecoes"
-                                @click="abreSelecoes"
+                                @click="handleBoxOpt(mensagem.message_id)"
                             >
                                 <i class="fa-solid fa-chevron-down abrir-selecoes"></i>
 
-                                <div class="box-opcoes">
+                                <div
+                                    v-if="openBoxOpt === mensagem.message_id"
+                                    ref="boxOpt"
+                                    class="box-opcoes"
+                                >
                                     <span
                                         v-for="(opcoes, index) in option"
                                         :key="index"
-                                        class="d-block mb-2"
+                                        class="d-block"
                                         @click="
                                             escolhaSelecionado(
                                                 opcoes.id,
@@ -267,6 +291,8 @@
                 <div
                     v-if="mensagem.type === 'button_reply'"
                     class="message-normal"
+                    @mouseenter="onBoxOpt($event, mensagem.message_id)"
+                    @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
                         v-if="mensagem.status == 'DELETED'"
@@ -300,16 +326,22 @@
                         </div>
 
                         <div
-                            v-if="!estadoEncaminharMensagens"
+                            v-if="
+                                !estadoEncaminharMensagens && showBoxOptIcon === mensagem.message_id
+                            "
                             class="pd-2 cursor-pointer box_abre_selecoes"
-                            @click="abreSelecoes"
+                            @click="handleBoxOpt(mensagem.message_id)"
                         >
                             <i class="fa-solid fa-chevron-down abrir-selecoes"></i>
-                            <div class="box-opcoes">
+                            <div
+                                v-if="openBoxOpt === mensagem.message_id"
+                                ref="boxOpt"
+                                class="box-opcoes"
+                            >
                                 <span
                                     v-for="(opcoes, index) in option"
                                     :key="index"
-                                    class="d-block mb-2"
+                                    class="d-block"
                                     @click="
                                         escolhaSelecionado(
                                             opcoes.id,
@@ -328,6 +360,8 @@
                 <div
                     v-if="mensagem.type === 'list_reply'"
                     class="message-normal"
+                    @mouseenter="onBoxOpt($event, mensagem.message_id)"
+                    @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
                         v-if="mensagem.status == 'DELETED'"
@@ -361,16 +395,22 @@
                         </div>
 
                         <div
-                            v-if="!estadoEncaminharMensagens"
+                            v-if="
+                                !estadoEncaminharMensagens && showBoxOptIcon === mensagem.message_id
+                            "
                             class="pd-2 cursor-pointer box_abre_selecoes"
-                            @click="abreSelecoes"
+                            @click="handleBoxOpt(mensagem.message_id)"
                         >
                             <i class="fa-solid fa-chevron-down abrir-selecoes"></i>
-                            <div class="box-opcoes">
+                            <div
+                                v-if="openBoxOpt === mensagem.message_id"
+                                ref="boxOpt"
+                                class="box-opcoes"
+                            >
                                 <span
                                     v-for="(opcoes, index) in option"
                                     :key="index"
-                                    class="d-block mb-2"
+                                    class="d-block"
                                     @click="
                                         escolhaSelecionado(
                                             opcoes.id,
@@ -426,16 +466,23 @@
                             </div>
 
                             <div
-                                v-if="!estadoEncaminharMensagens"
+                                v-if="
+                                    !estadoEncaminharMensagens &&
+                                    showBoxOptIcon === mensagem.message_id
+                                "
                                 class="pd-2 cursor-pointer box_abre_selecoes"
-                                @click="abreSelecoes"
+                                @click="handleBoxOpt(mensagem.message_id)"
                             >
                                 <i class="fa-solid fa-chevron-down abrir-selecoes"></i>
-                                <div class="box-opcoes">
+                                <div
+                                    v-if="openBoxOpt === mensagem.message_id"
+                                    ref="boxOpt"
+                                    class="box-opcoes"
+                                >
                                     <span
                                         v-for="(opcoes, index) in option"
                                         :key="index"
-                                        class="d-block mb-2"
+                                        class="d-block"
                                         @click="
                                             escolhaSelecionado(
                                                 opcoes.id,
@@ -464,6 +511,8 @@
                 <div
                     v-if="mensagem.type === 'audio' || mensagem.type === 'ptt'"
                     class="message-normal"
+                    @mouseenter="onBoxOpt($event, mensagem.message_id)"
+                    @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
                         v-if="mensagem.status == 'DELETED'"
@@ -504,16 +553,22 @@
                         </div>
 
                         <div
-                            v-if="!estadoEncaminharMensagens"
+                            v-if="
+                                !estadoEncaminharMensagens && showBoxOptIcon === mensagem.message_id
+                            "
                             class="pd-2 cursor-pointer box_abre_selecoes"
-                            @click="abreSelecoes"
+                            @click="handleBoxOpt(mensagem.message_id)"
                         >
                             <i class="fa-solid fa-chevron-down abrir-selecoes"></i>
-                            <div class="box-opcoes">
+                            <div
+                                v-if="openBoxOpt === mensagem.message_id"
+                                ref="boxOpt"
+                                class="box-opcoes"
+                            >
                                 <span
                                     v-for="(opcoes, index) in option"
                                     :key="index"
-                                    class="d-block mb-2"
+                                    class="d-block"
                                     @click="
                                         escolhaSelecionado(
                                             opcoes.id,
@@ -532,6 +587,8 @@
                 <div
                     v-if="mensagem.type === 'sticker'"
                     class="message-normal"
+                    @mouseenter="onBoxOpt($event, mensagem.message_id)"
+                    @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
                         v-if="mensagem.status == 'DELETED'"
@@ -564,16 +621,22 @@
                         </div>
 
                         <div
-                            v-if="!estadoEncaminharMensagens"
+                            v-if="
+                                !estadoEncaminharMensagens && showBoxOptIcon === mensagem.message_id
+                            "
                             class="pd-2 cursor-pointer box_abre_selecoes"
-                            @click="abreSelecoes"
+                            @click="handleBoxOpt(mensagem.message_id)"
                         >
                             <i class="fa-solid fa-chevron-down abrir-selecoes"></i>
-                            <div class="box-opcoes">
+                            <div
+                                v-if="openBoxOpt === mensagem.message_id"
+                                ref="boxOpt"
+                                class="box-opcoes"
+                            >
                                 <span
                                     v-for="(opcoes, index) in option"
                                     :key="index"
-                                    class="d-block mb-2"
+                                    class="d-block"
                                     @click="
                                         escolhaSelecionado(
                                             opcoes.id,
@@ -592,6 +655,8 @@
                 <div
                     v-if="mensagem.type === 'link'"
                     class="message-normal"
+                    @mouseenter="onBoxOpt($event, mensagem.message_id)"
+                    @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
                         v-if="mensagem.status == 'DELETED'"
@@ -620,16 +685,22 @@
                         </div>
 
                         <div
-                            v-if="!estadoEncaminharMensagens"
+                            v-if="
+                                !estadoEncaminharMensagens && showBoxOptIcon === mensagem.message_id
+                            "
                             class="pd-2 cursor-pointer box_abre_selecoes"
-                            @click="abreSelecoes"
+                            @click="handleBoxOpt(mensagem.message_id)"
                         >
                             <i class="fa-solid fa-chevron-down abrir-selecoes"></i>
-                            <div class="box-opcoes">
+                            <div
+                                v-if="openBoxOpt === mensagem.message_id"
+                                ref="boxOpt"
+                                class="box-opcoes"
+                            >
                                 <span
                                     v-for="(opcoes, index) in option"
                                     :key="index"
-                                    class="d-block mb-2"
+                                    class="d-block"
                                     @click="
                                         escolhaSelecionado(
                                             opcoes.id,
@@ -648,6 +719,8 @@
                 <div
                     v-if="mensagem.type === 'video'"
                     class="message-normal"
+                    @mouseenter="onBoxOpt($event, mensagem.message_id)"
+                    @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
                         v-if="mensagem.status == 'DELETED'"
@@ -655,18 +728,31 @@
                     >
                         Vídeo apagado
                     </span>
-                    <span v-if="mensagem.status != 'DELETED'">
-                        <video
-                            width="50%"
-                            controls
+
+                    <div
+                        v-if="mensagem.status != 'DELETED'"
+                        class="video-wrapper"
+                    >
+                        <button
+                            type="button"
+                            @click="
+                                $emit('handleMedia', {
+                                    url: mensagem.url_link,
+                                    userName: mensagem.name,
+                                    type: mensagem.type,
+                                    wook: mensagem.wook,
+                                })
+                            "
                         >
-                            <source
-                                type="video/mp4"
+                            <video
                                 :src="mensagem.url_link"
-                            />
-                        </video>
+                                muted
+                                preload="metadata"
+                            ></video>
+                        </button>
 
                         <p
+                            v-if="mensagem.mensagem"
                             style="padding-top: 1rem"
                             v-text="mensagem.mensagem"
                         ></p>
@@ -688,17 +774,25 @@
                                 class="fa-solid fa-check-double text-success"
                             ></i>
                         </div>
+
                         <div
-                            v-if="!estadoEncaminharMensagens"
+                            v-if="
+                                !estadoEncaminharMensagens && showBoxOptIcon === mensagem.message_id
+                            "
                             class="pd-2 cursor-pointer box_abre_selecoes"
-                            @click="abreSelecoes"
+                            @click="handleBoxOpt(mensagem.message_id)"
                         >
                             <i class="fa-solid fa-chevron-down abrir-selecoes"></i>
-                            <div class="box-opcoes">
+
+                            <div
+                                v-if="openBoxOpt === mensagem.message_id"
+                                ref="boxOpt"
+                                class="box-opcoes"
+                            >
                                 <span
                                     v-for="(opcoes, index) in option"
                                     :key="index"
-                                    class="d-block mb-2"
+                                    class="d-block"
                                     @click="
                                         escolhaSelecionado(
                                             opcoes.id,
@@ -711,12 +805,14 @@
                                 </span>
                             </div>
                         </div>
-                    </span>
+                    </div>
                 </div>
 
                 <div
                     v-if="mensagem.type === 'image'"
                     class="message-normal"
+                    @mouseenter="onBoxOpt($event, mensagem.message_id)"
+                    @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
                         v-if="mensagem.status == 'DELETED'"
@@ -731,6 +827,7 @@
                                 $emit('handleMedia', {
                                     url: mensagem.url_link,
                                     userName: mensagem.name,
+                                    type: mensagem.type,
                                     wook: mensagem.wook,
                                 })
                             "
@@ -763,16 +860,22 @@
                         </div>
 
                         <div
-                            v-if="!estadoEncaminharMensagens"
+                            v-if="
+                                !estadoEncaminharMensagens && showBoxOptIcon === mensagem.message_id
+                            "
                             class="pd-2 cursor-pointer box_abre_selecoes"
-                            @click="abreSelecoes"
+                            @click="handleBoxOpt(mensagem.message_id)"
                         >
                             <i class="fa-solid fa-chevron-down abrir-selecoes"></i>
-                            <div class="box-opcoes">
+                            <div
+                                v-if="openBoxOpt === mensagem.message_id"
+                                ref="boxOpt"
+                                class="box-opcoes"
+                            >
                                 <span
                                     v-for="(opcoes, index) in option"
                                     :key="index"
-                                    class="d-block mb-2"
+                                    class="d-block"
                                     @click="
                                         escolhaSelecionado(
                                             opcoes.id,
@@ -791,6 +894,8 @@
                 <div
                     v-if="mensagem.type === 'document'"
                     class="message-normal"
+                    @mouseenter="onBoxOpt($event, mensagem.message_id)"
+                    @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
                         v-if="mensagem.status == 'DELETED'"
@@ -832,16 +937,23 @@
                         </div>
 
                         <div
-                            v-if="!estadoEncaminharMensagens"
+                            v-if="
+                                !estadoEncaminharMensagens && showBoxOptIcon === mensagem.message_id
+                            "
                             class="pd-2 cursor-pointer box_abre_selecoes"
-                            @click="abreSelecoes"
+                            @click="handleBoxOpt(mensagem.message_id)"
                         >
                             <i class="fa-solid fa-chevron-down abrir-selecoes"></i>
-                            <div class="box-opcoes">
+
+                            <div
+                                v-if="openBoxOpt === mensagem.message_id"
+                                ref="boxOpt"
+                                class="box-opcoes"
+                            >
                                 <span
                                     v-for="(opcoes, index) in option"
                                     :key="index"
-                                    class="d-block mb-2"
+                                    class="d-block"
                                     @click="
                                         escolhaSelecionado(
                                             opcoes.id,
@@ -929,7 +1041,6 @@ export default {
     data() {
         return {
             mostrar: '',
-
             option: [
                 {
                     id: 2,
@@ -940,12 +1051,10 @@ export default {
                     msg: 'Responder ',
                 },
             ],
-
             id_mensagem: '',
-
             fone: '',
-
-            abrirBoxOpcoes: false,
+            openBoxOpt: null,
+            showBoxOptIcon: null,
         }
     },
 
@@ -978,56 +1087,40 @@ export default {
             },
             deep: true,
         },
+
+        openBoxOpt(newValue) {
+            if (newValue) {
+                document.addEventListener('click', this.handleClickOutsideBoxOpt)
+
+                return
+            }
+
+            document.removeEventListener('click', this.handleClickOutsideBoxOpt)
+        },
     },
 
     mounted() {
         this.scrollToBottom()
     },
 
-    updated() {
-        this.$nextTick(() => {
-            this.scrollToBottom()
-        })
+    beforeUnmount() {
+        document.removeEventListener('click', this.handleClickOutsideBoxOpt)
     },
 
     methods: {
         formatDateTime,
 
-        abreSelecoes(e) {
-            this.limparBoxOpcoes()
-
-            this.abrirBoxOpcoes = true
-
-            let elemento = e.target
-            let elementoPai = elemento.parentNode
-            this.boxElementoPai = elementoPai
-
-            if (!elementoPai.classList.contains('box_abre_selecoes')) {
-                let NovoElementoPai = elementoPai.parentNode
-
-                elementoPai = NovoElementoPai
-                this.boxElementoPai = NovoElementoPai
-            }
-
-            let box_opcoes = elementoPai.querySelector('.box-opcoes')
-
-            box_opcoes.classList.add('on')
-        },
-
         escolhaSelecionado(opcao, id, mensagem) {
-            this.abrirBoxOpcoes = false
+            this.openBoxOpt = false
 
             switch (opcao) {
                 case 2:
                     this.abremodal_apagarmensagem(id, mensagem)
-                    this.limparBoxOpcoes()
 
                     break
 
                 case 3:
-                    // console.log("responder");
                     this.responderLayout(mensagem, id)
-                    this.limparBoxOpcoes()
 
                     break
 
@@ -1053,21 +1146,37 @@ export default {
             }
         },
 
-        limparBoxOpcoes() {
-            const box_opcoes = document.querySelectorAll('.box-opcoes')
-
-            for (let i = 0; i < box_opcoes.length; i++) {
-                box_opcoes[i].classList.remove('on')
-            }
-            this.abrirBoxOpcoes = false
-        },
-
         getMessageById(id) {
             if (!id) return null
 
             console.log(this.mensagens.find(msg => msg.message_id == id) || null)
 
             return this.mensagens.find(msg => msg.message_id === id) || null
+        },
+
+        handleBoxOpt(message_id) {
+            this.openBoxOpt = !this.openBoxOpt ? message_id : null
+        },
+
+        handleClickOutsideBoxOpt(e) {
+            const btnOpt = e.target.closest('.box_abre_selecoes')
+
+            if (!btnOpt) {
+                this.openBoxOpt = null
+                this.showBoxOptIcon = null
+            }
+        },
+
+        onBoxOpt(e, message_id) {
+            if (!this.openBoxOpt) {
+                if (e.type === 'mouseenter') {
+                    this.showBoxOptIcon = message_id
+
+                    return
+                }
+
+                this.showBoxOptIcon = null
+            }
         },
 
         scrollToBottom() {
@@ -1092,23 +1201,6 @@ export default {
 
 .alinhadireita {
     text-align: right;
-}
-
-.box-opcoes {
-    display: none !important;
-    background-color: #fff;
-    z-index: 5;
-    position: absolute;
-    right: 0;
-    top: 1rem;
-    width: 200px;
-    padding: 20px;
-    /* gap: 20px; */
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-}
-
-.box-opcoes.on {
-    display: block !important;
 }
 
 .user_foto {
@@ -1144,8 +1236,35 @@ export default {
 .abrir-selecoes {
     position: absolute;
     top: 4px;
-
     right: 8px;
+
+    color: #616060;
+    font-size: 16px;
+}
+
+.box-opcoes {
+    z-index: 5;
+    position: absolute;
+    right: 0.5rem;
+    top: 1.5rem;
+    width: 200px;
+    padding: 5px 0;
+
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.box-opcoes span {
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: 500;
+
+    transition: all 0.2s ease;
+}
+
+.box-opcoes span:hover {
+    background-color: #f9f9f9;
 }
 
 .vcard-header {
@@ -1210,7 +1329,7 @@ export default {
     position: relative;
     right: 0;
     max-width: 60%;
-    padding: 15px;
+    padding: 10px 10px 10px;
     background-color: #fff;
     border-radius: 10px;
     font-size: 0.9rem;
@@ -1340,6 +1459,15 @@ export default {
     overflow: hidden;
     width: 50%;
     font-size: 0.9rem;
+}
+
+.message-normal .video-wrapper {
+    max-width: 240px;
+    max-height: 300px;
+}
+
+.message-normal .video-wrapper video {
+    width: 100%;
 }
 
 .frnd_message {
