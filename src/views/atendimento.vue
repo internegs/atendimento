@@ -172,8 +172,6 @@
                     >
                         <!-- Listagem de Contatos -->
 
-                        {{ teste(listaContatos) }}
-
                         <lista-atendimentos-chat-interno
                             v-if="listaContatosInterno"
                             :lista="listaContatosInterno"
@@ -1174,7 +1172,6 @@ export default {
             }
             const audioURL = URL.createObjectURL(blob)
             this.$refs.audio.src = audioURL
-            console.log(audioURL)
         },
 
         onStream(stream) {
@@ -1257,8 +1254,6 @@ export default {
                     busca: this.pesquisa,
                 })
 
-                console.log(response.data)
-
                 this.listaContatosPesquisa = response.data.contatos.data
             } catch (error) {
                 console.error(error)
@@ -1267,10 +1262,6 @@ export default {
             } finally {
                 this.listaContatosLoading = false
             }
-        },
-
-        callback(msg) {
-            console.debug('Event: ', msg)
         },
 
         toggle() {

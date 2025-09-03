@@ -2,14 +2,14 @@
     <div class="chat-list">
         <div
             v-if="lista.length === 0"
-            class="block"
+            class="block pe-none"
         >
             Não há contatos a ser atendido
         </div>
 
         <div
             v-for="contato in lista"
-            :key="contato.id_atendimento"
+            :key="contato.id"
             class="block"
             :class="{ active: ativado === contato.id }"
             @click="
@@ -19,11 +19,20 @@
             "
         >
             <div class="imgbx">
+                <i
+                    v-if="hasPhotoError(contato.id)"
+                    class="fas fa-user-circle"
+                    style="font-size: 45px; color: #ccc"
+                ></i>
+
                 <img
+                    v-else
                     :src="contato.foto"
-                    alt=""
+                    alt="Foto perfil"
+                    @error="setPhotoError(contato.id)"
                 />
             </div>
+
             <div class="details">
                 <div
                     v-if="contato.nome_setor != null"
@@ -98,10 +107,34 @@ export default {
         return {
             novo1: '',
             cont: 0,
+            errorPhotoList: [],
         }
     },
 
+    watch: {
+        lista: {
+            handler() {
+                this.errorPhotoList = this.lista
+                    .filter(
+                        contato => !contato.foto || contato.foto === '' || contato.foto === null
+                    )
+                    .map(contato => contato.id)
+            },
+            immediate: true,
+        },
+    },
+
     methods: {
+        setPhotoError(contatoId) {
+            if (!this.errorPhotoList.includes(contatoId)) {
+                this.errorPhotoList.push(contatoId)
+            }
+        },
+
+        hasPhotoError(contatoId) {
+            return this.errorPhotoList.includes(contatoId)
+        },
+
         maskPhone(value) {
             if (!value || value.lenght === 0) return value
 
@@ -140,6 +173,8 @@ img {
     display: flex;
     align-items: center;
     padding: 10px 15px;
+    gap: 0.5rem;
+
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     cursor: pointer;
 }
@@ -148,13 +183,6 @@ img {
     position: relative;
     width: 45px;
     height: 45px;
-}
-
-.img-text {
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
 }
 
 .details {
