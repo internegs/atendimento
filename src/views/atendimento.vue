@@ -134,54 +134,56 @@
                         </button>
                     </div>
 
-                    <div
+                    <span
                         v-if="novaTransferencia"
                         class="fw-bold text-warning text-center"
                     >
                         VOCÊ RECEBEU UMA NOVA TRANSFERÊNCIA!
-                    </div>
+                    </span>
 
-                    <div
+                    <span
                         v-if="mensageminterna"
                         class="fw-bold text-warning text-center"
                     >
                         NOVA MENSAGEM INTERNA!
-                    </div>
+                    </span>
                 </div>
 
-                <span
-                    v-if="pesquisa"
-                    class="contatos"
-                >
-                    <!-- Pesquisando contatos -->
-                    <lista-atendimentos
-                        :lista="listaContatosPesquisa"
-                        :change="abrirConversa"
-                        :ativado="ativado"
-                        :tipo="tipo_usuario"
-                        :novo="notificacao"
-                        :lista_fone="lista_fones_notificados"
-                        :qtdmensagens="qtdmensagens"
-                    />
-                </span>
+                <template v-if="!listaContatosLoading">
+                    <div
+                        v-if="listaContatosPesquisa.length > 0"
+                        class="contatos"
+                    >
+                        <!-- Pesquisando contatos -->
+                        <lista-atendimentos
+                            :lista="listaContatosPesquisa"
+                            :change="abrirConversa"
+                            :ativado="ativado"
+                            :tipo="tipo_usuario"
+                            :novo="notificacao"
+                            :lista_fone="lista_fones_notificados"
+                            :qtdmensagens="qtdmensagens"
+                        />
+                    </div>
 
-                <span
-                    v-else
-                    class="contatos"
-                >
-                    <!-- Listagem de Contatos -->
+                    <div
+                        v-else
+                        class="contatos"
+                    >
+                        <!-- Listagem de Contatos -->
 
-                    <span v-if="listaContatosInterno">
+                        {{ teste(listaContatos) }}
+
                         <lista-atendimentos-chat-interno
+                            v-if="listaContatosInterno"
                             :lista="listaContatosInterno"
                             :change="abrirConversaChatInterno"
                             :ativado="ativado"
                             :novointerno="qtdmensagensinternas"
                         />
-                    </span>
 
-                    <span v-else>
                         <lista-atendimentos
+                            v-else
                             :lista="listaContatos"
                             :change="abrirConversa"
                             :ativado="ativado"
@@ -190,8 +192,20 @@
                             :lista_fone="lista_fones_notificados"
                             :qtdmensagens="qtdmensagens"
                         />
-                    </span>
-                </span>
+                    </div>
+                </template>
+
+                <div
+                    v-else
+                    class="d-flex justify-content-center mt-4"
+                >
+                    <div
+                        class="spinner-border"
+                        role="status"
+                    >
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
             </div>
 
             <div
@@ -1049,6 +1063,7 @@ export default {
 
             showEmojiPicker: false,
             isChatInternal: false,
+            listaContatosLoading: false,
         }
     },
 
@@ -1093,6 +1108,12 @@ export default {
                 })
             } else {
                 document.removeEventListener('click', this.handleClickOutsideEscolha)
+            }
+        },
+
+        pesquisa(newValue) {
+            if (newValue.length === 0) {
+                this.listaContatosPesquisa = []
             }
         },
     },
@@ -1226,16 +1247,26 @@ export default {
         },
 
         async Pesquisar() {
-            Api.post(`/busca_contatos/ZmlsYWRlYXRlbmRpbWVudG8=`, {
-                id: localStorage.getItem('@USER_ID'),
-                busca: this.pesquisa,
-            })
-                .then(response => {
-                    let data = response.data
+            this.listaContatosLoading = true
 
-                    this.listaContatosPesquisa = data.contatos.data
+            if (this.pesquisa.length === 0) return
+
+            try {
+                const response = await Api.post(`/busca_contatos/ZmlsYWRlYXRlbmRpbWVudG8=`, {
+                    id: localStorage.getItem('@USER_ID'),
+                    busca: this.pesquisa,
                 })
-                .catch(erro => console.error(erro))
+
+                console.log(response.data)
+
+                this.listaContatosPesquisa = response.data.contatos.data
+            } catch (error) {
+                console.error(error)
+
+                this.listaContatosLoading = false
+            } finally {
+                this.listaContatosLoading = false
+            }
         },
 
         callback(msg) {
@@ -1599,6 +1630,7 @@ export default {
 
             this.opcaoSelecionada = 'atendimento'
             this.pesquisa = ''
+
             this.updateStyleTabs()
         },
 
