@@ -221,10 +221,19 @@
                             </button>
 
                             <div class="perfil-content">
+                                <i
+                                    v-if="hasImgError"
+                                    class="fas fa-user-circle"
+                                    style="font-size: 2.5rem; color: #ccc"
+                                ></i>
+
                                 <img
+                                    v-else
                                     :src="selecionado.foto"
                                     alt="foto de perfil"
+                                    @error="hasImgError = true"
                                 />
+
                                 <h5 class="ps-2 fs-5">{{ selecionado.nome }}</h5>
                             </div>
                         </div>
@@ -289,9 +298,17 @@
                             </button>
 
                             <div class="perfil-content">
+                                <i
+                                    v-if="hasImgError"
+                                    class="fas fa-user-circle"
+                                    style="font-size: 2.5rem; color: #ccc"
+                                ></i>
+
                                 <img
+                                    v-else
                                     :src="selecionado.foto"
                                     alt="foto de perfil"
+                                    @error="hasImgError = true"
                                 />
                                 <h5 class="ps-2 fs-5">{{ selecionado.nome }}</h5>
                             </div>
@@ -1062,6 +1079,7 @@ export default {
             showEmojiPicker: false,
             isChatInternal: false,
             listaContatosLoading: false,
+            hasImgError: false,
         }
     },
 
@@ -1113,6 +1131,20 @@ export default {
             if (newValue.length === 0) {
                 this.listaContatosPesquisa = []
             }
+        },
+
+        selecionado: {
+            handler(newVal) {
+                if (!newVal?.foto || newVal?.foto?.length === 0) {
+                    this.hasImgError = true
+
+                    return
+                }
+
+                this.hasImgError = false
+            },
+            immediate: true,
+            deep: true,
         },
     },
 

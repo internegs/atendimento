@@ -56,6 +56,7 @@
                 class="glide__arrow glide__arrow--left"
                 data-glide-dir="<"
                 :disabled="isFirstSlide"
+                @click="updateNavigationState"
             >
                 <i class="fa-solid fa-angle-left"></i>
             </button>
@@ -64,6 +65,7 @@
                 class="glide__arrow glide__arrow--right"
                 data-glide-dir=">"
                 :disabled="isLastSlide"
+                @click="updateNavigationState"
             >
                 <i class="fa-solid fa-angle-right"></i>
             </button>
@@ -213,10 +215,12 @@ export default {
         },
 
         updateNavigationState() {
-            if (!this.glideInstance) return
+            setTimeout(() => {
+                if (!this.glideInstance) return
 
-            this.isFirstSlide = this.glideInstance.index === 0
-            this.isLastSlide = this.glideInstance.index === this.mediaArray.length - 1
+                this.isFirstSlide = this.glideInstance?.index === 0
+                this.isLastSlide = this.glideInstance?.index === this.mediaArray?.length - 1
+            }, 200)
         },
 
         teste(value) {

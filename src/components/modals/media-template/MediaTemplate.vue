@@ -4,18 +4,27 @@
             <div class="header-wrapper">
                 <div class="user-wrapper">
                     <div class="user-photo">
-                        <img
-                            v-if="dataMedia?.wook !== 'onack'"
-                            :src="dataMedia?.userPhoto"
-                            alt="foto de perfil"
-                        />
+                        <i
+                            v-if="hasImgError"
+                            class="fas fa-user-circle"
+                            style="font-size: 3rem; color: #3b4a54"
+                        ></i>
 
-                        <div
-                            v-else
-                            class="callcenter-icon"
-                        >
-                            <i class="fa-solid fa-headset"></i>
-                        </div>
+                        <template v-else>
+                            <img
+                                v-if="dataMedia?.wook !== 'onack'"
+                                :src="dataMedia?.userPhoto"
+                                alt="foto de perfil"
+                                @error="hasImgError = true"
+                            />
+
+                            <div
+                                v-else
+                                class="callcenter-icon"
+                            >
+                                <i class="fa-solid fa-headset"></i>
+                            </div>
+                        </template>
                     </div>
 
                     <div class="user-info">
@@ -68,7 +77,7 @@ export default {
     },
 
     props: {
-        dataMedia: [Object, Array],
+        dataMedia: Object,
 
         download: {
             type: Boolean,
@@ -78,9 +87,35 @@ export default {
 
     emits: ['close-modal'],
 
+    data() {
+        return {
+            hasImgError: false,
+        }
+    },
+
+    watch: {
+        dataMedia: {
+            handler(newVal) {
+                if (!newVal?.userPhoto || newVal?.userPhoto?.length === 0) {
+                    this.hasImgError = true
+
+                    return
+                }
+
+                this.hasImgError = false
+            },
+            immediate: true,
+            deep: true,
+        },
+    },
+
     methods: {
         downloadImage(url) {
             window.open(url, '_blank')
+        },
+
+        teste(val) {
+            console.log(val)
         },
     },
 }

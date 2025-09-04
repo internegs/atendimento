@@ -1316,15 +1316,6 @@ export default {
     align-items: center;
 }
 
-.box-mensagens {
-    width: 100%;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-
-    margin: 10px 0;
-}
-
 .message .message-normal {
     position: relative;
     right: 0;
@@ -1336,6 +1327,15 @@ export default {
     white-space: pre-line;
     word-break: break-word;
 }
+.box-mensagens {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    width: 100%;
+
+    margin: 10px 0;
+}
+
 
 .message .message-wrapper,
 .message .message-wrapper-list {
@@ -1348,7 +1348,6 @@ export default {
 .message-wrapper .message-normal,
 .message-wrapper-list .message-normal {
     position: relative;
-    right: 0;
     max-width: 100%;
     padding: 15px;
     background-color: #efefef;
@@ -1468,10 +1467,6 @@ export default {
 
 .message-normal .video-wrapper video {
     width: 100%;
-}
-
-.frnd_message {
-    align-items: flex-start;
 }
 
 .conteiner {
