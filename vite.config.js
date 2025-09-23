@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
+import * as fs from 'node:fs'
 
 export default defineConfig({
     plugins: [vue({})],
@@ -13,6 +14,10 @@ export default defineConfig({
 
     server: {
         port: 8081,
+        https: {
+            key: fs.readFileSync('./localhost+2-key.pem'),
+            cert: fs.readFileSync('./localhost+2.pem'),
+        },
     },
 
     optimizeDeps: {

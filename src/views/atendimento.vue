@@ -635,7 +635,10 @@
                         v-else
                         class="chat-message chatbox_input w-100 d-flex gap-2 align-items-center py-3 px-2 rounded-3 shadow-sm"
                     >
-                        <div class="input-group-prepend">
+                        <div
+                            v-if="!isRecorder"
+                            class="input-group-prepend"
+                        >
                             <!-- CSS do efeito em transitions.scss -->
                             <transition
                                 name="menu-slide"
@@ -715,7 +718,10 @@
                             </button>
                         </div>
 
-                        <div class="input-group-prepend position-relative">
+                        <div
+                            v-if="!isRecorder"
+                            class="input-group-prepend position-relative"
+                        >
                             <button
                                 class="btn-emoji"
                                 type="button"
@@ -740,6 +746,7 @@
 
                         <div class="d-flex gap-2 w-100 align-items-center">
                             <textarea
+                                v-if="!isRecorder"
                                 v-model="mensagem"
                                 class="input-area form-control px-2 py-1 w-100"
                                 rows="1"
@@ -759,6 +766,12 @@
                                     alt="Enviar"
                                 />
                             </button>
+
+                            <audio-recorder-component
+                                v-else
+                                @is-recording="viewIsRecordingEvent"
+                                @handle-btn-send="sendRecorderAudio"
+                            />
                         </div>
                     </div>
                 </div>
@@ -989,6 +1002,8 @@ import DisplayDocument from '@/components/modals/display-document/DisplayDocumen
 import DisplayTemplateMessage from '@/components/modals/display-template-message/DisplayTemplateMessage.vue'
 import { formatSize } from '@/utils/formatters'
 import DisplayMediaPreview from '@/components/modals/display-media-preview/DisplayMediaPreview.vue'
+import AudioRecorderComponent from '@/components/atendimento/acao/AudioRecorderComponent.vue'
+import api from '@/services/api'
 
 export default {
     name: 'atendimento',
@@ -1009,6 +1024,7 @@ export default {
         DisplayDocument,
         DisplayTemplateMessage,
         DisplayMediaPreview,
+        AudioRecorderComponent,
     },
 
     data() {
@@ -1080,6 +1096,8 @@ export default {
             isChatInternal: false,
             listaContatosLoading: false,
             hasImgError: false,
+
+            isRecorder: false,
         }
     },
 
@@ -1180,59 +1198,6 @@ export default {
     },
 
     methods: {
-        startRecording() {
-            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-                this.mediaRecorder = new MediaRecorder(stream)
-
-                this.mediaRecorder.ondataavailable = data => {}
-
-                this.mediaRecorder.start()
-
-                setTimeout(() => {
-                    this.mediaRecorder.stop()
-                }, 3000)
-            })
-        },
-
-        stopRecording() {
-            this.mediaRecorder.stop()
-            const blob = new Blob(this.chunks, { type: 'audio/ogg; codecs=opus' })
-            const reader = new window.FileReader()
-            reader.readAsDataURL(blob)
-            reader.onloadend = () => {
-                console.log(reader.result)
-            }
-            const audioURL = URL.createObjectURL(blob)
-            this.$refs.audio.src = audioURL
-        },
-
-        onStream(stream) {
-            this.mediaRecorder = new MediaRecorder(stream)
-
-            this.mediaRecorder.start()
-
-            this.mediaRecorder.ondataavailable = event => {
-                this.chunks.push(event.data)
-            }
-        },
-
-        onResult(data) {
-            this.recordings.push({
-                src: window.URL.createObjectURL(data),
-            })
-
-            this.mediaRecorder.stop()
-
-            const blob = new Blob(this.chunks, { type: 'audio/mpeg' })
-            const reader = new window.FileReader()
-
-            reader.readAsDataURL(blob)
-            reader.onloadend = () => {
-                this.base64 = reader.result
-                console.log(this.base64)
-            }
-        },
-
         ativarNotificacao() {
             this.audioStatus = !this.audioStatus
 
@@ -1774,8 +1739,6 @@ export default {
         },
 
         chamarAtendimentosFila() {
-            // this.opcaoSelecionada = "fila";
-
             if (this.listaContatosInterno) {
                 this.abrirMsg = false
             }
@@ -1797,16 +1760,6 @@ export default {
                     this.listaContatos = data.fila
                 })
 
-                .catch(error => console.error(error))
-        },
-
-        atualizaPerfil() {
-            let objConversas = {
-                id: localStorage.getItem('@USER_ID'),
-            }
-
-            Api.post('/atualiza_perfil/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
-                .then(() => {})
                 .catch(error => console.error(error))
         },
 
@@ -2220,6 +2173,55 @@ export default {
             if (!msgs && !Array.isArray(msgs) && msgs.length === 0) return []
 
             return msgs.filter(msg => msg.type && (msg.type === 'image' || msg.type === 'video'))
+        },
+
+        viewIsRecordingEvent(isRecording) {
+            this.isRecorder = isRecording
+        },
+
+        async sendRecorderAudio(audioData) {
+            try {
+                const obj = {
+                    user_id: localStorage.getItem('@USER_ID'),
+                    fone: this.selecionado?.fone,
+                    midia: audioData,
+                    type: 2,
+                }
+
+                const binaryObj = new FormData()
+
+                Object.entries(obj).forEach(([key, value]) => {
+                    binaryObj.append(key, value)
+                })
+
+                await api.post('/envia_midianovo/ZmlsYWRlYXRlbmRpbWVudG8=', binaryObj)
+
+                this.atualizarConversa()
+            } catch (error) {
+                console.error(error)
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro ',
+                    text: 'Erro ao enviar audio.',
+                    confirmButtonColor: '#17a2b8',
+
+                    didOpen: () => {
+                        const confirmBtn = Swal.getConfirmButton()
+                        const actionsContainer = confirmBtn.parentElement
+
+                        actionsContainer.style.width = '100%'
+                        actionsContainer.style.display = 'flex'
+                        actionsContainer.style.justifyContent = 'center'
+
+                        confirmBtn.style.width = '90%'
+                    },
+                }).then(() => {
+                    this.isRecorder = false
+                })
+            } finally {
+                this.isRecorder = false
+            }
         },
 
         teste(value) {
