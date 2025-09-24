@@ -1889,9 +1889,6 @@ export default {
             const optMenu = this.$refs.optMenu
             const btnEscolhasClick = event.target.closest('.btn-escolhas')
 
-            console.log(event.target)
-            console.log(optMenu)
-
             if (optMenu && !optMenu.contains(event.target) && !btnEscolhasClick) {
                 this.abrirEscolha = false
             }
@@ -2325,32 +2322,6 @@ img {
     position: relative;
 }
 
-.bola {
-    border-radius: 50%;
-    display: inline-block;
-    height: 100px;
-    width: 100px;
-    border: 1px solid #000000;
-    background-color: #ffff00;
-}
-
-.settings {
-    position: absolute;
-    top: 0;
-    cursor: pointer;
-    right: 0;
-    padding: 1%;
-}
-
-.settings-mobile {
-    display: none;
-    position: absolute;
-    top: -2px;
-    left: 10px;
-    cursor: pointer;
-    padding: 5px;
-}
-
 .settings img {
     width: 30px;
     height: 30px;
@@ -2588,14 +2559,6 @@ img {
     bottom: 66px !important;
 }
 
-.deletar-audio {
-    margin-right: auto;
-}
-
-.bg-cinza-claro {
-    background-color: #e3eaef !important;
-}
-
 .bg-message {
     background-color: #f0f2f5 !important;
 }
@@ -2651,10 +2614,6 @@ img {
 .perfil-content img,
 .perfil-container button {
     border-radius: 50%;
-}
-
-.details {
-    margin-left: 10px;
 }
 
 .chatbox_input_interno {
@@ -2737,10 +2696,6 @@ img {
     bottom: 2rem;
 }
 
-.tamanho-3 {
-    font-size: 2rem;
-}
-
 .input-area {
     resize: none;
     min-height: 30px;
@@ -2804,10 +2759,6 @@ img {
         display: none;
     }
 
-    .settings-mobile {
-        display: block;
-    }
-
     .rightSide.apresentacao {
         display: none;
     }
@@ -2835,12 +2786,6 @@ img {
 
     .responsive {
         display: block;
-    }
-
-    .emoji-picker {
-        max-width: 17rem !important;
-        max-height: 10rem !important;
-        overflow-x: hidden;
     }
 
     .btn-send {
@@ -2885,7 +2830,4 @@ img {
     color: #7994a4;
 }
 
-.ml-auto {
-    margin-left: auto;
-}
 </style>
