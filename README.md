@@ -1,24 +1,57 @@
-# inzapbrasilvue
+# INZUPT - Atendimentos
 
-## Project setup
-```
-yarn install
-```
+Projeto, apenas, relacionado a área de atendimento do INZUPT.
 
-### Compiles and hot-reloads for development
-```
-yarn dev
-```
+## Pré-requisitos
 
-### Compiles and minifies for production
-```
-yarn build
+- **Node.js**: versão 18 ou superior
+- **Yarn**: versão 4.9.4
+
+### Verificar versões instaladas
+```bash
+    node --version
+    yarn --version
 ```
 
-### Lints and fixes files
-```
-yarn lint
+### Atualização do Yarn
+```bash
+    corepack enable && corepack install -g yarn@4.9.4
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Instalação
+
+1. Clone o repositório:
+```bash
+    git clone [url-do-repositorio]
+    cd [nome-do-projeto]
+```
+
+2. Instale as dependências:
+```bash
+  yarn install
+```
+
+## Execução
+
+### Desenvolvimento
+```bash
+  yarn dev
+```
+
+### Build de produção
+```bash
+  yarn build
+```
+
+### Visualizar build local
+```bash
+  yarn preview
+```
+
+## Scripts disponíveis
+
+- `yarn dev` - Inicia servidor de desenvolvimento
+- `yarn build` - Gera build de produção
+- `yarn preview` - Visualiza build localmente
+- `yarn lint` - Executa linter
+- `yarn test` - Executa testes (se configurados)
