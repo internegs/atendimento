@@ -13,7 +13,14 @@ export default function useAudioRecorder() {
     let audioStream = null
 
     const mimeTypes = computed(() => {
-        const mimes = ['audio/webm;codec=opus', 'audio/webm', 'audio/mp4', 'audio/wav']
+        const mimes = [
+            'audio/ogg;codecs=opus',
+            'audio/ogg;codecs=vorbis',
+            'audio/ogg',
+            'audio/webm;codecs=opus',
+            'audio/webm',
+            'audio/mp4',
+        ]
 
         for (const type of mimes) {
             if (MediaRecorder.isTypeSupported(type)) {
@@ -21,7 +28,9 @@ export default function useAudioRecorder() {
             }
         }
 
-        return 'audio/wav'
+        console.error('Nenhum formato de audio válido')
+
+        return null
     })
 
     const timerCounter = computed(() => {
@@ -63,7 +72,6 @@ export default function useAudioRecorder() {
         mediaRecorder.start()
         isRecording.value = true
         timer.start()
-
     }
 
     const stop = () => {
