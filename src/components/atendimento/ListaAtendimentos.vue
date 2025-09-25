@@ -140,7 +140,7 @@ export default {
 
             if (value.length > 13) {
                 if (value?.includes('+')) {
-                    return `+${value.slice(1, 3)} (${value.slice(3, 5)}) ${value.slice(5, 6)} ${value.slice(6, 10)}-${value.slice(10)}`
+                    return `${value.slice(1, 3)} (${value.slice(3, 5)}) ${value.slice(5, 6)} ${value.slice(6, 10)}-${value.slice(10)}`
                 }
 
                 return value
