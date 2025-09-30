@@ -2260,8 +2260,6 @@ img {
         0 1px 1px 0 rgba(0, 0, 0, 0.06),
         0 2px 5px 0 rgba(0, 0, 0, 0.06);
     overflow: hidden;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
 }
 
 .box::-webkit-scrollbar {
@@ -2272,6 +2270,8 @@ img {
 
 .box .leftSide {
     position: relative;
+    display: flex;
+    flex-direction: column;
     flex: 30%;
     background-color: #fff;
 }
@@ -2829,5 +2829,4 @@ img {
     background-color: #e5e7ea;
     color: #7994a4;
 }
-
 </style>

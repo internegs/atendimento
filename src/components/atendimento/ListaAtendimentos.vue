@@ -163,8 +163,8 @@ img {
 
 .chat-list {
     position: relative;
+    height: 99%;
     overflow-y: auto;
-    height: calc(100% - 110px);
 }
 
 .chat-list .block {

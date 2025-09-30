@@ -50,8 +50,8 @@ button {
     background-color: transparent;
 }
 ::-webkit-scrollbar {
-    max-width: 8px;
-    max-height: 8px;
+    max-width: 4px;
+    max-height: 4px;
     background: transparent;
 }
 ::-webkit-scrollbar-thumb {
