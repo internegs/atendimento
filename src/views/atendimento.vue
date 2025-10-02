@@ -767,11 +767,11 @@
                                 />
                             </button>
 
-                            <audio-recorder-component
-                                v-else
-                                @is-recording="viewIsRecordingEvent"
-                                @handle-btn-send="sendRecorderAudio"
-                            />
+<!--                            <audio-recorder-component-->
+<!--                                v-else-->
+<!--                                @is-recording="viewIsRecordingEvent"-->
+<!--                                @handle-btn-send="sendRecorderAudio"-->
+<!--                            />-->
                         </div>
                     </div>
                 </div>
