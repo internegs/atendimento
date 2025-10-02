@@ -1,7 +1,7 @@
-const ORIGIN = 'http://localhost:8080'
+const ORIGIN_ADMIN = import.meta.env.VITE_ORIGIN_ADMIN
 
 const LINKS = {
-    login: `${ORIGIN}/login`,
+    login: `${ORIGIN_ADMIN}/login`,
 }
 
 export default LINKS
