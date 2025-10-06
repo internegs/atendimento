@@ -2,7 +2,6 @@ import Api from '@/services/api'
 import LINKS from '@/utils/links'
 import { localStorageDecode } from '@/utils/localStorageDecode'
 
-
 export default {
     logout: function (to, from, next) {
         const objEnviaMensagem = {
@@ -12,10 +11,12 @@ export default {
         Api.post('/logout/ZmlsYWRlYXRlbmRpbWVudG8=', objEnviaMensagem)
             .then(() => {
                 localStorage.clear()
+
                 window.location.replace(LINKS.login)
             })
             .catch(() => {
                 localStorage.clear()
+
                 window.location.replace(LINKS.login)
             })
     },
