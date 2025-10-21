@@ -2,7 +2,7 @@ import Axios from 'axios'
 
 const api = Axios.create({
     baseURL: 'https://inzupt.com/api',
-    timeout: 15000,
+    timeout: 50000,
 })
 
 api.interceptors.request.use(
