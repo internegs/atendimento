@@ -749,7 +749,7 @@
                                 v-if="!isRecorder"
                                 v-model="mensagem"
                                 class="input-area form-control px-2 py-1 w-100"
-                                rows="3"
+                                rows="4"
                                 placeholder="Mensagem"
                                 @keyup.enter.exact="enviarMensagem(1)"
                             ></textarea>
