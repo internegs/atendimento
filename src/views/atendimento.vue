@@ -1567,7 +1567,7 @@ export default {
         },
 
         abrirConversa(info_user) {
-            this.processando = false
+            this.processando = true
             this.selecionado = info_user.usuario
 
             let objConversas = {

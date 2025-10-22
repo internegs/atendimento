@@ -5,7 +5,9 @@
         class="chatBox"
         :class="estadoResponderMensagem ? 'layoutResponderAlturaTeclado' : ''"
     >
-        <div v-if="processando">Carregando...</div>
+        <div v-if="processando">
+            <span class="fs-4">Carregando...</span>
+        </div>
 
         <div
             v-for="(mensagem, index) in mensagens"
@@ -984,9 +986,9 @@
         ref="chatContainer"
         class="chatBox"
     >
-        <h1>
+        <span class="fs-4">
             {{ validationMessage }}
-        </h1>
+        </span>
     </div>
 </template>
 
