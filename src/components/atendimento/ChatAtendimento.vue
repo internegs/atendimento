@@ -985,7 +985,7 @@
         class="chatBox"
     >
         <h1>
-            {{ mensagens }}
+            {{ mensagens || 'Carregando...' }}
         </h1>
     </div>
 </template>
