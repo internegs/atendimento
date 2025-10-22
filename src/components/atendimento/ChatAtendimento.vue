@@ -5,7 +5,7 @@
         class="chatBox"
         :class="estadoResponderMensagem ? 'layoutResponderAlturaTeclado' : ''"
     >
-        <div v-if="processando">Atualizando mensagens...</div>
+        <div v-if="processando">Carregando...</div>
 
         <div
             v-for="(mensagem, index) in mensagens"
@@ -985,7 +985,7 @@
         class="chatBox"
     >
         <h1>
-            {{ mensagens || 'Carregando...' }}
+            {{ validationMessage }}
         </h1>
     </div>
 </template>
@@ -1075,6 +1075,14 @@ export default {
 
                 return null
             }
+        },
+
+        validationMessage() {
+            if (this.mensagens.length < 1) {
+                return 'Não há mensagens disponíveis'
+            }
+
+            return this.mensagens
         },
     },
 

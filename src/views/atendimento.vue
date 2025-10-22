@@ -1567,6 +1567,7 @@ export default {
         },
 
         abrirConversa(info_user) {
+            this.processando = false
             this.selecionado = info_user.usuario
 
             let objConversas = {
@@ -1611,8 +1612,12 @@ export default {
                     }
 
                     this.chamarMeusAtendimentos()
+                    this.processando = false
                 })
-                .catch(error => console.error(error))
+                .catch(error => {
+                    console.error(error)
+                    this.processando = false
+                })
 
             this.abrirMsg = true
 
