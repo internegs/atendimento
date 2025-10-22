@@ -1,4 +1,5 @@
 import Axios from 'axios'
+import middleware from '@/services/middleware.js'
 
 const api = Axios.create({
     baseURL: 'https://inzupt.com/api',
@@ -6,7 +7,7 @@ const api = Axios.create({
 })
 
 api.interceptors.request.use(
-    (config) => {
+    config => {
         const token_acess = localStorage.getItem('@TOKEN')
 
         if (token_acess) {
@@ -15,8 +16,32 @@ api.interceptors.request.use(
 
         return config
     },
-    (error) => {
+    error => {
+
         return Promise.reject(error)
+    }
+)
+
+api.interceptors.response.use(
+    response => {
+        return response
+    },
+
+    error => {
+        if (error.response) {
+            switch (error.response.status) {
+                case 401:
+                    console.warn('Não autorizado - redirecionando para login')
+
+                    middleware.logout()
+
+                    break
+            }
+        } else if (error.request) {
+            console.error('Sem resposta do servidor')
+        } else {
+            console.error('Error:', error.message)
+        }
     }
 )
 
