@@ -1284,7 +1284,7 @@ export default {
 .chatBox {
     position: relative;
     width: 100%;
-    height: 84%;
+    height: 82%;
     padding: 20px;
     overflow-y: auto;
     background-color: #f5f1eb;
@@ -1292,13 +1292,13 @@ export default {
 
 @media (max-width: 576px) {
     .chatBox {
-        height: 82.6%;
+        height: 82%;
     }
 }
 
 @media (min-width: 1400px) {
     .chatBox {
-        height: 86%;
+        height: 83%;
     }
 }
 
