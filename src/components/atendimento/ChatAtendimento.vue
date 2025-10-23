@@ -1286,6 +1286,7 @@ export default {
     justify-content: space-around;
 }
 
+
 .vcard-body {
     text-align: center;
     margin-top: 10px;

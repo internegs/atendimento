@@ -21,10 +21,10 @@
 
                         <video
                             v-else-if="media.type === 'video'"
+                            :ref="el => setVideoRef(el, index)"
                             :src="media.url_link"
                             controls
                             preload="metadata"
-                            autoplay
                         />
 
                         <div
@@ -162,6 +162,7 @@ export default {
             currentSlide: this.startAt,
             isFirstSlide: false,
             isLastSlide: false,
+            videoRefs: {},
         }
     },
 
@@ -193,6 +194,12 @@ export default {
     },
 
     methods: {
+        setVideoRef(el, index) {
+            if (el) {
+                this.videoRefs[index] = el
+            }
+        },
+
         initGlide() {
             if (!this.$refs.glide || !this.mediaArray.length) return
 
@@ -209,6 +216,11 @@ export default {
             }
 
             this.glideInstance = new Glide(this.$refs.glide, config)
+
+            this.glideInstance.on('run.before', () => {
+                this.stopAllVideos()
+            })
+
             this.glideInstance.mount()
 
             this.updateNavigationState()
@@ -223,8 +235,13 @@ export default {
             }, 200)
         },
 
-        teste(value) {
-            console.log(value)
+        stopAllVideos() {
+            Object.values(this.videoRefs).forEach(video => {
+                if (video) {
+                    video.pause()
+                    video.currentTime = 0
+                }
+            })
         },
     },
 }
@@ -254,8 +271,10 @@ export default {
                     display: flex;
                     justify-content: center;
                     align-items: center;
-                    max-width: 90%;
-                    max-height: 50%;
+                    width: 90%;
+                    height: 80%;
+                    max-width: 600px;
+                    max-height: 600px;
 
                     @media (min-width: 768px) {
                         & {
@@ -273,6 +292,8 @@ export default {
                     video {
                         max-width: 100%;
                         max-height: 100%;
+                        width: 100%;
+                        height: 100%;
                         object-fit: contain;
                         border-radius: 8px;
                     }
