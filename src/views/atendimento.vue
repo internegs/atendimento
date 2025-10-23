@@ -749,7 +749,7 @@
                                 v-if="!isRecorder"
                                 v-model="mensagem"
                                 class="input-area form-control px-2 py-1 w-100"
-                                rows="4"
+                                rows="2"
                                 placeholder="Mensagem"
                                 @keyup.enter.exact="enviarMensagem(1)"
                             ></textarea>
@@ -767,11 +767,11 @@
                                 />
                             </button>
 
-<!--                            <audio-recorder-component-->
-<!--                                v-else-->
-<!--                                @is-recording="viewIsRecordingEvent"-->
-<!--                                @handle-btn-send="sendRecorderAudio"-->
-<!--                            />-->
+                            <!--                            <audio-recorder-component-->
+                            <!--                                v-else-->
+                            <!--                                @is-recording="viewIsRecordingEvent"-->
+                            <!--                                @handle-btn-send="sendRecorderAudio"-->
+                            <!--                            />-->
                         </div>
                     </div>
                 </div>

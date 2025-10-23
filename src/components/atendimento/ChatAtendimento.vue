@@ -1300,9 +1300,9 @@ export default {
     background-color: #f5f1eb;
 }
 
-@media (max-width: 576px) {
+@media (min-width: 576px) {
     .chatBox {
-        height: 82%;
+        height: 78%;
     }
 }
 
