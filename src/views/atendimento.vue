@@ -568,7 +568,7 @@
                             <textarea
                                 v-model="mensagem"
                                 class="input-area form-control px-2 py-1 w-100"
-                                rows="1"
+                                :rows="textareaRowsSize"
                                 placeholder="Mensagem"
                                 @keyup.enter.exact="enviarMensagemChatInterno()"
                             ></textarea>
@@ -633,7 +633,7 @@
 
                     <div
                         v-else
-                        class="chat-message chatbox_input w-100 d-flex gap-2 align-items-center py-3 px-2 rounded-3 shadow-sm"
+                        class="chat-message chatbox_input w-100 d-flex align-items-end gap-2 py-3 px-2 rounded-3 shadow-sm"
                     >
                         <div
                             v-if="!isRecorder"
@@ -720,7 +720,7 @@
 
                         <div
                             v-if="!isRecorder"
-                            class="input-group-prepend position-relative"
+                            class="input-group-prepend position-relative d-flex justify-content-center align-items-center"
                         >
                             <button
                                 class="btn-emoji"
@@ -744,14 +744,16 @@
                             </transition>
                         </div>
 
-                        <div class="d-flex gap-2 w-100 align-items-center">
+                        <div class="d-flex gap-2 w-100 align-items-end">
                             <textarea
                                 v-if="!isRecorder"
+                                ref="textarea"
                                 v-model="mensagem"
                                 class="input-area form-control px-2 py-1 w-100"
-                                rows="2"
+                                :rows="textareaRows"
                                 placeholder="Mensagem"
                                 @keyup.enter.exact="enviarMensagem(1)"
+                                @input="verifyTextareaRowsSize"
                             ></textarea>
 
                             <button
@@ -1098,6 +1100,7 @@ export default {
             hasImgError: false,
 
             isRecorder: false,
+            textareaRows: 1,
         }
     },
 
@@ -2226,8 +2229,18 @@ export default {
             }
         },
 
-        teste(value) {
-            console.log(value)
+        verifyTextareaRowsSize() {
+            const textarea = this.$refs.textarea
+            this.textareaRows = 1
+
+            this.$nextTick(() => {
+                const style = window.getComputedStyle(textarea)
+                const lineHeight = parseInt(style.lineHeight) // altura de uma linha
+                const scrollHeight = textarea.scrollHeight // altura total
+
+                const requiredRows = Math.floor(scrollHeight / lineHeight) // número de linhas
+                this.textareaRows = Math.min(requiredRows, 10)
+            })
         },
     },
 }
@@ -2345,7 +2358,6 @@ img {
 
 .menu-escolhas {
     position: absolute;
-    bottom: 60px;
     left: 10px;
     bottom: 4rem;
     display: flex;
@@ -2539,8 +2551,7 @@ img {
 .search input {
     width: 100%;
     position: relative;
-    padding: 10px;
-    padding-left: 30px;
+    padding: 10px 10px 10px 30px;
 
     border-radius: 5px;
     outline: 0;
@@ -2632,8 +2643,9 @@ img {
 
 .chatbox_input {
     position: absolute;
-    bottom: 0;
+    bottom: 4px;
     z-index: 10;
+    max-height: 500px;
 
     background-color: #f0f2f5 !important;
 }
@@ -2654,6 +2666,13 @@ img {
     }
 }
 
+.btn-emoji {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2px 0px;
+}
+
 .input-group-prepend .btn-escolhas {
     padding: 6px 5px !important;
 }
@@ -2668,6 +2687,7 @@ img {
 .btn-emoji:focus {
     outline: none;
     border: 2px solid #bbb9b9 !important;
+    border-radius: 50%;
 }
 
 .input-group-prepend .btn-escolhas i,
@@ -2704,7 +2724,6 @@ img {
 .input-area {
     resize: none;
     min-height: 30px;
-    max-height: 120px;
     overflow-y: hidden;
     line-height: 1.4;
     transition: height 100ms ease;

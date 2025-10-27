@@ -1303,13 +1303,13 @@ export default {
 
 @media (min-width: 576px) {
     .chatBox {
-        height: 78%;
+        height: 82%;
     }
 }
 
 @media (min-width: 1400px) {
     .chatBox {
-        height: 83%;
+        height: 86%;
     }
 }
 
