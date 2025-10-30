@@ -67,7 +67,7 @@
                 </div>
 
                 <div
-                    v-if="tipo == 1"
+                    v-if="tipo && (tipo === 1 || tipo === '1')"
                     class="name text-danger"
                     style="font-size: 0.7rem"
                 >
