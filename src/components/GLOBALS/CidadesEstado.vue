@@ -63,6 +63,8 @@
 
 <script>
 import Api from '@/services/api'
+import { mapState } from 'pinia'
+import { useListStatesStore } from '@/stores/useListStatesStore.js'
 
 export default {
     name: 'CidadesEstado',
@@ -91,6 +93,10 @@ export default {
         }
     },
 
+    computed: {
+        ...mapState(useListStatesStore, ['states']), // pinia
+    },
+
     watch: {
         async reset(newValue) {
             if (newValue) {
@@ -100,29 +106,19 @@ export default {
     },
 
     mounted() {
+
         const eventName = this.modalType === 'add' ? 'modal-add-opened' : 'modal-edit-opened'
+
         window.addEventListener(eventName, this.handleModalOpen)
     },
 
     beforeUnmount() {
         const eventName = this.modalType === 'add' ? 'modal-add-opened' : 'modal-edit-opened'
+
         window.removeEventListener(eventName, this.handleModalOpen)
     },
 
     methods: {
-        async getEstados() {
-            await Api.post(`/cidades/ZmlsYWRlYXRlbmRpbWVudG8=`, {
-                id: localStorage.getItem('@USER_ID'),
-                uf_id: this.data.uf,
-            })
-                .then(response => {
-                    this.estados = response.data.estados
-                })
-                .catch(err => {
-                    console.error(err)
-                })
-        },
-
         async getCidades() {
             await Api.post(`/cidades/ZmlsYWRlYXRlbmRpbWVudG8=`, {
                 id: localStorage.getItem('@USER_ID'),
@@ -137,7 +133,7 @@ export default {
         },
 
         async handleModalOpen() {
-            await this.getEstados()
+            this.estados = this.states // pinia
 
             if (this.user) {
                 await this.fillData(this.user)

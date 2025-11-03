@@ -1005,7 +1005,8 @@ import DisplayTemplateMessage from '@/components/modals/display-template-message
 import { formatSize } from '@/utils/formatters'
 import DisplayMediaPreview from '@/components/modals/display-media-preview/DisplayMediaPreview.vue'
 import AudioRecorderComponent from '@/components/atendimento/acao/AudioRecorderComponent.vue'
-import api from '@/services/api'
+import { mapActions } from 'pinia'
+import { useListStatesStore } from '@/stores/useListStatesStore.js'
 
 export default {
     name: 'atendimento',
@@ -1169,12 +1170,14 @@ export default {
         },
     },
 
-    mounted() {
+    async mounted() {
         this.session = localStorage.getItem('@SESSION')
         this.alerta = localStorage.getItem('@MENSAGEM')
 
+        await this.getEstados()
+
         if (this.alerta === 'browserClose') {
-            Swal.fire(
+            await Swal.fire(
                 'Celular Desconectado!',
                 'Solicite ao Administrador para reconectar o celular, mensagens não serão enviadas ou recebidas',
                 'error'
@@ -1189,7 +1192,7 @@ export default {
         this.atualizafila()
         this.novamensagem()
         this.novamensageminterna()
-        this.chamarMeusAtendimentos()
+        await this.chamarMeusAtendimentos()
         this.chamaGrupo()
         this.updateStyleTabs()
     },
@@ -1201,6 +1204,8 @@ export default {
     },
 
     methods: {
+        ...mapActions(useListStatesStore, ['setStates']),
+
         ativarNotificacao() {
             this.audioStatus = !this.audioStatus
 
@@ -1884,6 +1889,20 @@ export default {
             this.abrirMsg = false
         },
 
+        async getEstados() {
+            try {
+                const response = await Api.post(`/cidades/ZmlsYWRlYXRlbmRpbWVudG8=`, {
+                    id: localStorage.getItem('@USER_ID'),
+                })
+
+                this.setStates(response.data.estados)
+
+                console.log('/cidades => 200 OK')
+            } catch (error) {
+                console.error(error)
+            }
+        },
+
         handleClickOutside(event) {
             const dropdownContent = this.$refs.dropdownContent
             const btnOptClick = event.target.closest('.btn-opt')
@@ -2027,7 +2046,7 @@ export default {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Erro',
-                                text: `O arquivo selecionado é muito grande (${formatSize(file.size)}). 
+                                text: `O arquivo selecionado é muito grande (${formatSize(file.size)}).
                                     Por favor, selecione um arquivo de até ${formatSize(maxSize)}.`,
                                 confirmButtonColor: '#17a2b8',
 
@@ -2121,7 +2140,7 @@ export default {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Erro',
-                                text: `A mídia selecionado é muito grande (${formatSize(file.size)}). 
+                                text: `A mídia selecionado é muito grande (${formatSize(file.size)}).
                                     Por favor, selecione uma mídia de até ${formatSize(maxSize)}.`,
                                 confirmButtonColor: '#17a2b8',
 
@@ -2199,7 +2218,7 @@ export default {
                     binaryObj.append(key, value)
                 })
 
-                await api.post('/envia_midianovo/ZmlsYWRlYXRlbmRpbWVudG8=', binaryObj)
+                await Api.post('/envia_midianovo/ZmlsYWRlYXRlbmRpbWVudG8=', binaryObj)
 
                 this.atualizarConversa()
             } catch (error) {
