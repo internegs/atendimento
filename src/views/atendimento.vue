@@ -483,32 +483,11 @@
                 </div>
 
                 <div
-                    v-if="estadoResponderMensagem"
-                    class="chat-message-label position-relative"
-                    style="background-color: #f0f2f5 !important"
-                >
-                    <div class="caixa">{{ mensagemResponder }}</div>
-                    <div class="input-group-prepend">
-                        <span
-                            style="padding: 10px; margin-left: auto"
-                            class="cursor-pointer"
-                            @click="fecharResponderLayout()"
-                        >
-                            <img
-                                src="../assets/close.png"
-                                alt=""
-                                style="width: 16px; height: 16px"
-                            />
-                        </span>
-                    </div>
-                </div>
-
-                <div
                     v-if="listaContatosInterno"
                     style="background-color: #f5f1eb"
                 >
                     <div
-                        class="chat-message chatbox_input_interno w-100 d-flex gap-3 align-items-center justify-content-center py-3 px-2 rounded-3 shadow-sm"
+                        class="chatbox_input_interno w-100 d-flex gap-3 align-items-center justify-content-center py-3 px-2 rounded-3 shadow-sm"
                     >
                         <div class="input-group-prepend">
                             <transition
@@ -592,7 +571,7 @@
                 <div v-else>
                     <div
                         v-if="estadoEncaminharMensagens"
-                        class="chat-message layout_encaminharMensagem chatbox_input bg-message position-relative"
+                        class="layout_encaminharMensagem chatbox_input bg-message position-relative"
                     >
                         <div class="input-group-prepend">
                             <span
@@ -633,147 +612,164 @@
 
                     <div
                         v-else
-                        class="chat-message chatbox_input w-100 d-flex align-items-end gap-2 py-3 px-2 rounded-3 shadow-sm"
+                        class="chatbox_input d-flex flex-column w-100 py-3 px-2 gap-2 rounded-3 shadow-sm"
                     >
                         <div
-                            v-if="!isRecorder"
-                            class="input-group-prepend"
-                        >
-                            <!-- CSS do efeito em transitions.scss -->
-                            <transition
-                                name="menu-slide"
-                                appear
-                            >
-                                <div
-                                    v-if="abrirEscolha"
-                                    ref="optMenu"
-                                    class="menu-escolhas"
-                                >
-                                    <button
-                                        type="button"
-                                        class="btn-menu"
-                                        @click="openFileManager()"
-                                    >
-                                        <i
-                                            class="fa-solid fa-file"
-                                            style="color: #9141ac"
-                                        ></i>
-
-                                        <span>Documentos</span>
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        class="btn-menu"
-                                        @click="openFileManagerMidiaPreview()"
-                                    >
-                                        <i
-                                            class="fa-solid fa-photo-film"
-                                            style="color: #1c71d8"
-                                        ></i>
-
-                                        <span>Fotos e Videos</span>
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        class="btn-menu"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#compartilharContato"
-                                    >
-                                        <i
-                                            class="fa-solid fa-address-book"
-                                            style="color: #2ec27e"
-                                        ></i>
-
-                                        <span>Contatos</span>
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        class="btn-menu"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#templateMessages"
-                                    >
-                                        <i
-                                            class="fa-solid fa-align-left"
-                                            style="color: #e66100"
-                                        ></i>
-
-                                        <span>Modelo</span>
-                                    </button>
-                                </div>
-                            </transition>
-
-                            <button
-                                type="button"
-                                class="btn-escolhas border-0 shadow-none rounded-circle d-flex justify-content-center align-items-center"
-                                style="padding: 10px"
-                                @click="abrirEscolhas"
-                            >
-                                <i
-                                    class="fa-solid fa-plus fs-4"
-                                    :class="{ rotated: abrirEscolha }"
-                                ></i>
-                            </button>
-                        </div>
-
-                        <div
-                            v-if="!isRecorder"
-                            class="input-group-prepend position-relative d-flex justify-content-center align-items-center"
+                            v-if="estadoResponderMensagem"
+                            class="position-relative d-flex w-100 rounded-3 p-3 bg-white"
                         >
                             <button
-                                class="btn-emoji"
                                 type="button"
-                                @click="showEmojiPicker = !showEmojiPicker"
+                                class="response-btn-close"
+                                @click="fecharResponderLayout"
                             >
-                                <i class="fa-solid fa-face-smile fs-3"></i>
+                                <i class="fa-solid fa-xmark"></i>
                             </button>
 
-                            <transition
-                                name="menu-slide"
-                                appear
-                            >
-                                <emoji-picker
-                                    v-show="showEmojiPicker"
-                                    ref="emojiPicker"
-                                    :native="true"
-                                    class="emoji_picker_position"
-                                    @select="onEmojiSelect"
-                                ></emoji-picker>
-                            </transition>
+                            <div>{{ mensagemResponder }}</div>
                         </div>
 
-                        <div class="d-flex gap-2 w-100 align-items-end">
-                            <textarea
+                        <div class="w-100 d-flex align-items-end gap-2">
+                            <div
                                 v-if="!isRecorder"
-                                ref="textarea"
-                                v-model="mensagem"
-                                class="input-area form-control px-2 py-1 w-100"
-                                :rows="textareaRows"
-                                placeholder="Mensagem"
-                                @keyup.enter.exact="enviarMensagem(1)"
-                                @input="verifyTextareaRowsSize"
-                            ></textarea>
-
-                            <button
-                                v-if="mensagem"
-                                type="button"
-                                class="btn-send"
-                                @click="enviarMensagem(1)"
+                                class="input-group-prepend"
                             >
-                                <img
-                                    src="../assets/enviar.png"
-                                    class="icon-send"
-                                    alt="Enviar"
-                                />
-                            </button>
+                                <!-- CSS do efeito em transitions.scss -->
+                                <transition
+                                    name="menu-slide"
+                                    appear
+                                >
+                                    <div
+                                        v-if="abrirEscolha"
+                                        ref="optMenu"
+                                        class="menu-escolhas"
+                                    >
+                                        <button
+                                            type="button"
+                                            class="btn-menu"
+                                            @click="openFileManager()"
+                                        >
+                                            <i
+                                                class="fa-solid fa-file"
+                                                style="color: #9141ac"
+                                            ></i>
 
-                            <!--                            <audio-recorder-component-->
-                            <!--                                v-else-->
-                            <!--                                @is-recording="viewIsRecordingEvent"-->
-                            <!--                                @handle-btn-send="sendRecorderAudio"-->
-                            <!--                            />-->
+                                            <span>Documentos</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="btn-menu"
+                                            @click="openFileManagerMidiaPreview()"
+                                        >
+                                            <i
+                                                class="fa-solid fa-photo-film"
+                                                style="color: #1c71d8"
+                                            ></i>
+
+                                            <span>Fotos e Videos</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="btn-menu"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#compartilharContato"
+                                        >
+                                            <i
+                                                class="fa-solid fa-address-book"
+                                                style="color: #2ec27e"
+                                            ></i>
+
+                                            <span>Contatos</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="btn-menu"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#templateMessages"
+                                        >
+                                            <i
+                                                class="fa-solid fa-align-left"
+                                                style="color: #e66100"
+                                            ></i>
+
+                                            <span>Modelo</span>
+                                        </button>
+                                    </div>
+                                </transition>
+
+                                <button
+                                    type="button"
+                                    class="btn-escolhas border-0 shadow-none rounded-circle d-flex justify-content-center align-items-center"
+                                    style="padding: 10px"
+                                    @click="abrirEscolhas"
+                                >
+                                    <i
+                                        class="fa-solid fa-plus fs-4"
+                                        :class="{ rotated: abrirEscolha }"
+                                    ></i>
+                                </button>
+                            </div>
+
+                            <div
+                                v-if="!isRecorder"
+                                class="input-group-prepend position-relative d-flex justify-content-center align-items-center"
+                            >
+                                <button
+                                    class="btn-emoji"
+                                    type="button"
+                                    @click="showEmojiPicker = !showEmojiPicker"
+                                >
+                                    <i class="fa-solid fa-face-smile fs-3"></i>
+                                </button>
+
+                                <transition
+                                    name="menu-slide"
+                                    appear
+                                >
+                                    <emoji-picker
+                                        v-show="showEmojiPicker"
+                                        ref="emojiPicker"
+                                        :native="true"
+                                        class="emoji_picker_position"
+                                        @select="onEmojiSelect"
+                                    ></emoji-picker>
+                                </transition>
+                            </div>
+
+                            <div class="d-flex gap-2 w-100 align-items-end">
+                                <textarea
+                                    v-if="!isRecorder"
+                                    ref="textarea"
+                                    v-model="mensagem"
+                                    class="input-area form-control px-2 py-1 w-100"
+                                    :rows="textareaRows"
+                                    placeholder="Mensagem"
+                                    @keyup.enter.exact="enviarMensagem(1)"
+                                    @input="verifyTextareaRowsSize"
+                                ></textarea>
+
+                                <button
+                                    v-if="mensagem"
+                                    type="button"
+                                    class="btn-send"
+                                    @click="enviarMensagem(1)"
+                                >
+                                    <img
+                                        src="../assets/enviar.png"
+                                        class="icon-send"
+                                        alt="Enviar"
+                                    />
+                                </button>
+
+                                <!--                            <audio-recorder-component-->
+                                <!--                                v-else-->
+                                <!--                                @is-recording="viewIsRecordingEvent"-->
+                                <!--                                @handle-btn-send="sendRecorderAudio"-->
+                                <!--                            />-->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2212,6 +2208,10 @@ export default {
                     type: 2,
                 }
 
+                console.log(audioData)
+
+                return
+
                 const binaryObj = new FormData()
 
                 Object.entries(obj).forEach(([key, value]) => {
@@ -2685,6 +2685,23 @@ img {
     }
 }
 
+.response-btn-close {
+    position: absolute;
+    right: 1rem;
+    top: 0.5rem;
+    background-color: transparent;
+}
+
+.response-btn-close i {
+    color: #6c757d;
+
+    transition: all 0.2s ease;
+}
+
+.response-btn-close i:hover {
+    color: #4d5359;
+}
+
 .btn-emoji {
     display: flex;
     justify-content: center;
@@ -2853,23 +2870,5 @@ img {
 
 .fs-16 {
     font-size: 16px;
-}
-
-.chat-message-label {
-    display: flex;
-    margin: auto;
-    align-items: center;
-    background-color: #e3eaef;
-    padding: 15px;
-    justify-content: center;
-}
-
-.caixa {
-    width: 90%;
-    height: 50px;
-    padding: 10px;
-    border-radius: 2px;
-    background-color: #e5e7ea;
-    color: #7994a4;
 }
 </style>

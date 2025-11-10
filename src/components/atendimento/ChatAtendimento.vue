@@ -1165,6 +1165,8 @@ export default {
         },
 
         handleBoxOpt(message_id) {
+            console.log(message_id)
+
             this.openBoxOpt = !this.openBoxOpt ? message_id : null
         },
 
@@ -1286,7 +1288,6 @@ export default {
     justify-content: space-around;
 }
 
-
 .vcard-body {
     text-align: center;
     margin-top: 10px;
@@ -1346,7 +1347,6 @@ export default {
 
     margin: 10px 0;
 }
-
 
 .message .message-wrapper,
 .message .message-wrapper-list {
