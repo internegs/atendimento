@@ -1245,6 +1245,8 @@ export default {
         },
 
         filterMensagemRespondida(msg) {
+            if (!msg) return msg
+
             if (msg.length > 80) {
                 return `${msg.slice(0, 80)} ...`
             }
