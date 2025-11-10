@@ -473,12 +473,12 @@
                         :status="status_chat"
                         :foneAtendido="foneConversa"
                         :alterarLayoutBatePapo="alterarLayoutBatePapo"
-                        :responder-layout="responderLayout"
                         :abremodal_apagarmensagem="abremodal_apagarmensagem"
                         :estado-encaminhar-mensagens="estadoEncaminharMensagens"
                         :estado-responder-mensagem="estadoResponderMensagem"
                         :lista-mensagens-selecionadas="listaMensagensSelecionadas"
-                        @handleMedia="handleModalMedia"
+                        @handle-media="handleModalMedia"
+                        @responder-layout="responderLayout"
                     />
                 </div>
 
@@ -626,7 +626,7 @@
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
 
-                            <div>{{ mensagemResponder }}</div>
+                            <div>{{ filterMensagemRespondida(mensagemResponder) }}</div>
                         </div>
 
                         <div class="w-100 d-flex align-items-end gap-2">
@@ -1223,11 +1223,11 @@ export default {
             this.estadoResponderMensagem = false
         },
 
-        responderLayout(mensagem, id) {
+        responderLayout(payload) {
             this.estadoEncaminharMensagens = false
-            this.message_id = id
+            this.message_id = payload.id
             this.estadoResponderMensagem = true
-            this.mensagemResponder = mensagem
+            this.mensagemResponder = payload.mensagem
         },
 
         abremodal_apagarmensagem(id, mensagem) {
@@ -1242,6 +1242,14 @@ export default {
         fecharResponderLayout() {
             this.estadoResponderMensagem = false
             this.listaMensagensSelecionadas = []
+        },
+
+        filterMensagemRespondida(msg) {
+            if (msg.length > 80) {
+                return `${msg.slice(0, 80)} ...`
+            }
+
+            return msg
         },
 
         async Pesquisar() {

@@ -83,13 +83,7 @@
                                     v-for="(opcoes, index) in option"
                                     :key="index"
                                     class="d-block"
-                                    @click="
-                                        escolhaSelecionado(
-                                            opcoes.id,
-                                            mensagem.message_id,
-                                            mensagem.mensagem
-                                        )
-                                    "
+                                    @click="escolhaSelecionado(opcoes.id, mensagem)"
                                 >
                                     {{ opcoes.msg }}
                                 </span>
@@ -161,13 +155,7 @@
                                         v-for="(opcoes, index) in option"
                                         :key="index"
                                         class="d-block"
-                                        @click="
-                                            escolhaSelecionado(
-                                                opcoes.id,
-                                                mensagem.message_id,
-                                                mensagem.mensagem
-                                            )
-                                        "
+                                        @click="escolhaSelecionado(opcoes.id, mensagem)"
                                     >
                                         {{ opcoes.msg }}
                                     </span>
@@ -247,13 +235,7 @@
                                         v-for="(opcoes, index) in option"
                                         :key="index"
                                         class="d-block"
-                                        @click="
-                                            escolhaSelecionado(
-                                                opcoes.id,
-                                                mensagem.message_id,
-                                                mensagem.mensagem
-                                            )
-                                        "
+                                        @click="escolhaSelecionado(opcoes.id, mensagem)"
                                     >
                                         {{ opcoes.msg }}
                                     </span>
@@ -344,13 +326,7 @@
                                     v-for="(opcoes, index) in option"
                                     :key="index"
                                     class="d-block"
-                                    @click="
-                                        escolhaSelecionado(
-                                            opcoes.id,
-                                            mensagem.message_id,
-                                            mensagem.mensagem
-                                        )
-                                    "
+                                    @click="escolhaSelecionado(opcoes.id, mensagem)"
                                 >
                                     {{ opcoes.msg }}
                                 </span>
@@ -413,13 +389,7 @@
                                     v-for="(opcoes, index) in option"
                                     :key="index"
                                     class="d-block"
-                                    @click="
-                                        escolhaSelecionado(
-                                            opcoes.id,
-                                            mensagem.message_id,
-                                            mensagem.mensagem
-                                        )
-                                    "
+                                    @click="escolhaSelecionado(opcoes.id, mensagem)"
                                 >
                                     {{ opcoes.msg }}
                                 </span>
@@ -485,13 +455,7 @@
                                         v-for="(opcoes, index) in option"
                                         :key="index"
                                         class="d-block"
-                                        @click="
-                                            escolhaSelecionado(
-                                                opcoes.id,
-                                                mensagem.message_id,
-                                                mensagem.mensagem
-                                            )
-                                        "
+                                        @click="escolhaSelecionado(opcoes.id, mensagem)"
                                     >
                                         {{ opcoes.msg }}
                                     </span>
@@ -571,13 +535,7 @@
                                     v-for="(opcoes, index) in option"
                                     :key="index"
                                     class="d-block"
-                                    @click="
-                                        escolhaSelecionado(
-                                            opcoes.id,
-                                            mensagem.message_id,
-                                            mensagem.mensagem
-                                        )
-                                    "
+                                    @click="escolhaSelecionado(opcoes.id, mensagem)"
                                 >
                                     {{ opcoes.msg }}
                                 </span>
@@ -639,13 +597,7 @@
                                     v-for="(opcoes, index) in option"
                                     :key="index"
                                     class="d-block"
-                                    @click="
-                                        escolhaSelecionado(
-                                            opcoes.id,
-                                            mensagem.message_id,
-                                            mensagem.mensagem
-                                        )
-                                    "
+                                    @click="escolhaSelecionado(opcoes.id, mensagem)"
                                 >
                                     {{ opcoes.msg }}
                                 </span>
@@ -703,13 +655,7 @@
                                     v-for="(opcoes, index) in option"
                                     :key="index"
                                     class="d-block"
-                                    @click="
-                                        escolhaSelecionado(
-                                            opcoes.id,
-                                            mensagem.message_id,
-                                            mensagem.mensagem
-                                        )
-                                    "
+                                    @click="escolhaSelecionado(opcoes.id, mensagem)"
                                 >
                                     {{ opcoes.msg }}
                                 </span>
@@ -795,13 +741,7 @@
                                     v-for="(opcoes, index) in option"
                                     :key="index"
                                     class="d-block"
-                                    @click="
-                                        escolhaSelecionado(
-                                            opcoes.id,
-                                            mensagem.message_id,
-                                            mensagem.mensagem
-                                        )
-                                    "
+                                    @click="escolhaSelecionado(opcoes.id, mensagem)"
                                 >
                                     {{ opcoes.msg }}
                                 </span>
@@ -878,13 +818,7 @@
                                     v-for="(opcoes, index) in option"
                                     :key="index"
                                     class="d-block"
-                                    @click="
-                                        escolhaSelecionado(
-                                            opcoes.id,
-                                            mensagem.message_id,
-                                            mensagem.mensagem
-                                        )
-                                    "
+                                    @click="escolhaSelecionado(opcoes.id, mensagem)"
                                 >
                                     {{ opcoes.msg }}
                                 </span>
@@ -956,13 +890,7 @@
                                     v-for="(opcoes, index) in option"
                                     :key="index"
                                     class="d-block"
-                                    @click="
-                                        escolhaSelecionado(
-                                            opcoes.id,
-                                            mensagem.message_id,
-                                            mensagem.mensagem
-                                        )
-                                    "
+                                    @click="escolhaSelecionado(opcoes.id, mensagem)"
                                 >
                                     {{ opcoes.msg }}
                                 </span>
@@ -1027,9 +955,6 @@ export default {
         estadoResponderMensagem: {
             type: Boolean,
         },
-        responderLayout: {
-            type: Function,
-        },
         listaMensagensSelecionadas: {
             type: Array,
         },
@@ -1038,7 +963,7 @@ export default {
         },
     },
 
-    emits: ['handleMedia'],
+    emits: ['handleMedia', 'responderLayout'],
 
     data() {
         return {
@@ -1061,24 +986,6 @@ export default {
     },
 
     computed: {
-        parsedMessage() {
-            return mensagem => {
-                if (
-                    mensagem.status !== 'DELETED' &&
-                    mensagem.mensagem &&
-                    typeof mensagem.mensagem === 'string'
-                ) {
-                    try {
-                        return JSON.parse(mensagem.mensagem)
-                    } catch (error) {
-                        return null
-                    }
-                }
-
-                return null
-            }
-        },
-
         validationMessage() {
             if (this.mensagens.length < 1) {
                 return 'Não há mensagens disponíveis'
@@ -1120,17 +1027,36 @@ export default {
     methods: {
         formatDateTime,
 
-        escolhaSelecionado(opcao, id, mensagem) {
+        escolhaSelecionado(opcao, mensagem) {
             this.openBoxOpt = false
 
             switch (opcao) {
                 case 2:
-                    this.abremodal_apagarmensagem(id, mensagem)
+                    this.abremodal_apagarmensagem(mensagem.mensagem, mensagem.message_id)
 
                     break
 
                 case 3:
-                    this.responderLayout(mensagem, id)
+                    // console.log(mensagem)
+
+                    if (typeof this.parsedMessage(mensagem) === 'string') {
+                        this.$emit('responderLayout', {
+                            id: mensagem.message_id,
+                            mensagem: this.parsedMessage(mensagem),
+                            wook: mensagem.wook,
+                        })
+
+                        break
+                    }
+
+                    this.$emit('responderLayout', {
+                        id: mensagem.message_id,
+                        name: mensagem.contactName,
+                        mensagem:
+                            this.parsedMessage(mensagem)?.entry[0]?.changes[0]?.value?.messages[0]
+                                ?.interactive?.button_reply?.title,
+                        wook: mensagem.wook,
+                    })
 
                     break
 
@@ -1159,13 +1085,27 @@ export default {
         getMessageById(id) {
             if (!id) return null
 
-            console.log(this.mensagens.find(msg => msg.message_id == id) || null)
-
             return this.mensagens.find(msg => msg.message_id === id) || null
         },
 
+        parsedMessage(mensagem) {
+            if (
+                mensagem.status !== 'DELETED' &&
+                mensagem.mensagem &&
+                typeof mensagem.mensagem === 'string'
+            ) {
+                try {
+                    return JSON.parse(mensagem.mensagem)
+                } catch {
+                    return mensagem.mensagem
+                }
+            }
+
+            return null
+        },
+
         handleBoxOpt(message_id) {
-            console.log(message_id)
+            // console.log(message_id)
 
             this.openBoxOpt = !this.openBoxOpt ? message_id : null
         },
