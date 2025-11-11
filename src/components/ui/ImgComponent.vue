@@ -3,9 +3,9 @@
         ref="zoomImage"
         :src="fileUrl"
         loading="lazy"
-        @click="handleZoom"
-        @mousemove="handleMouseMove"
-        @mouseleave="handleMouseLeave"
+        @click="zoomEnabled ? handleZoom($event) : null"
+        @mousemove="zoomEnabled ? handleMouseMove($event) : null"
+        @mouseleave="zoomEnabled ? handleMouseLeave() : null"
     />
 </template>
 
@@ -17,6 +17,10 @@ export default {
         fileUrl: {
             type: String,
             required: true,
+        },
+        zoomEnabled: {
+            type: Boolean,
+            default: true,
         },
     },
 

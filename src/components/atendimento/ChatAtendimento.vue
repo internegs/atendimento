@@ -1031,6 +1031,7 @@ export default {
                 nome: mensagem.contactName,
                 fone: mensagem.fone_enviado,
                 wook: mensagem.wook,
+                mediaUrl: mensagem.url_link
             }
 
             switch (opcao) {
@@ -1054,6 +1055,8 @@ export default {
                     break
 
                 case 3:
+                    // console.log(mensagem)
+
                     if (typeof this.parsedMessage(mensagem) === 'string') {
                         payload = {
                             ...payload,

@@ -571,7 +571,7 @@
                 <div v-else>
                     <div
                         v-if="estadoEncaminharMensagens"
-                        class="layout_encaminharMensagem  bg-message position-relative chatbox_input"
+                        class="layout_encaminharMensagem bg-message position-relative chatbox_input"
                     >
                         <div class="input-group-prepend">
                             <span
@@ -620,7 +620,7 @@
                         >
                             <div
                                 v-if="estadoResponderMensagem"
-                                class="position-relative d-flex w-100 rounded-3 py-2 px-3 bg-white response-msg-wrapper"
+                                class="position-relative d-flex justify-content-between align-items-center w-100 rounded-3 py-2 px-3 bg-white response-msg-wrapper"
                                 :style="
                                     mensagemResponder.wook === 'onack'
                                         ? 'border-color: #27cb47'
@@ -642,6 +642,13 @@
                                         {{ filterMensagemRespondida(mensagemResponder.mensagem) }}
                                     </dd>
                                 </dl>
+
+                                <div class="me-4 response-msg-img">
+                                    <img-component
+                                        :file-url="mensagemResponder.mediaUrl"
+                                        :zoom-enabled="false"
+                                    />
+                                </div>
                             </div>
                         </transition>
 
@@ -1019,11 +1026,13 @@ import DisplayMediaPreview from '@/components/modals/display-media-preview/Displ
 import AudioRecorderComponent from '@/components/atendimento/acao/AudioRecorderComponent.vue'
 import { mapActions } from 'pinia'
 import { useListStatesStore } from '@/stores/useListStatesStore.js'
+import ImgComponent from '@/components/ui/ImgComponent.vue'
 
 export default {
     name: 'atendimento',
 
     components: {
+        ImgComponent,
         ListaAtendimentos,
         ChatAtendimento,
         EditarContato,
@@ -1253,6 +1262,7 @@ export default {
                           ? payload.nome
                           : payload.fone,
                 wook: payload?.wook,
+                mediaUrl: payload?.mediaUrl,
             }
         },
 
@@ -2750,6 +2760,16 @@ img {
 
 .response-msg-wrapper dl dd {
     font-size: 0.83rem;
+}
+
+.response-msg-wrapper .response-msg-img {
+    width: 50px;
+}
+
+@media (min-width: 768px) {
+    .response-msg-wrapper .response-msg-img {
+        width: 60px;
+    }
 }
 
 .btn-emoji {
