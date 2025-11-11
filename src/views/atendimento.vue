@@ -473,10 +473,10 @@
                         :status="status_chat"
                         :foneAtendido="foneConversa"
                         :alterarLayoutBatePapo="alterarLayoutBatePapo"
-                        :abremodal_apagarmensagem="abremodal_apagarmensagem"
                         :estado-encaminhar-mensagens="estadoEncaminharMensagens"
                         :estado-responder-mensagem="estadoResponderMensagem"
                         :lista-mensagens-selecionadas="listaMensagensSelecionadas"
+                        @abremodal_apagarmensagem="abremodal_apagarmensagem"
                         @handle-media="handleModalMedia"
                         @responder-layout="responderLayout"
                     />
@@ -571,7 +571,7 @@
                 <div v-else>
                     <div
                         v-if="estadoEncaminharMensagens"
-                        class="layout_encaminharMensagem chatbox_input bg-message position-relative"
+                        class="layout_encaminharMensagem  bg-message position-relative chatbox_input"
                     >
                         <div class="input-group-prepend">
                             <span
@@ -612,22 +612,38 @@
 
                     <div
                         v-else
-                        class="chatbox_input d-flex flex-column w-100 py-3 px-2 gap-2 rounded-3 shadow-sm"
+                        class="d-flex flex-column w-100 py-3 px-2 gap-2 rounded-3 shadow-sm chatbox_input"
                     >
-                        <div
-                            v-if="estadoResponderMensagem"
-                            class="position-relative d-flex w-100 rounded-3 p-3 bg-white"
+                        <transition
+                            name="slide-bottom-top"
+                            appear
                         >
-                            <button
-                                type="button"
-                                class="response-btn-close"
-                                @click="fecharResponderLayout"
+                            <div
+                                v-if="estadoResponderMensagem"
+                                class="position-relative d-flex w-100 rounded-3 py-2 px-3 bg-white response-msg-wrapper"
+                                :style="
+                                    mensagemResponder.wook === 'onack'
+                                        ? 'border-color: #27cb47'
+                                        : 'border-color: #0c9fb4'
+                                "
                             >
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
+                                <button
+                                    type="button"
+                                    class="response-btn-close"
+                                    @click="fecharResponderLayout"
+                                >
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
 
-                            <div>{{ filterMensagemRespondida(mensagemResponder) }}</div>
-                        </div>
+                                <dl>
+                                    <dt>{{ mensagemResponder.nome }}</dt>
+
+                                    <dd>
+                                        {{ filterMensagemRespondida(mensagemResponder.mensagem) }}
+                                    </dd>
+                                </dl>
+                            </div>
+                        </transition>
 
                         <div class="w-100 d-flex align-items-end gap-2">
                             <div
@@ -755,7 +771,7 @@
                                     v-if="mensagem"
                                     type="button"
                                     class="btn-send"
-                                    @click="enviarMensagem(1)"
+                                    @click="enviarMensagem"
                                 >
                                     <img
                                         src="../assets/enviar.png"
@@ -1067,7 +1083,7 @@ export default {
             listaMensagensSelecionadas: [],
             estadoEncaminharMensagens: false,
             estadoResponderMensagem: false,
-            mensagemResponder: '',
+            mensagemResponder: {},
             message_id: null,
             tipo_usuario: null,
             audioStatus: null,
@@ -1225,18 +1241,29 @@ export default {
 
         responderLayout(payload) {
             this.estadoEncaminharMensagens = false
-            this.message_id = payload.id
             this.estadoResponderMensagem = true
-            this.mensagemResponder = payload.mensagem
+            this.message_id = payload.id
+
+            this.mensagemResponder = {
+                mensagem: payload.mensagem,
+                nome:
+                    payload?.wook === 'onack'
+                        ? 'Você'
+                        : payload?.nome
+                          ? payload.nome
+                          : payload.fone,
+                wook: payload?.wook,
+            }
         },
 
-        abremodal_apagarmensagem(id, mensagem) {
+        abremodal_apagarmensagem(payload) {
             const abrirmodal = document.querySelector('#apagarmensagemmodal')
             const modal = bootstrap.Modal.getOrCreateInstance(abrirmodal)
 
             modal.show()
-            this.mensagemapagar = mensagem
-            this.message_id = id
+
+            this.mensagemapagar = payload.mensagem
+            this.message_id = payload.id
         },
 
         fecharResponderLayout() {
@@ -1356,7 +1383,7 @@ export default {
             })
         },
 
-        enviarMensagem(status) {
+        async enviarMensagem() {
             if (this.mensagem === '') return
 
             const mensagem = this.mensagem
@@ -1376,10 +1403,10 @@ export default {
                 fone: this.selecionado.fone,
                 mensagem: mensagem,
                 mensagem_id: this.message_id,
-                status: status, // 1 - mensagem normal || 2 - responder
+                status: this.estadoResponderMensagem ? 2 : 1, // 1 - mensagem normal || 2 - responder
             }
 
-            Api.post('/envia_mensagemnova/ZmlsYWRlYXRlbmRpbWVudG8=', objEnviaMensagem)
+            await Api.post('/envia_mensagemnova/ZmlsYWRlYXRlbmRpbWVudG8=', objEnviaMensagem)
                 .then(response => {
                     if (response.data.erro == 'number_incorret') {
                         Swal.fire(
@@ -2695,6 +2722,11 @@ img {
     }
 }
 
+.response-msg-wrapper {
+    border-left: solid 3px;
+    filter: opacity(85%);
+}
+
 .response-btn-close {
     position: absolute;
     right: 1rem;
@@ -2710,6 +2742,14 @@ img {
 
 .response-btn-close i:hover {
     color: #4d5359;
+}
+
+.response-msg-wrapper dl dt {
+    font-size: 0.8rem;
+}
+
+.response-msg-wrapper dl dd {
+    font-size: 0.83rem;
 }
 
 .btn-emoji {

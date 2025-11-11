@@ -81,5 +81,24 @@
   transform: translateY(0);
 }
 
+// =====================
+
+.slide-bottom-top-enter-active,
+.slide-bottom-top-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-bottom-top-enter-from,
+.slide-bottom-top-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.slide-bottom-top-enter-to,
+.slide-bottom-top-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+
+}
 
 

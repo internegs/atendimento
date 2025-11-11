@@ -948,10 +948,6 @@ export default {
         alterarLayoutBatePapo: {
             type: Function,
         },
-
-        abremodal_apagarmensagem: {
-            type: Function,
-        },
         estadoResponderMensagem: {
             type: Boolean,
         },
@@ -963,7 +959,7 @@ export default {
         },
     },
 
-    emits: ['handleMedia', 'responderLayout'],
+    emits: ['handleMedia', 'responderLayout', 'abremodal_apagarmensagem'],
 
     data() {
         return {
@@ -1030,33 +1026,53 @@ export default {
         escolhaSelecionado(opcao, mensagem) {
             this.openBoxOpt = false
 
+            let payload = {
+                id: mensagem.message_id,
+                nome: mensagem.contactName,
+                fone: mensagem.fone_enviado,
+                wook: mensagem.wook,
+            }
+
             switch (opcao) {
                 case 2:
-                    this.abremodal_apagarmensagem(mensagem.mensagem, mensagem.message_id)
-
-                    break
-
-                case 3:
-                    // console.log(mensagem)
-
                     if (typeof this.parsedMessage(mensagem) === 'string') {
-                        this.$emit('responderLayout', {
+                        this.$emit('abremodal_apagarmensagem', {
                             id: mensagem.message_id,
                             mensagem: this.parsedMessage(mensagem),
-                            wook: mensagem.wook,
                         })
 
                         break
                     }
 
-                    this.$emit('responderLayout', {
+                    this.$emit('abremodal_apagarmensagem', {
                         id: mensagem.message_id,
-                        name: mensagem.contactName,
                         mensagem:
                             this.parsedMessage(mensagem)?.entry[0]?.changes[0]?.value?.messages[0]
                                 ?.interactive?.button_reply?.title,
-                        wook: mensagem.wook,
                     })
+
+                    break
+
+                case 3:
+                    if (typeof this.parsedMessage(mensagem) === 'string') {
+                        payload = {
+                            ...payload,
+                            mensagem: this.parsedMessage(mensagem),
+                        }
+
+                        this.$emit('responderLayout', payload)
+
+                        break
+                    }
+
+                    payload = {
+                        ...payload,
+                        mensagem:
+                            this.parsedMessage(mensagem)?.entry[0]?.changes[0]?.value?.messages[0]
+                                ?.interactive?.button_reply?.title,
+                    }
+
+                    this.$emit('responderLayout', payload)
 
                     break
 
@@ -1137,10 +1153,6 @@ export default {
             if (container) {
                 container.scrollTop = container.scrollHeight
             }
-        },
-
-        teste(value) {
-            console.log(value)
         },
     },
 }
