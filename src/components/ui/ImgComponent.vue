@@ -3,6 +3,7 @@
         ref="zoomImage"
         :src="fileUrl"
         loading="lazy"
+        :style="zoomEnabled ? 'cursor: zoom-in' : ''"
         @click="zoomEnabled ? handleZoom($event) : null"
         @mousemove="zoomEnabled ? handleMouseMove($event) : null"
         @mouseleave="zoomEnabled ? handleMouseLeave() : null"
@@ -93,7 +94,6 @@ img {
     max-height: 600px;
     object-fit: contain;
     transition: transform 0.2s ease-in-out;
-    cursor: zoom-in;
 
     @media (min-width: 768px) {
         & {

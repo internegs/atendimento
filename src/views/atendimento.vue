@@ -643,7 +643,10 @@
                                     </dd>
                                 </dl>
 
-                                <div class="me-4 response-msg-img">
+                                <div
+                                    v-if="mensagemResponder.mediaUrl"
+                                    class="me-4 response-msg-img"
+                                >
                                     <img-component
                                         :file-url="mensagemResponder.mediaUrl"
                                         :zoom-enabled="false"
@@ -770,7 +773,7 @@
                                     class="input-area form-control px-2 py-1 w-100"
                                     :rows="textareaRows"
                                     placeholder="Mensagem"
-                                    @keyup.enter.exact="enviarMensagem(1)"
+                                    @keyup.enter.exact="enviarMensagem"
                                     @input="verifyTextareaRowsSize"
                                 ></textarea>
 
@@ -1396,6 +1399,8 @@ export default {
         async enviarMensagem() {
             if (this.mensagem === '') return
 
+            this.textareaRows = 1
+
             const mensagem = this.mensagem
             const nome = localStorage.getItem(`@USER_NAME`) + '\r\n\t\t' + mensagem
             const nova = { mensagem: nome, type: 'text' }
@@ -1412,6 +1417,9 @@ export default {
                 user_id: localStorage.getItem(`@USER_ID`),
                 fone: this.selecionado.fone,
                 mensagem: mensagem,
+                mensagem_reply: this.estadoResponderMensagem
+                    ? this.mensagemResponder?.mensagem
+                    : null,
                 mensagem_id: this.message_id,
                 status: this.estadoResponderMensagem ? 2 : 1, // 1 - mensagem normal || 2 - responder
             }
