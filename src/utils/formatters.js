@@ -104,3 +104,23 @@ export const formatTypeDocument = type => {
             return 'ARQUIVO'
     }
 }
+
+export const formatTextForLimited = (text, qtd = 20) => {
+    if (!text) return text
+
+    if (text.length > qtd) {
+        return `${text.slice(0, qtd)} ...`
+    }
+
+    return text
+}
+
+export const formatMessageWhatsapp = message => {
+    if (!message) return message
+
+    return message
+        .replace(/\\n/g, '\n')
+        .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
+        .replace(/^- (.+)$/gm, '&nbsp;&nbsp;&nbsp;&nbsp;• $1')
+        .replace(/\n/g, '<br>')
+}

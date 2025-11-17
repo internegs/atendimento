@@ -46,7 +46,81 @@
                     </span>
 
                     <span v-if="mensagem.status != 'DELETED'">
-                        {{ mensagem.mensagem }}
+                        <span v-html="formatMessageWhatsapp(mensagem.mensagem)"></span>
+
+                        <div
+                            v-if="mensagem.wook == 'onack'"
+                            class="alinhadireita"
+                        >
+                            <i
+                                v-if="mensagem.status == 'RECEIVED'"
+                                class="fa-solid fa-check-double cinza"
+                            ></i>
+                            <i
+                                v-if="mensagem.status == 'SENT'"
+                                class="fa-solid fa-check"
+                            ></i>
+                            <i
+                                v-if="mensagem.status == 'READ'"
+                                class="fa-solid fa-check-double text-success"
+                            ></i>
+                        </div>
+
+                        <div
+                            v-if="
+                                !estadoEncaminharMensagens && showBoxOptIcon === mensagem.message_id
+                            "
+                            class="pd-2 cursor-pointer box_abre_selecoes"
+                            @click="handleBoxOpt(mensagem.message_id)"
+                        >
+                            <i class="fa-solid fa-chevron-down abrir-selecoes"></i>
+                            <div
+                                v-if="openBoxOpt === mensagem.message_id"
+                                ref="boxOpt"
+                                class="box-opcoes"
+                            >
+                                <span
+                                    v-for="(opcoes, index) in option"
+                                    :key="index"
+                                    class="d-block"
+                                    @click="escolhaSelecionado(opcoes.id, mensagem)"
+                                >
+                                    {{ opcoes.msg }}
+                                </span>
+                            </div>
+                        </div>
+                    </span>
+                </div>
+
+                <div
+                    v-if="mensagem.type === 'text_reply'"
+                    class="message-normal"
+                    @mouseenter="onBoxOpt($event, mensagem.message_id)"
+                    @mouseleave="onBoxOpt($event, mensagem.message_id)"
+                >
+                    <span
+                        v-if="mensagem.status === 'DELETED'"
+                        class="cinza"
+                    >
+                        Mensagem apagada
+                    </span>
+
+                    <span v-if="mensagem.status !== 'DELETED'">
+                        <div class="wrapper-text-reply">
+                            <span
+                                class="text-reply"
+                                v-html="
+                                    formatMessageWhatsapp(
+                                        formatTextForLimited(mensagem.message_reply, 80)
+                                    )
+                                "
+                            ></span>
+
+                            <span
+                                class="text-normal"
+                                v-html="formatMessageWhatsapp(mensagem.mensagem)"
+                            ></span>
+                        </div>
 
                         <div
                             v-if="mensagem.wook == 'onack'"
@@ -113,10 +187,14 @@
                                 <!-- {{ mensagem.message_id }}<br><br> -->
                             </div>
 
-                            {{
-                                parsedMessage(mensagem)?.interactive?.body?.text ||
-                                'Mensagem inválida'
-                            }}
+                            <span
+                                v-html="
+                                    formatMessageWhatsapp(
+                                        parsedMessage(mensagem)?.interactive?.body?.text ||
+                                            'Mensagem inválida'
+                                    )
+                                "
+                            ></span>
 
                             <div
                                 v-if="mensagem.wook == 'onack'"
@@ -193,10 +271,14 @@
                         </span>
 
                         <span v-if="mensagem.status != 'DELETED'">
-                            {{
-                                parsedMessage(mensagem)?.interactive?.body?.text ||
-                                'Mensagem inválida'
-                            }}
+                            <span
+                                v-html="
+                                    formatMessageWhatsapp(
+                                        parsedMessage(mensagem)?.interactive?.body?.text ||
+                                            'Mensagem inválida'
+                                    )
+                                "
+                            ></span>
 
                             <div
                                 v-if="mensagem.wook == 'onack'"
@@ -286,10 +368,15 @@
                     </span>
 
                     <span v-if="mensagem.status != 'DELETED'">
-                        {{
-                            parsedMessage(mensagem)?.entry[0]?.changes[0]?.value?.messages[0]
-                                ?.interactive?.button_reply?.title || 'Mensagem inválida'
-                        }}
+                        <span
+                            v-html="
+                                formatMessageWhatsapp(
+                                    parsedMessage(mensagem)?.entry[0]?.changes[0]?.value
+                                        ?.messages[0]?.interactive?.button_reply?.title ||
+                                        'Mensagem inválida'
+                                )
+                            "
+                        ></span>
 
                         <div
                             v-if="mensagem.wook == 'onack'"
@@ -349,10 +436,15 @@
                     </span>
 
                     <span v-if="mensagem.status != 'DELETED'">
-                        {{
-                            parsedMessage(mensagem)?.entry[0]?.changes[0]?.value?.messages[0]
-                                ?.interactive?.list_reply?.title || 'Mensagem inválida'
-                        }}
+                        <span
+                            v-html="
+                                formatMessageWhatsapp(
+                                    parsedMessage(mensagem)?.entry[0]?.changes[0]?.value
+                                        ?.messages[0]?.interactive?.list_reply?.title ||
+                                        'Mensagem inválida'
+                                )
+                            "
+                        ></span>
 
                         <div
                             v-if="mensagem.wook == 'onack'"
@@ -416,9 +508,13 @@
                                 alt=""
                                 class="user_foto"
                             />
+
                             {{ mensagem.contactName }}
+
                             <br />
-                            {{ mensagem.mensagem }}
+
+                            <span v-html="formatMessageWhatsapp(mensagem.mensagem)"></span>
+
                             <div
                                 v-if="mensagem.wook == 'onack'"
                                 class="alinhadireita"
@@ -618,8 +714,10 @@
                     >
                         Mensagem apagada
                     </span>
+
                     <span v-if="mensagem.status != 'DELETED'">
-                        >{{ mensagem.mensagem }}
+                        {{ mensagem.mensagem }}
+
                         <div
                             v-if="mensagem.wook == 'onack'"
                             class="alinhadireita"
@@ -921,7 +1019,7 @@
 </template>
 
 <script>
-import { formatDateTime } from '@/utils/formatters'
+import { formatDateTime, formatMessageWhatsapp, formatTextForLimited } from '@/utils/formatters'
 
 export default {
     name: 'ChatAtendimento',
@@ -1021,6 +1119,8 @@ export default {
     },
 
     methods: {
+        formatMessageWhatsapp,
+        formatTextForLimited,
         formatDateTime,
 
         escolhaSelecionado(opcao, mensagem) {
@@ -1031,7 +1131,7 @@ export default {
                 nome: mensagem.contactName,
                 fone: mensagem.fone_enviado,
                 wook: mensagem.wook,
-                mediaUrl: mensagem.url_link
+                mediaUrl: mensagem.url_link,
             }
 
             switch (opcao) {
@@ -1427,12 +1527,30 @@ export default {
 }
 
 .message-normal .video-wrapper {
-    max-width: 240px;
-    max-height: 300px;
+    max-width: 200px;
+}
+
+.message-normal .video-wrapper button {
+    width: 100%;
+    height: 100%;
 }
 
 .message-normal .video-wrapper video {
     width: 100%;
+    height: 100%;
+}
+
+.wrapper-text-reply {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.wrapper-text-reply .text-reply {
+    padding: 12px 10px;
+    background-color: #b5eeb3;
+    border-radius: 10px;
+    filter: opacity(85%);
 }
 
 .conteiner {

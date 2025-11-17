@@ -639,7 +639,7 @@
                                     <dt>{{ mensagemResponder.nome }}</dt>
 
                                     <dd>
-                                        {{ filterMensagemRespondida(mensagemResponder.mensagem) }}
+                                        {{ formatTextForLimited(mensagemResponder.mensagem, 80) }}
                                     </dd>
                                 </dl>
 
@@ -1024,7 +1024,7 @@ import DisplayMedia from '@/components/modals/display-media/DisplayMedia.vue'
 import { ref, onValue } from 'firebase/database'
 import DisplayDocument from '@/components/modals/display-document/DisplayDocument.vue'
 import DisplayTemplateMessage from '@/components/modals/display-template-message/DisplayTemplateMessage.vue'
-import { formatSize } from '@/utils/formatters'
+import { formatSize, formatTextForLimited } from '@/utils/formatters'
 import DisplayMediaPreview from '@/components/modals/display-media-preview/DisplayMediaPreview.vue'
 import AudioRecorderComponent from '@/components/atendimento/acao/AudioRecorderComponent.vue'
 import { mapActions } from 'pinia'
@@ -1228,6 +1228,7 @@ export default {
     },
 
     methods: {
+        formatTextForLimited,
         ...mapActions(useListStatesStore, ['setStates']),
 
         ativarNotificacao() {
@@ -1282,16 +1283,6 @@ export default {
         fecharResponderLayout() {
             this.estadoResponderMensagem = false
             this.listaMensagensSelecionadas = []
-        },
-
-        filterMensagemRespondida(msg) {
-            if (!msg) return msg
-
-            if (msg.length > 80) {
-                return `${msg.slice(0, 80)} ...`
-            }
-
-            return msg
         },
 
         async Pesquisar() {
