@@ -1394,14 +1394,18 @@ export default {
 
             const mensagem = this.mensagem
             const nome = localStorage.getItem(`@USER_NAME`) + '\r\n\t\t' + mensagem
-            const nova = { mensagem: nome, type: 'text' }
+
+            const novaMensagemText = {
+                mensagem: nome,
+                type: 'text'
+            }
 
             this.mensagem = ''
 
             if (this.mensagens == 'Nao ha mensagem para esse contato') {
                 this.mensagens = 'processando...'
             } else {
-                this.mensagens.push(nova)
+                this.mensagens.push(novaMensagemText)
             }
 
             const objEnviaMensagem = {
