@@ -44,7 +44,6 @@ export default [
             'prefer-const': 'warn',
             'no-var': 'warn',
             eqeqeq: 'warn',
-            curly: 'warn',
             'no-duplicate-imports': 'warn',
             'no-return-await': 'warn',
             'prettier/prettier': ['warn', { endOfLine: 'auto' }],

@@ -182,7 +182,7 @@
 
                         <lista-atendimentos
                             v-else
-                            :lista="listaContatos"
+                            :lista="listaContatosSelecionado"
                             :change="abrirConversa"
                             :ativado="ativado"
                             :tipo="tipo_usuario"
@@ -1062,9 +1062,13 @@ export default {
             plano_id: 0,
             mediaRecorder: null,
             chunks: [],
-            base64: '',
             mensagem: '',
-            listaContatos: [],
+            listaContatosSelecionado: [],
+            listaContatos: {
+                fila: [],
+                meusAtendimentos: [],
+                todos: [],
+            },
             listaContatosPesquisa: [],
             listaContatosInterno: null,
             requisaoApi: null,
@@ -1179,6 +1183,65 @@ export default {
             }
         },
 
+        opcaoSelecionada: {
+            handler(newVal) {
+                switch (newVal) {
+                    case 'atendimento':
+                        this.listaContatosSelecionado = this.listaContatos.meusAtendimentos
+
+                        break
+
+                    case 'fila':
+                        this.listaContatosSelecionado = this.listaContatos.fila
+
+                        break
+
+                    case 'todos':
+                        this.listaContatosSelecionado = this.listaContatos.todos
+
+                        break
+
+                    case 'interno':
+                        this.chamarMeusChatsInternos()
+
+                        break
+
+                    default:
+                        console.warn('WATCH(opcaoSelecionada): Nenhuma das alternativas é válida.')
+
+                        break
+                }
+            },
+            immediate: true,
+        },
+
+        listaContatos: {
+            handler(newVal) {
+                switch (this.opcaoSelecionada) {
+                    case 'atendimento':
+                        this.listaContatosSelecionado = newVal.meusAtendimentos
+
+                        break
+
+                    case 'fila':
+                        this.listaContatosSelecionado = newVal.fila
+
+                        break
+
+                    case 'todos':
+                        this.listaContatosSelecionado = newVal.todos
+
+                        break
+
+                    case 'interno':
+                        this.chamarMeusChatsInternos()
+
+                        break
+                }
+            },
+            deep: true,
+        },
+
         selecionado: {
             handler(newVal) {
                 if (!newVal?.foto || newVal?.foto?.length === 0) {
@@ -1195,10 +1258,13 @@ export default {
     },
 
     async mounted() {
+        await this.chamarMeusAtendimentos()
+        await this.chamarAtendimentosFila()
+        await this.chamarTodosAtendimentos()
+        await this.getEstados()
+
         this.session = localStorage.getItem('@SESSION')
         this.alerta = localStorage.getItem('@MENSAGEM')
-
-        await this.getEstados()
 
         if (this.alerta === 'browserClose') {
             await Swal.fire(
@@ -1210,13 +1276,12 @@ export default {
 
         this.number = localStorage.getItem('@NUMBER')
         this.tipo_usuario = localStorage.getItem('@TIPO')
-        this.audioStatus = localStorage.getItem('@STATUS_NOTIFICACAO') === 'false' ? false : true
+        this.audioStatus = localStorage.getItem('@STATUS_NOTIFICACAO') !== 'false'
 
         this.transferenciainterna()
-        this.atualizafila()
+        this.atualizaFilaFirebase()
         this.novamensagem()
         this.novamensageminterna()
-        await this.chamarMeusAtendimentos()
         this.chamaGrupo()
         this.updateStyleTabs()
     },
@@ -1334,14 +1399,10 @@ export default {
 
             const dbRef = ref(this.$database, `/${instancia}`)
 
-            onValue(dbRef, data => {
-                const values = data.val()
-
-                this.recebeuNovaTransferencia()
-            })
+            onValue(dbRef, () => this.recebeuNovaTransferencia())
         },
 
-        atualizafila() {
+        atualizaFilaFirebase() {
             const instancia = 'aW56YXBicmFzaWx2dWU=/' + this.session + '/FILA'
 
             const dbRef = ref(this.$database, `/${instancia}`)
@@ -1354,6 +1415,9 @@ export default {
                 }
 
                 this.fila_qtd = values.fila
+
+                this.chamarMeusAtendimentos()
+                this.chamarTodosAtendimentos()
             })
         },
 
@@ -1363,10 +1427,9 @@ export default {
             const dbRef = ref(this.$database, `/${instancia}`)
 
             onValue(dbRef, data => {
-                const values = data.val()
                 this.atualizarConversa()
 
-                this.atualizarFilaMeusAtendimentos()
+                this.chamarMeusAtendimentos()
             })
         },
 
@@ -1397,7 +1460,7 @@ export default {
 
             const novaMensagemText = {
                 mensagem: nome,
-                type: 'text'
+                type: 'text',
             }
 
             this.mensagem = ''
@@ -1501,7 +1564,7 @@ export default {
                         .then(() => {
                             this.abrirMsg = !this.abrirMsg
 
-                            this.listaContatos = []
+                            this.listaContatosSelecionado = []
                             this.listaContatosPesquisa = []
 
                             this.chamarMeusAtendimentos()
@@ -1692,67 +1755,54 @@ export default {
                 .catch(error => console.error(error))
         },
 
-        atualizarFilaMeusAtendimentos() {
-            Api.post('/meus_atendimentos/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                id: localStorage.getItem('@USER_ID'),
-                setor_id: localStorage.getItem('@SETOR_ID'),
-            })
-                .then(response => {
-                    const data = response.data
-                    this.listaContatos = data.meusatendimentos
-                    // this.notificacao = false;
-                    this.fila_qtd = data.qtdfila_atendimento
-
-                    const listaQtdeMensagens = data.qtdmensagens
-
-                    this.montarNotificacoes(listaQtdeMensagens)
-                })
-                .catch(error => console.error(error))
-        },
-
         async chamarMeusAtendimentos() {
-            if (this.listaContatosInterno) {
-                this.abrirMsg = false
-            }
+            try {
+                if (this.listaContatosInterno) {
+                    this.abrirMsg = false
+                }
 
-            this.listaContatosInterno = null
-            this.pesquisa = ''
+                this.listaContatosInterno = null
+                this.pesquisa = ''
 
-            Api.post('/meus_atendimentos/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                id: localStorage.getItem('@USER_ID'),
-                setor_id: localStorage.getItem('@SETOR_ID'),
-            })
-                .then(response => {
-                    let data = response.data
-                    this.listaContatos = data.meusatendimentos
-
-                    this.fila_qtd = data.qtdfila_atendimento
-                    this.meusatendimentos_qtd = data.qtdmeus_atendimentos
-                    let listaQtdeMensagens = data.qtdmensagens
-
-                    this.montarNotificacoes(listaQtdeMensagens)
+                const response = await Api.post('/meus_atendimentos/ZmlsYWRlYXRlbmRpbWVudG8=', {
+                    id: localStorage.getItem('@USER_ID'),
+                    setor_id: localStorage.getItem('@SETOR_ID'),
                 })
-                .catch(error => console.error(error))
+
+                const data = response.data
+
+                this.listaContatos.meusAtendimentos = data?.meusatendimentos ?? []
+                this.fila_qtd = data?.qtdfila_atendimento ?? ''
+                this.meusatendimentos_qtd = data?.qtdmeus_atendimentos ?? ''
+
+                this.montarNotificacoes(data?.qtdmensagens)
+            } catch (error) {
+                console.error(error)
+            }
         },
 
         async chamarTodosAtendimentos() {
-            if (this.listaContatosInterno) {
-                this.abrirMsg = false
+            try {
+                if (this.listaContatosInterno) {
+                    this.abrirMsg = false
+                }
+
+                this.listaContatosInterno = null
+                this.pesquisa = ''
+
+                const response = await Api.post(
+                    '/fila_atendimento_todas/ZmlsYWRlYXRlbmRpbWVudG8=?dXNlcl9pZA=MTEy',
+                    {
+                        dXNlcl9pZA: btoa(localStorage.getItem('@USER_ID')),
+                    }
+                )
+
+                const data = response.data
+
+                this.listaContatos.todos = data?.fila ?? []
+            } catch (error) {
+                console.error(error)
             }
-
-            this.listaContatosInterno = null
-            this.pesquisa = ''
-
-            Api.post('/fila_atendimento_todas/ZmlsYWRlYXRlbmRpbWVudG8=?dXNlcl9pZA=MTEy', {
-                dXNlcl9pZA: btoa(localStorage.getItem('@USER_ID')),
-                // setor_id: localStorage.getItem("@SETOR_ID"),
-            })
-                .then(response => {
-                    let data = response.data
-
-                    this.listaContatos = data.fila
-                })
-                .catch(error => console.error(error))
         },
 
         recebeuNovaTransferencia() {
@@ -1772,23 +1822,25 @@ export default {
         },
 
         montarNotificacoes(lista_qtde_mensagens) {
+            if (!lista_qtde_mensagens) return
+
             const fones_enviados = lista_qtde_mensagens.map(usuarios => usuarios.fone_enviado)
 
             this.lista_fones_notificados = []
 
-            for (let i = 0; i < this.listaContatos.length; i++) {
-                let qtdeMensagensFone = lista_qtde_mensagens.filter(mensagem => {
-                    return mensagem.fone_enviado == this.listaContatos[i].fone
+            for (let i = 0; i < this.listaContatosSelecionado.length; i++) {
+                const qtdeMensagensFone = lista_qtde_mensagens.filter(mensagem => {
+                    return mensagem.fone_enviado == this.listaContatosSelecionado[i].fone
                 }).length
 
-                let index = fones_enviados.findIndex(
-                    val => val.fone_enviado == this.listaContatos[i].fone
+                const index = fones_enviados.findIndex(
+                    val => val.fone_enviado == this.listaContatosSelecionado[i].fone
                 )
 
                 // // so rodar quando o numero que enviou mensagem não existe dentro de algum objeto do array
                 if (index < 0) {
-                    let obj = {
-                        fone: this.listaContatos[i].fone,
+                    const obj = {
+                        fone: this.listaContatosSelecionado[i].fone,
                         qtdeMensagens: qtdeMensagensFone,
                     }
 
@@ -1797,29 +1849,30 @@ export default {
             }
         },
 
-        chamarAtendimentosFila() {
-            if (this.listaContatosInterno) {
-                this.abrirMsg = false
-            }
+        async chamarAtendimentosFila() {
+            try {
+                if (this.listaContatosInterno) {
+                    this.abrirMsg = false
+                }
 
-            this.listaContatosInterno = null
-            this.pesquisa = ''
+                this.listaContatosInterno = null
+                this.pesquisa = ''
 
-            Api.post('/fila_atendimento/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                id: localStorage.getItem('@USER_ID'),
-                setor_id: localStorage.getItem('@SETOR_ID'),
-            })
-                .then(response => {
-                    let data = response.data
-
-                    this.plano_id = data.plano
-
-                    this.fila_qtd = response.data.fila.length
-
-                    this.listaContatos = data.fila
+                const response = await Api.post('/fila_atendimento/ZmlsYWRlYXRlbmRpbWVudG8=', {
+                    id: localStorage.getItem('@USER_ID'),
+                    setor_id: localStorage.getItem('@SETOR_ID'),
                 })
 
-                .catch(error => console.error(error))
+                const data = response.data
+
+                this.plano_id = data.plano
+
+                this.fila_qtd = response.data.fila.length
+
+                this.listaContatos.fila = data?.fila ?? []
+            } catch (error) {
+                console.error(error)
+            }
         },
 
         bloqueiaAtendimento(contato_id) {
@@ -1870,7 +1923,7 @@ export default {
                 id: localStorage.getItem('@USER_ID'),
             })
                 .then(response => {
-                    let data = response.data
+                    const data = response.data
 
                     this.qtdmensagensinternas = data.lido
                     this.listaContatosInterno = data.atendentes
@@ -1919,9 +1972,8 @@ export default {
             this.mensagens = []
             Api.post('/conversa_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
                 .then(response => {
-                    let data = response.data.conversas
+                    const data = response.data.conversas
 
-                    // verificando se ta vindo vazio
                     if (typeof data.mensagem === 'string') {
                         this.mensagens = []
                     } else {
@@ -1942,8 +1994,6 @@ export default {
                 })
 
                 this.setStates(response.data.estados)
-
-                console.log('/cidades => 200 OK')
             } catch (error) {
                 console.error(error)
             }
@@ -1997,27 +2047,19 @@ export default {
             const btnAll = event.target.closest('#btn-todos')
             const btnInternalServices = event.target.closest('#btn-atendimentos-internos')
 
+            this.pesquisa = ''
+
             if (btnQueue) {
                 this.opcaoSelecionada = 'fila'
-                this.pesquisa = ''
-
-                this.chamarAtendimentosFila()
             } else if (btnServices) {
                 this.opcaoSelecionada = 'atendimento'
-                this.pesquisa = ''
-
-                this.chamarMeusAtendimentos()
             } else if (btnInternalServices) {
-                this.opcaoSelecionada = 'atendimento-interno'
-                this.pesquisa = ''
-
-                this.chamarMeusChatsInternos()
+                this.opcaoSelecionada = 'interno'
             } else if (btnAll) {
                 this.opcaoSelecionada = 'todos'
-                this.pesquisa = ''
-
-                this.chamarTodosAtendimentos()
             }
+
+            console.log(this.listaContatosSelecionado)
 
             this.updateStyleTabs()
         },

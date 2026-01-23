@@ -113,12 +113,14 @@ export default {
 
     watch: {
         lista: {
-            handler() {
-                this.errorPhotoList = this.lista
-                    .filter(
-                        contato => !contato.foto || contato.foto === '' || contato.foto === null
-                    )
-                    .map(contato => contato.id)
+            handler(newVal) {
+                if (newVal && Array.isArray(newVal)) {
+                    this.errorPhotoList = this.lista
+                        .filter(
+                            contato => !contato.foto || contato.foto === '' || contato.foto === null
+                        )
+                        .map(contato => contato.id)
+                }
             },
             immediate: true,
         },
