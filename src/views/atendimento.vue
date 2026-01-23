@@ -1418,6 +1418,7 @@ export default {
 
                 this.chamarMeusAtendimentos()
                 this.chamarTodosAtendimentos()
+                this.chamarAtendimentosFila()
             })
         },
 
