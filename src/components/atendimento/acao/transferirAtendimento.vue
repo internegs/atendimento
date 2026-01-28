@@ -110,6 +110,10 @@ export default {
         atualizaMeusAtendimentos: {
             type: Function,
         },
+        
+        Chamafirebase: {
+            type: Function,
+        },
         fecharTelaDeConversa: {
             type: Function,
         },
@@ -159,15 +163,21 @@ export default {
                 const modal = bootstrap.Modal.getInstance(truck_modal)
                 modal.hide()
 
-                if (response.status === 200) {
-                    Swal.fire('Transferido!', response.data, 'success')
-                } else {
-                    throw new Error(response.data.mensagem)
-                }
-
+                if (response) {
+                    Swal.fire('Transferido com Sucesso!', response, 'success')
+                
+                this.Chamafirebase()
                 this.chamarDados()
 
                 this.atualizaMeusAtendimentos()
+                    
+                } else {
+                    throw new Error(response)
+                }
+
+
+
+            
             } catch (error) {
                 this.btnLoading = false
 

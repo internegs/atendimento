@@ -939,6 +939,7 @@
             :id_atendimento="selecionado.id_atendimento"
             :chamar-dados="chamarAtendimentosFila"
             :atualizaMeusAtendimentos="chamarMeusAtendimentos"
+            :Chamafirebase ="atualizaFilaFirebase"
             :fechar-tela-de-conversa="fecharTelaDeConversa"
         />
 
@@ -1569,6 +1570,9 @@ export default {
                             this.listaContatosPesquisa = []
 
                             this.chamarMeusAtendimentos()
+                            this.atualizaFilaFirebase()
+                            
+                            
                         })
                         .catch(error => {
                             console.error(error)
@@ -1677,6 +1681,7 @@ export default {
                         }
 
                         this.chamarMeusAtendimentos()
+                        this.atualizaFilaFirebase()
                     })
                 })
                 .catch(error => {
@@ -1730,6 +1735,7 @@ export default {
                     }
 
                     this.chamarMeusAtendimentos()
+                    this.atualizaFilaFirebase()
                     this.processando = false
                 })
                 .catch(error => {
@@ -1777,6 +1783,7 @@ export default {
                 this.meusatendimentos_qtd = data?.qtdmeus_atendimentos ?? ''
 
                 this.montarNotificacoes(data?.qtdmensagens)
+                
             } catch (error) {
                 console.error(error)
             }
