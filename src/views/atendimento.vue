@@ -1417,9 +1417,9 @@ export default {
 
                 this.fila_qtd = values.fila
 
+                this.chamarAtendimentosFila()
                 this.chamarMeusAtendimentos()
                 this.chamarTodosAtendimentos()
-                this.chamarAtendimentosFila()
             })
         },
 
@@ -1428,11 +1428,7 @@ export default {
 
             const dbRef = ref(this.$database, `/${instancia}`)
 
-            onValue(dbRef, data => {
-                this.atualizarConversa()
-
-                this.chamarMeusAtendimentos()
-            })
+            onValue(dbRef, () => this.atualizarConversa())
         },
 
         novamensageminterna() {
@@ -1442,8 +1438,7 @@ export default {
 
             const dbRef = ref(this.$database, `/${instancia}`)
 
-            onValue(dbRef, data => {
-                const values = data.val()
+            onValue(dbRef, () => {
 
                 this.qtdmensagensinternas = 1
 
@@ -1719,7 +1714,7 @@ export default {
 
                         this.foneConversa = this.selecionado.fone
                         this.ativado = this.selecionado.id
-                        this.atendimentoStatus = ativo.ativo === 1 ? true : false
+                        this.atendimentoStatus = Boolean(ativo.ativo)
 
                         this.salvaConversa()
                     } else {
@@ -1730,16 +1725,17 @@ export default {
 
                         this.foneConversa = this.selecionado.fone
                         this.ativado = this.selecionado.id
-                        this.atendimentoStatus = ativo?.ativo && ativo.ativo === 1 ? true : false
+                        this.atendimentoStatus = Boolean(ativo.ativo)
+
                         this.salvaConversa()
                     }
 
-                    this.chamarMeusAtendimentos()
-                    this.atualizaFilaFirebase()
+                    // this.chamarMeusAtendimentos()
                     this.processando = false
                 })
                 .catch(error => {
                     console.error(error)
+
                     this.processando = false
                 })
 
