@@ -1730,7 +1730,8 @@ export default {
                         this.salvaConversa()
                     }
 
-                    // this.chamarMeusAtendimentos()
+                    this.chamarAtendimentosFila()
+                    this.chamarMeusAtendimentos()
                     this.processando = false
                 })
                 .catch(error => {
