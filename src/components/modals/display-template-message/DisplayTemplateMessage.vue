@@ -164,7 +164,7 @@
 </template>
 
 <script>
-import api from '@/services/api'
+import api from '@/services/api/api.js'
 import { debounce } from 'lodash-es'
 import Swal from 'sweetalert2'
 

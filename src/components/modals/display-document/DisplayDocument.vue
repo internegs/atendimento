@@ -82,7 +82,7 @@ import Swal from 'sweetalert2'
 import BaseModal from '../BaseModal.vue'
 import MediaTemplate from '../media-template/MediaTemplate.vue'
 import * as pdflib from 'pdfjs-dist'
-import api from '@/services/api'
+import api from '@/services/api/api.js'
 import { formatSize, formatTypeDocument } from '@/utils/formatters'
 
 export default {

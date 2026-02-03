@@ -790,11 +790,11 @@
                                     />
                                 </button>
 
-                                <!--                            <audio-recorder-component-->
-                                <!--                                v-else-->
-                                <!--                                @is-recording="viewIsRecordingEvent"-->
-                                <!--                                @handle-btn-send="sendRecorderAudio"-->
-                                <!--                            />-->
+<!--                                <audio-recorder-component-->
+<!--                                    v-else-->
+<!--                                    @is-recording="viewIsRecordingEvent"-->
+<!--                                    @handle-btn-send="sendRecorderAudio"-->
+<!--                                />-->
                             </div>
                         </div>
                     </div>
@@ -939,7 +939,7 @@
             :id_atendimento="selecionado.id_atendimento"
             :chamar-dados="chamarAtendimentosFila"
             :atualizaMeusAtendimentos="chamarMeusAtendimentos"
-            :Chamafirebase ="atualizaFilaFirebase"
+            :Chamafirebase="atualizaFilaFirebase"
             :fechar-tela-de-conversa="fecharTelaDeConversa"
         />
 
@@ -1007,7 +1007,7 @@ import ListaAtendimentos from '@/components/atendimento/ListaAtendimentos.vue'
 import ListaAtendimentosChatInterno from '@/components/atendimento/ListaAtendimentosChatInterno.vue'
 import ChatAtendimento from '@/components/atendimento/ChatAtendimento.vue'
 import ChatAtendimentoContatosInterno from '@/components/atendimento/ChatAtendimentoContatosInterno.vue'
-import Api from '@/services/api'
+import Api from '@/services/api/api.js'
 import EditarContato from '@/components/atendimento/acao/editarContato.vue'
 
 import TransferirAtendimento from '@/components/atendimento/acao/transferirAtendimento.vue'
@@ -1031,6 +1031,7 @@ import AudioRecorderComponent from '@/components/atendimento/acao/AudioRecorderC
 import { mapActions } from 'pinia'
 import { useListStatesStore } from '@/stores/useListStatesStore.js'
 import ImgComponent from '@/components/ui/ImgComponent.vue'
+import { enviaMidia } from '@/services/api/newApi.js'
 
 export default {
     name: 'atendimento',
@@ -1439,7 +1440,6 @@ export default {
             const dbRef = ref(this.$database, `/${instancia}`)
 
             onValue(dbRef, () => {
-
                 this.qtdmensagensinternas = 1
 
                 this.recebeumensageminterna()
@@ -1566,8 +1566,6 @@ export default {
 
                             this.chamarMeusAtendimentos()
                             this.atualizaFilaFirebase()
-                            
-                            
                         })
                         .catch(error => {
                             console.error(error)
@@ -1780,7 +1778,6 @@ export default {
                 this.meusatendimentos_qtd = data?.qtdmeus_atendimentos ?? ''
 
                 this.montarNotificacoes(data?.qtdmensagens)
-                
             } catch (error) {
                 console.error(error)
             }
@@ -2064,8 +2061,6 @@ export default {
                 this.opcaoSelecionada = 'todos'
             }
 
-            console.log(this.listaContatosSelecionado)
-
             this.updateStyleTabs()
         },
 
@@ -2297,25 +2292,16 @@ export default {
         },
 
         async sendRecorderAudio(audioData) {
+            // temporariamente em desuso
             try {
-                const obj = {
+                const data = {
                     user_id: localStorage.getItem('@USER_ID'),
                     fone: this.selecionado?.fone,
                     midia: audioData,
                     type: 2,
                 }
 
-                console.log(audioData)
-
-                return
-
-                const binaryObj = new FormData()
-
-                Object.entries(obj).forEach(([key, value]) => {
-                    binaryObj.append(key, value)
-                })
-
-                await Api.post('/envia_midianovo/ZmlsYWRlYXRlbmRpbWVudG8=', binaryObj)
+                await enviaMidia(data)
 
                 this.atualizarConversa()
             } catch (error) {

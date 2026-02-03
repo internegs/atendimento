@@ -85,7 +85,7 @@
 
 <script>
 import Container from "@/components/GLOBALS/container.vue";
-import api from "@/services/api";
+import api from "@/services/api/api.js";
 
 export default {
   name: "mandarArquivo",

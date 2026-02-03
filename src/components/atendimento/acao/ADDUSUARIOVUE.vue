@@ -159,7 +159,7 @@
 <script>
 import Locais from '@/components/GLOBALS/CidadesEstado.vue'
 import Container from '@/components/GLOBALS/container.vue'
-import Api from '@/services/api'
+import Api from '@/services/api/api.js'
 import Swal from 'sweetalert2'
 
 export default {
