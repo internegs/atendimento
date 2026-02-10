@@ -157,12 +157,12 @@
                         <!-- Pesquisando contatos -->
                         <lista-atendimentos
                             :lista="listaContatosPesquisa"
-                            :change="abrirConversa"
                             :ativado="ativado"
                             :tipo="tipo_usuario"
                             :novo="notificacao"
                             :lista_fone="lista_fones_notificados"
                             :qtdmensagens="qtdmensagens"
+                            @contato-selecionado="abrirConversa"
                         />
                     </div>
 
@@ -183,12 +183,12 @@
                         <lista-atendimentos
                             v-else
                             :lista="listaContatosSelecionado"
-                            :change="abrirConversa"
                             :ativado="ativado"
                             :tipo="tipo_usuario"
                             :novo="notificacao"
                             :lista_fone="lista_fones_notificados"
                             :qtdmensagens="qtdmensagens"
+                            @contato-selecionado="abrirConversa"
                         />
                     </div>
                 </template>
@@ -790,11 +790,11 @@
                                     />
                                 </button>
 
-<!--                                <audio-recorder-component-->
-<!--                                    v-else-->
-<!--                                    @is-recording="viewIsRecordingEvent"-->
-<!--                                    @handle-btn-send="sendRecorderAudio"-->
-<!--                                />-->
+                                <!--                                <audio-recorder-component-->
+                                <!--                                    v-else-->
+                                <!--                                    @is-recording="viewIsRecordingEvent"-->
+                                <!--                                    @handle-btn-send="sendRecorderAudio"-->
+                                <!--                                />-->
                             </div>
                         </div>
                     </div>
@@ -1031,7 +1031,7 @@ import AudioRecorderComponent from '@/components/atendimento/acao/AudioRecorderC
 import { mapActions } from 'pinia'
 import { useListStatesStore } from '@/stores/useListStatesStore.js'
 import ImgComponent from '@/components/ui/ImgComponent.vue'
-import { enviaMidia } from '@/services/api/newApi.js'
+import { conversaList, enviaMidia } from '@/services/api/newApi.js'
 
 export default {
     name: 'atendimento',
@@ -1073,6 +1073,7 @@ export default {
             },
             listaContatosPesquisa: [],
             listaContatosInterno: null,
+            listaConversas: [],
             requisaoApi: null,
             abrirMsg: false,
             abrirEscolha: false,
@@ -1086,7 +1087,7 @@ export default {
             dados: {},
             atendimentoStatus: null,
             ativado: 0,
-            opcaoSelecionada: 'atendimento',
+            opcaoSelecionada: 'meus_atendimentos',
             pesquisa: '',
             fila_qtd: '',
             meusatendimentos_qtd: '',
@@ -1188,7 +1189,7 @@ export default {
         opcaoSelecionada: {
             handler(newVal) {
                 switch (newVal) {
-                    case 'atendimento':
+                    case 'meus_atendimentos':
                         this.listaContatosSelecionado = this.listaContatos.meusAtendimentos
 
                         break
@@ -1220,7 +1221,7 @@ export default {
         listaContatos: {
             handler(newVal) {
                 switch (this.opcaoSelecionada) {
-                    case 'atendimento':
+                    case 'meus_atendimentos':
                         this.listaContatosSelecionado = newVal.meusAtendimentos
 
                         break
@@ -1263,6 +1264,7 @@ export default {
         await this.chamarMeusAtendimentos()
         await this.chamarAtendimentosFila()
         await this.chamarTodosAtendimentos()
+        await this.chamarConversas()
         await this.getEstados()
 
         this.session = localStorage.getItem('@SESSION')
@@ -1602,18 +1604,14 @@ export default {
                 .then(response => {
                     this.status_chat = true
 
-                    let data = response.data
+                    const data = response.data
 
                     if (typeof data === 'string') {
                         this.mensagens = data
                     } else {
-                        let mensagensInvertidas = data.conversas.slice(0).reverse()
+                        this.mensagens = data.conversas.slice(0).reverse()
 
-                        this.mensagens = mensagensInvertidas
-
-                        let listaQtdeMensagens = data.qtdmensagens
-
-                        this.montarNotificacoes(listaQtdeMensagens)
+                        this.montarNotificacoes(data.qtdmensagens)
                     }
                 })
                 .catch(error => console.error(error))
@@ -1621,10 +1619,10 @@ export default {
         },
 
         abrirConversaContatoEncaminhado(info) {
-            let fone = info.mensagem
-            let nome_contato = info.contactName
+            const fone = info.mensagem
+            const nome_contato = info.contactName
 
-            let objConversas = {
+            const objConversas = {
                 id: localStorage.getItem('@USER_ID'),
                 fone: fone,
                 nome_contato: nome_contato,
@@ -1632,10 +1630,10 @@ export default {
 
             Api.post('/conversas_bd/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
                 .then(response => {
-                    let data = response.data
+                    const data = response.data
 
-                    let ativo = response.data.usuario
-                    let qtd = data.qtd
+                    const ativo = response.data.usuario
+                    const qtd = data.qtd
 
                     this.notificacao = false
 
@@ -1643,11 +1641,9 @@ export default {
                         id: localStorage.getItem('@USER_ID'),
                         busca: info.mensagem,
                     }).then(resposta => {
-                        let dados = resposta.data
+                        const dados = resposta.data
 
-                        let contatoInfo = dados.contatos.data[0]
-
-                        this.selecionado = contatoInfo
+                        this.selecionado = dados.contatos.data[0]
 
                         this.mensagens = []
 
@@ -1655,11 +1651,10 @@ export default {
                             this.qtdconversas = qtd
                             this.status_chat = true
                             // pegando array de mensagens da requisição
-                            let mensagensInvertidas = data.conversas.slice(0).reverse()
-                            this.mensagens = mensagensInvertidas
+                            this.mensagens = data.conversas.slice(0).reverse()
                             this.foneConversa = this.selecionado.fone
                             this.ativado = this.selecionado.id
-                            this.atendimentoStatus = ativo.ativo === 1 ? true : false
+                            this.atendimentoStatus = ativo.ativo === 1
 
                             this.salvaConversa()
                         } else {
@@ -1669,7 +1664,7 @@ export default {
                             this.mensagens = data.mensagem
                             this.foneConversa = this.selecionado.fone
                             this.ativado = this.selecionado.id
-                            this.atendimentoStatus = ativo.ativo === 1 ? true : false
+                            this.atendimentoStatus = ativo.ativo === 1
                             this.salvaConversa()
                         }
 
@@ -1682,79 +1677,134 @@ export default {
                 })
         },
 
-        abrirConversa(info_user) {
-            this.processando = true
-            this.selecionado = info_user.usuario
+        async abrirConversa(info_user) {
+            try {
+                this.processando = true
+                this.selecionado = info_user.usuario
 
-            let objConversas = {
-                id: localStorage.getItem('@USER_ID'),
-                fone: this.selecionado.fone,
-                nome_contato: this.selecionado.nome,
-            }
+                if (!this.selecionado?.fone) {
+                    console.error('abrirConversa(): O telefone do contato nao esta presente.')
 
-            this.mensagens = []
+                    return
+                }
 
-            Api.post('/conversas_bd/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
-                .then(response => {
-                    const data = response.data
-                    const ativo = response.data?.usuario
-                    const qtd = data.qtd
+                let listaContatos = []
 
-                    this.notificacao = false
+                switch (this.opcaoSelecionada) {
+                    case 'fila':
+                        listaContatos = this.listaContatos?.fila
+                        break
+                    case 'meus_atendimentos':
+                        listaContatos = this.listaContatos?.meusAtendimentos
+                        break
+                    case 'todos':
+                        listaContatos = this.listaContatos?.todos
+                        break
+                }
 
-                    if (qtd > 0) {
-                        this.qtdconversas = qtd
-                        this.status_chat = true
+                const objConversas = {
+                    atendente_id: localStorage.getItem('@USER_ID'),
+                    lista_contatos: listaContatos.map(contato => contato.fone).filter(Boolean),
+                }
 
-                        // pegando array de mensagens da requisição
-                        let mensagensInvertidas = data.conversas.slice(0).reverse()
-                        this.mensagens = mensagensInvertidas
+                this.mensagens = []
 
-                        this.foneConversa = this.selecionado.fone
-                        this.ativado = this.selecionado.id
-                        this.atendimentoStatus = Boolean(ativo.ativo)
+                if (
+                    this.opcaoSelecionada === 'fila' ||
+                    !this.listaConversas?.[this.selecionado?.fone]
+                ) {
+                    const response = await conversaList(objConversas)
 
-                        this.salvaConversa()
-                    } else {
-                        this.qtdconversas = qtd
-                        this.status_chat = false
-
-                        this.mensagens = data.mensagem
-
-                        this.foneConversa = this.selecionado.fone
-                        this.ativado = this.selecionado.id
-                        this.atendimentoStatus = Boolean(ativo.ativo)
-
-                        this.salvaConversa()
+                    this.listaConversas = {
+                        ...this.listaConversas,
+                        response,
                     }
+                }
 
-                    this.chamarAtendimentosFila()
-                    this.chamarMeusAtendimentos()
-                    this.processando = false
-                })
-                .catch(error => {
-                    console.error(error)
+                const data = this.listaConversas?.[this.selecionado?.fone] ?? null
+                const ativo = Boolean(data?.usuario?.ativo)
+                const qtd = data?.qtd ?? null
 
-                    this.processando = false
-                })
+                this.notificacao = false
 
-            this.abrirMsg = true
+                if (data) {
+                    this.qtdconversas = qtd
+                    this.status_chat = true
 
-            this.opcaoSelecionada = 'atendimento'
-            this.pesquisa = ''
+                    // pegando array de mensagens da requisição
+                    this.mensagens = data.conversas.slice(0).reverse()
 
-            this.updateStyleTabs()
+                    this.foneConversa = this.selecionado.fone
+                    this.ativado = this.selecionado.id
+                    this.atendimentoStatus = ativo
+
+                    await this.salvaConversa()
+                } else {
+                    this.qtdconversas = 0
+                    this.status_chat = false
+
+                    this.mensagens = 'Não há conversas para este contato.'
+
+                    this.foneConversa = this.selecionado.fone
+                    this.ativado = this.selecionado.id
+                    this.atendimentoStatus = ativo
+
+                    await this.salvaConversa()
+                }
+
+                await this.chamarAtendimentosFila()
+                await this.chamarMeusAtendimentos()
+
+                this.processando = false
+                this.abrirMsg = true
+
+                this.opcaoSelecionada = 'meus_atendimentos'
+                this.pesquisa = ''
+
+                this.updateStyleTabs()
+            } catch (error) {
+                console.error(error)
+            }
         },
 
-        salvaConversa() {
-            let objConversas = {
-                id: localStorage.getItem('@USER_ID'),
-                fone: this.selecionado.fone,
-            }
+        async chamarConversas() {
+            try {
+                let listaContatos = []
 
-            Api.post('/conversas/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
-                .then(() => {})
-                .catch(error => console.error(error))
+                switch (this.opcaoSelecionada) {
+                    case 'fila':
+                        listaContatos = this.listaContatos?.fila
+                        break
+                    case 'meus_atendimentos':
+                        listaContatos = this.listaContatos?.meusAtendimentos
+                        break
+                    case 'todos':
+                        listaContatos = this.listaContatos?.todos
+                        break
+                }
+
+                const objConversas = {
+                    atendente_id: localStorage.getItem('@USER_ID'),
+                    lista_contatos: listaContatos.map(contato => contato.fone).filter(Boolean),
+                }
+
+                const response = await conversaList(objConversas)
+
+                this.listaConversas = response ?? []
+            } catch (error) {
+                console.error(error)
+            }
+        },
+
+        async salvaConversa() {
+            try {
+                await Api.post('/conversas/ZmlsYWRlYXRlbmRpbWVudG8=', {
+                    id: localStorage.getItem('@USER_ID'),
+                    fone: this.selecionado.fone,
+                })
+            } catch (error) {
+                console.error(error)
+            }
         },
 
         async chamarMeusAtendimentos() {
@@ -2033,7 +2083,7 @@ export default {
                     case 'fila':
                         btnQueue?.classList.add('btn-active')
                         break
-                    case 'atendimento':
+                    case 'meus_atendimentos':
                         btnServices?.classList.add('btn-active')
                         break
                     case 'todos':
@@ -2054,7 +2104,7 @@ export default {
             if (btnQueue) {
                 this.opcaoSelecionada = 'fila'
             } else if (btnServices) {
-                this.opcaoSelecionada = 'atendimento'
+                this.opcaoSelecionada = 'meus_atendimentos'
             } else if (btnInternalServices) {
                 this.opcaoSelecionada = 'interno'
             } else if (btnAll) {

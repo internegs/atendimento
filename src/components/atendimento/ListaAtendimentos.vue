@@ -12,11 +12,7 @@
             :key="contato.id"
             class="block"
             :class="{ active: ativado === contato.id }"
-            @click="
-                change({
-                    usuario: contato,
-                })
-            "
+            @click="selecionarContato(contato)"
         >
             <div class="imgbx">
                 <i
@@ -83,9 +79,6 @@ export default {
     name: 'ListaAtendimento',
 
     props: {
-        change: {
-            type: Function,
-        },
         lista: {
             type: Array,
         },
@@ -102,6 +95,8 @@ export default {
             type: Array,
         },
     },
+
+    emits: ['contato-selecionado'],
 
     data() {
         return {
@@ -151,8 +146,10 @@ export default {
             return `+${value.slice(0, 2)} (${value.slice(2, 4)}) ${value.slice(4, 5)} ${value.slice(5, 9)}-${value.slice(9)}`
         },
 
-        teste(value) {
-            console.log(value)
+        selecionarContato(contato) {
+            this.$emit('contato-selecionado', {
+                usuario: contato,
+            })
         },
     },
 }

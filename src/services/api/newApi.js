@@ -30,3 +30,11 @@ export function enviaMidia(data) {
 
     return API.post('/atendimento/envia_midia', binaryData)
 }
+
+export async function conversaList(data) {
+    const dataEncripted = btoa(JSON.stringify(data))
+
+    const response = await API.post('/conversas_bd/ZmlsYWRlYXRlbmRpbWVudG8=', dataEncripted)
+
+    return JSON.parse(atob(response.data))
+}
