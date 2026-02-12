@@ -1032,6 +1032,7 @@ import { mapActions } from 'pinia'
 import { useListStatesStore } from '@/stores/useListStatesStore.js'
 import ImgComponent from '@/components/ui/ImgComponent.vue'
 import { conversaList, enviaMidia } from '@/services/api/newApi.js'
+import IDBService from '@/services/IDBService.js'
 
 export default {
     name: 'atendimento',

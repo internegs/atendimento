@@ -1620,14 +1620,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.9.0":
-  version: 1.11.0
-  resolution: "axios@npm:1.11.0"
+"axios@npm:1.12.0":
+  version: 1.12.0
+  resolution: "axios@npm:1.12.0"
   dependencies:
     follow-redirects: "npm:^1.15.6"
     form-data: "npm:^4.0.4"
     proxy-from-env: "npm:^1.1.0"
-  checksum: 10c0/5de273d33d43058610e4d252f0963cc4f10714da0bfe872e8ef2cbc23c2c999acc300fd357b6bce0fc84a2ca9bd45740fa6bb28199ce2c1266c8b1a393f2b36e
+  checksum: 10c0/44a1e4cfb69a2d59aa12bbc441a336e5c18e87c02b904c509fd33607d94e8cb8cc221c17e9d53f67841a4efe13abf1aa1497c85df390cdb8681ee723998d11b0
   languageName: node
   linkType: hard
 
@@ -2622,6 +2622,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"idb@npm:^8.0.3":
+  version: 8.0.3
+  resolution: "idb@npm:8.0.3"
+  checksum: 10c0/421cd9a3281b7564528857031cc33fd9e95753f8191e483054cb25d1ceea7303a0d1462f4f69f5b41606f0f066156999e067478abf2460dfcf9cab80dae2a2b2
+  languageName: node
+  linkType: hard
+
 "ignore@npm:^5.2.0":
   version: 5.3.2
   resolution: "ignore@npm:5.3.2"
@@ -2669,12 +2676,13 @@ __metadata:
     "@popperjs/core": "npm:^2.11.8"
     "@vitejs/plugin-vue": "npm:^5.2.0"
     "@vue/eslint-config-prettier": "npm:^10.0.0"
-    axios: "npm:^1.9.0"
+    axios: "npm:1.12.0"
     chart.js: "npm:^4.4.0"
     date-fns: "npm:^4.1.0"
     eslint: "npm:^9.15.0"
     eslint-plugin-vue: "npm:9.33.0"
     firebase: "npm:^9.23.0"
+    idb: "npm:^8.0.3"
     lodash-es: "npm:^4.17.21"
     maska: "npm:^3.2.0"
     moment: "npm:^2.30.1"
@@ -2683,7 +2691,7 @@ __metadata:
     pinia-plugin-persistedstate: "npm:^3.2.0"
     prettier: "npm:^3.5.0"
     sass-embedded: "npm:^1.89.2"
-    sweetalert2: "npm:^11.10.0"
+    sweetalert2: "npm:11.22.4"
     vite: "npm:^6.2.4"
     vue: "npm:^3.5.0"
     vue-chartjs: "npm:^5.3.0"
@@ -3824,10 +3832,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sweetalert2@npm:^11.10.0":
-  version: 11.22.2
-  resolution: "sweetalert2@npm:11.22.2"
-  checksum: 10c0/e4d2b6822ad9ee9fc71e384ca5bb126cac8ad93fa99e300ce58444b8cbcdaf1d4c94a06bc855947ebe00a7aeb84bb64f9616b6a5d0c9bb5a0e01d3306670c28a
+"sweetalert2@npm:11.22.4":
+  version: 11.22.4
+  resolution: "sweetalert2@npm:11.22.4"
+  checksum: 10c0/5dd53ea09144230ff50a1480d5b19669e283028d426df2addfdd5c16df8e1f51320979c19369d18e577086378ae5f2b70ea907403ff521ed16f9c38a0e5508a1
   languageName: node
   linkType: hard
 
