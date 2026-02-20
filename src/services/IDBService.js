@@ -4,94 +4,78 @@ class IDBService {
     #dbName = null
     #dbVersion = 1
     #db = null
+    #logMode = false
 
-    constructor(dbName) {
+    constructor(dbName, logMode = false) {
         this.#dbName = dbName
+        this.#logMode = logMode
     }
 
-    async ready() {
+    async conn() {
         try {
             if (this.#db) return this
 
             if (!this.#dbName) {
-                console.warn(
-                    `[IDBService] ready(): Banco de dados ${this.#dbName} não encontrado. Realizando a criação...`
-                )
+                console.error(`[IDBService] conn(): Nome do banco de dados não informado.`)
+                return
             }
 
             this.#dbVersion = await this.#getDbVersion(this.#dbName)
+            this.#db = await openDB(this.#dbName, this.#dbVersion)
 
-            if (this.#dbVersion <= 1) {
-                this.#db = await openDB(this.#dbName)
-            } else {
-                this.#db = await openDB(this.#dbName, this.#dbVersion)
-            }
-
-            console.log(`[IDBService] ready(): DB inicializado.`)
+            this.#log(`conn(): DB "${this.#dbName}" (v${this.#dbVersion}) inicializado.`, 'info')
 
             return this
         } catch (error) {
-            console.error(error)
+            console.error(`[IDBService] conn(): Falha crítica ao conectar:`, error)
         }
+    }
+
+    async close() {
+        if (this.#db) {
+            await this.#db.close()
+            this.#db = null
+            this.#log(`close(): Conexão encerrada.`)
+            return
+        }
+        this.#log(`close(): Não há conexão ativa para encerrar.`, 'warn')
     }
 
     async createStore(storeName, keyPath = null, autoIncrement = false) {
         try {
             if (!this.#ensureDb('createStore')) return
 
-            if (typeof storeName !== 'string') {
-                console.error(
-                    `[IDBService] createStore(): Parâmetro storeName deve ser uma string. Tipo passado: ${typeof storeName}`
-                )
-
+            if (!storeName) {
+                this.#log(`createStore(): storeName não informado.`, 'warn')
                 return
             }
 
-            if (this.#db && this.#db.objectStoreNames.contains(storeName)) {
-                console.warn(`[IDBService] createStore(): Store ${storeName} já existe.`)
-
+            if (this.#db.objectStoreNames.contains(storeName)) {
+                this.#log(`createStore(): Store "${storeName}" já existe.`, 'warn')
                 return
             }
 
-            if (this.#db) {
-                this.#db.close()
-            }
+            this.#db.close()
 
             const dbVersion = this.#dbVersion + 1
 
             this.#db = await openDB(this.#dbName, dbVersion, {
                 upgrade(db) {
-                    if (keyPath && autoIncrement) {
-                        db.createObjectStore(storeName, {
-                            keyPath,
-                            autoIncrement,
-                        })
-                    } else if (keyPath && !autoIncrement) {
-                        db.createObjectStore(storeName, { keyPath })
-                    } else if (!keyPath && autoIncrement) {
-                        console.log('increment')
-                        db.createObjectStore(storeName, { autoIncrement })
-                    } else {
-                        db.createObjectStore(storeName)
-                    }
+                    const options = {}
+                    if (keyPath) options.keyPath = keyPath
+                    if (autoIncrement) options.autoIncrement = autoIncrement
 
-                    console.log(
-                        `[IDBService] createStore(): Store ${storeName} criada com sucesso.`
-                    )
+                    db.createObjectStore(storeName, options)
                 },
                 blocked() {
-                    console.warn(
-                        '[IDBService] createStore(): O upgrade foi bloqueado por outra aba aberta. Feche as outras abas!'
-                    )
+                    console.error('[IDBService] Operação bloqueada! Feche outras abas.')
                 },
             })
 
-            this.#dbVersion = await this.#getDbVersion(this.#dbName)
+            this.#dbVersion = this.#db.version
+            this.#log(`createStore(): Store "${storeName}" criada com sucesso.`)
         } catch (error) {
-            console.error(
-                `[IDBService] createStore(): Erro ao criar store ${storeName}: Detalhes: `,
-                error?.message ?? error
-            )
+            console.error(`[IDBService] createStore() Erro severo:`, error?.message)
         }
     }
 
@@ -99,11 +83,13 @@ class IDBService {
         try {
             if (!this.#ensureDb('createIndex')) return
 
-            if (typeof storeName !== 'string') {
-                console.error(
-                    `[IDBService] createIndex(): Parâmetro storeName deve ser uma string. Tipo passado: ${typeof storeName}`
-                )
+            if (!storeName) {
+                this.#log(`createIndex(): storeName não informado.`, 'warn')
+                return
+            }
 
+            if (!property) {
+                this.#log(`createIndex(): property não informado.`, 'warn')
                 return
             }
 
@@ -111,46 +97,25 @@ class IDBService {
             const indexList = this.getIndexList(storeName)
 
             if (indexList.includes(indexName)) {
-                console.warn(`[IDBService] createIndex(): Index "${indexName}" já existe.`)
-
+                this.#log(`createIndex(): Index "${indexName}" já existe.`, 'warn')
                 return
             }
 
-            if (this.#db) {
-                this.#db.close()
-            }
+            this.#db.close()
 
             const dbVersion = this.#dbVersion + 1
 
             this.#db = await openDB(this.#dbName, dbVersion, {
-                upgrade(db, oldVersion, currentVersion, transaction) {
+                upgrade(db, old, cur, transaction) {
                     const store = transaction.objectStore(storeName)
-
-                    if (unique) {
-                        store.createIndex(indexName, property, { unique })
-
-                        console.log(`Index "${indexName}" criada com sucesso`)
-
-                        return
-                    }
-
-                    store.createIndex(indexName, property)
-
-                    console.log(`Index "${indexName}" criada com sucesso`)
-                },
-                blocked() {
-                    console.warn(
-                        '[IDBService] createIndex(): O upgrade foi bloqueado por outra aba aberta. Feche as outras abas!'
-                    )
+                    store.createIndex(indexName, property, { unique })
                 },
             })
 
-            this.#dbVersion = await this.#getDbVersion(this.#dbName)
+            this.#dbVersion = this.#db.version
+            this.#log(`createIndex(): Index "${indexName}" criado com sucesso.`)
         } catch (error) {
-            console.error(
-                `[IDBService] createIndex(): Erro ao criar index ${storeName}_${property}_idx: Detalhes: `,
-                error?.message ?? error
-            )
+            console.error(`[IDBService] createIndex() Erro severo:`, error?.message)
         }
     }
 
@@ -159,29 +124,25 @@ class IDBService {
             if (!this.#ensureDb('add')) return
 
             if (!storeName) {
-                console.error(
-                    `[IDBService] add(): Store ${storeName} não encontrada. Realize a criação para prosseguir com a inserção.`
-                )
+                this.#log(`add(): storeName não informado.`, 'warn')
+                return
+            }
 
+            if (!data) {
+                this.#log(`add(): data não informado.`, 'warn')
                 return
             }
 
             const tx = this.#db.transaction(storeName, 'readwrite')
-
             await tx.store.add(data)
             await tx.done
 
-            console.log('[IDBService] add(): Dados inseridos com sucesso.')
+            this.#log(`add(): Dados inseridos em "${storeName}".`)
         } catch (error) {
             if (error.name === 'ConstraintError') {
-                console.error(
-                    `[IDBService] add(): Erro de restrição. Um dos valores inseridos já existe no DB. `
-                )
+                this.#log(`add(): Erro de restrição. Valor duplicado em "${storeName}".`, 'error')
             } else {
-                console.error(
-                    `[IDBService] add(): Erro ao inserir dados da store ${storeName}: Detalhes: `,
-                    error?.message ?? error
-                )
+                console.error(`[IDBService] add() Erro crítico:`, error?.message)
             }
         }
     }
@@ -191,124 +152,107 @@ class IDBService {
             if (!this.#ensureDb('put')) return
 
             if (!storeName) {
-                console.error(
-                    `[IDBService] put(): Store ${storeName} não encontrada. Realize a criação para prosseguir com a inserção.`
-                )
-
+                this.#log(`put(): storeName não informado.`, 'warn')
                 return
             }
 
-            if (typeof storeName !== 'string') {
-                console.error(
-                    `[IDBService] put(): Parâmetro storeName deve ser uma string. Tipo passado: ${typeof storeName}`
-                )
-
+            if (!data) {
+                this.#log(`put(): data não informado.`, 'warn')
                 return
             }
 
             const tx = this.#db.transaction(storeName, 'readwrite')
-
             await tx.store.put(data)
             await tx.done
 
-            console.log('[IDBService] put(): Dados modificados com sucesso.')
+            this.#log(`put(): Dados atualizados em "${storeName}".`)
         } catch (error) {
-            console.error(
-                `[IDBService] put(): Erro ao alterar dados da store ${storeName}: Detalhes: `,
-                error?.message ?? error
-            )
+            console.error(`[IDBService] put() Erro severo:`, error?.message)
+        }
+    }
+
+    async bulkPut(storeName, dataArray) {
+        try {
+            if (!this.#ensureDb('bulkPut')) return
+
+            if (!storeName) {
+                this.#log(`bulkPut(): storeName não informado.`, 'warn')
+                return
+            }
+
+            if (!Array.isArray(dataArray) || dataArray.length === 0) {
+                this.#log(`bulkPut(): dataArray inválido ou vazio.`, 'warn')
+                return
+            }
+
+            const tx = this.#db.transaction(storeName, 'readwrite')
+            const store = tx.objectStore(storeName)
+
+            const promises = dataArray.map(item => store.put(item))
+            await Promise.all([...promises, tx.done])
+
+            this.#log(`bulkPut(): ${dataArray.length} registros processados em "${storeName}".`)
+
+            // if (propertyToLimit) {
+            //     const indexName = `${storeName}_${propertyToLimit}_idx`
+            //
+            //     // Extrai valores únicos da propriedade (ex: todos os fones que sofreram put)
+            //     const uniqueValues = [...new Set(dataArray.map(item => item[propertyToLimit]))]
+            //
+            //     for (const value of uniqueValues) {
+            //         if (value) {
+            //             await this.enforceLimitByIndex(storeName, indexName, value, limit)
+            //         }
+            //     }
+            // }
+        } catch (error) {
+            console.error(`[IDBService] bulkPut() Erro severo:`, error?.message)
         }
     }
 
     async get(storeName, value, index = '') {
         try {
-            if (!this.#ensureDb('get')) return
+            if (!this.#ensureDb('get')) return null
 
-            if (typeof storeName !== 'string') {
-                console.error(
-                    `[IDBService] get(): Parâmetro Index deve ser uma string. Tipo passado: ${typeof storeName}`
-                )
-
+            if (!storeName) {
+                this.#log(`get(): storeName não informado.`, 'warn')
                 return null
             }
 
-            if (typeof index !== 'string') {
-                console.error(
-                    `[IDBService] get(): Parâmetro Index deve ser uma string. Tipo passado: ${typeof index}`
-                )
-
-                return null
-            }
-
-            if (!this.#db) {
-                console.error('[IDBService] get(): Banco não inicializado. Chame ready() primeiro.')
-
+            if (value === undefined || value === null) {
+                this.#log(`get(): value não informado.`, 'warn')
                 return null
             }
 
             const tx = this.#db.transaction(storeName, 'readonly')
-            let result
-
-            if (index && index.length > 0) {
-                const idx = tx.store.index(index)
-
-                if (!idx) {
-                    console.error(`[IDBService] get(): Index "${index}" não encontrado.`)
-
-                    return null
-                }
-
-                result = await idx.get(value)
-            } else {
-                result = await tx.store.get(value)
-            }
+            const result = index
+                ? await tx.store.index(index).get(value)
+                : await tx.store.get(value)
 
             await tx.done
-
             return result ?? null
         } catch (error) {
-            console.error(
-                `[IDBService] get(): Erro ao buscar na store "${storeName}":`,
-                error?.message ?? error
-            )
-
+            console.error(`[IDBService] get() Erro severo:`, error?.message)
             return null
         }
     }
 
     async getAll(storeName) {
         try {
-            if (!this.#ensureDb('getAll')) return
+            if (!this.#ensureDb('getAll')) return null
 
-            if (typeof storeName !== 'string') {
-                console.error(
-                    `[IDBService] getAll(): Parâmetro storeName deve ser uma string. Tipo passado: ${typeof storeName}`
-                )
-
-                return null
-            }
-
-            if (!this.#db) {
-                console.error(
-                    '[IDBService] getAll(): Banco não inicializado. Chame ready() primeiro.'
-                )
-
+            if (!storeName) {
+                this.#log(`getAll(): storeName não informado.`, 'warn')
                 return null
             }
 
             const tx = this.#db.transaction(storeName, 'readonly')
-
             const result = await tx.store.getAll()
-
             await tx.done
 
-            return result ?? null
+            return result
         } catch (error) {
-            console.error(
-                `[IDBService] getAll(): Erro ao buscar na store "${storeName}":`,
-                error?.message ?? error
-            )
-
+            console.error(`[IDBService] getAll() Erro severo:`, error?.message)
             return null
         }
     }
@@ -317,31 +261,31 @@ class IDBService {
         try {
             if (!this.#ensureDb('deleteStore')) return
 
-            if (!this.#db.objectStoreNames.contains(storeName)) {
-                console.warn(`[IDBService] deleteStore(): A store "${storeName}" não existe.`)
+            if (!storeName) {
+                this.#log(`deleteStore(): storeName não informado.`, 'warn')
                 return
             }
 
-            if (this.#db) {
-                this.#db.close()
+            if (!this.#db.objectStoreNames.contains(storeName)) {
+                this.#log(`deleteStore(): Store "${storeName}" inexistente.`, 'warn')
+                return
             }
+
+            this.#db.close()
 
             const dbVersion = this.#dbVersion + 1
 
-            this.#db = await openDB(storeName, dbVersion, {
+            this.#db = await openDB(this.#dbName, dbVersion, {
                 upgrade(db) {
                     db.deleteObjectStore(storeName)
-
-                    console.log(
-                        `[IDBService] deleteStore(): Store "${storeName}" removida com sucesso.`
-                    )
                 },
             })
+
+            this.#dbVersion = this.#db.version
+
+            this.#log(`deleteStore(): Store "${storeName}" removida.`)
         } catch (error) {
-            console.error(
-                `[IDBService] deleteStore(): Erro ao deletar store. Detalhes: `,
-                error?.message ?? error
-            )
+            console.error(`[IDBService] deleteStore() Erro severo:`, error?.message)
         }
     }
 
@@ -349,70 +293,50 @@ class IDBService {
         try {
             if (!this.#ensureDb('deleteIndex')) return
 
-            const indexList = this.getIndexList(storeName)
-
-            if (!indexList.includes(indexName)) {
-                console.warn(`[IDBService] deleteIndex(): O índice "${indexName}" não existe.`)
+            if (!storeName) {
+                this.#log(`deleteIndex(): storeName não informado.`, 'warn')
                 return
             }
 
-            if (this.#db) {
-                this.#db.close()
+            if (!indexName) {
+                this.#log(`deleteIndex(): indexName não informado.`, 'warn')
+                return
             }
 
+            const indexList = this.getIndexList(storeName)
+
+            if (!indexList.includes(indexName)) {
+                this.#log(`deleteIndex(): Index "${indexName}" inexistente.`, 'warn')
+                return
+            }
+
+            this.#db.close()
             const dbVersion = this.#dbVersion + 1
 
-            this.#db = await openDB(storeName, dbVersion, {
-                upgrade(db, oldVersion, currentVersion, transaction) {
+            this.#db = await openDB(this.#dbName, dbVersion, {
+                upgrade(db, old, cur, transaction) {
                     const store = transaction.objectStore(storeName)
-
                     store.deleteIndex(indexName)
-
-                    console.log(
-                        `[IDBService] deleteIndex(): Índice "${indexName}" removido com sucesso.`
-                    )
                 },
             })
+
+            this.#dbVersion = this.#db.version
+
+            this.#log(`deleteIndex(): Index "${indexName}" removido.`)
         } catch (error) {
-            console.error(
-                `[IDBService] deleteIndex(): Erro ao deletar index. Detalhes: `,
-                error?.message ?? error
-            )
+            console.error(`[IDBService] deleteIndex() Erro severo:`, error?.message)
         }
-    }
-
-    async hasDatabase(dbName) {
-        const databases = await indexedDB.databases()
-
-        return databases?.some(db => db.name === dbName) ?? false
-    }
-
-    getDbName() {
-        return this.#dbName
     }
 
     getIndexList(storeName) {
-        if (!this.#ensureDb('getIndexList')) return
+        if (!this.#ensureDb('getIndexList')) return []
 
         if (!storeName) {
-            console.error(
-                `[IDBService] getIndexList(): Store ${storeName} não encontrada. Realize a criação para prosseguir com a inserção.`
-            )
-
-            return
-        }
-
-        if (typeof storeName !== 'string') {
-            console.error(
-                `[IDBService] getIndexList(): Parâmetro storeName deve ser uma string. Tipo passado: ${typeof storeName}`
-            )
-
+            this.#log(`getIndexList(): storeName não informado.`, 'warn')
             return []
         }
 
-        if (!this.#db.objectStoreNames.contains(storeName)) {
-            return []
-        }
+        if (!this.#db.objectStoreNames.contains(storeName)) return []
 
         const tx = this.#db.transaction(storeName, 'readonly')
 
@@ -425,14 +349,95 @@ class IDBService {
         return databases?.find(db => db.name === dbName)?.version ?? 1
     }
 
+    async count(storeName) {
+        try {
+            if (!this.#ensureDb('count')) return 0
+
+            if (!storeName) {
+                this.#log(`count(): storeName não informado.`, 'warn')
+                return 0
+            }
+
+            const tx = this.#db.transaction(storeName, 'readonly')
+            const count = await tx.store.count()
+            await tx.done
+
+            return count
+        } catch (error) {
+            console.error(`[IDBService] count() Erro severo:`, error?.message)
+            return 0
+        }
+    }
+
     #ensureDb(methodName) {
         if (!this.#db) {
-            console.error(
-                `[IDBService] ${methodName}(): Banco não inicializado. Chame ready() primeiro.`
-            )
+            console.error(`[IDBService] ${methodName}(): Banco não inicializado.`)
+
             return false
         }
         return true
+    }
+
+    #log(message, type = 'log') {
+        if (this.#logMode) {
+            const label = `[IDBService]`
+
+            switch (type) {
+                case 'warn':
+                    console.warn(`${label} ${message}`)
+                    break
+                case 'info':
+                    console.info(`${label} ${message}`)
+                    break
+                case 'error':
+                    console.error(`${label} ${message}`)
+                    break
+                default:
+                    console.log(`${label} ${message}`)
+            }
+        }
+    }
+
+    async removeOldItems(storeName, indexName, indexValue, list, limit) {
+        /*
+         * preciso finalizar a logica dessa func
+         * 1. precisa receber a lista de mensagens enviadas
+         * 2. preciso extrair a dupla de telefones: fone_destino e fone_enviado (criar index para essa busca)
+         * 3. com base na qtd recebida, preciso retirar as ultimas msg, ou seja, se chegou 3 msg dessa duplicata, retire as 3 mais antigas
+         * */
+        try {
+            if (!this.#ensureDb('enforceLimitByIndex')) return
+
+            const tx = this.#db.transaction(storeName, 'readwrite')
+            const index = tx.store.index(indexName)
+
+            const total = await index.count(indexValue)
+
+            if (total <= limit) {
+                await tx.done
+                return
+            }
+
+            let toDelete = total - limit
+
+            let cursor = await index.openCursor(IDBKeyRange.only(indexValue))
+
+            while (cursor && toDelete > 0) {
+                await cursor.delete()
+
+                cursor = await cursor.continue()
+
+                toDelete--
+            }
+
+            await tx.done
+
+            this.#log(
+                `enforceLimitByIndex(): Limite de ${limit} atingido. Mensagens antigas do contato ${indexValue} removidas.`
+            )
+        } catch (error) {
+            console.error(`[IDBService] enforceLimitByIndex() Erro severo:`, error?.message)
+        }
     }
 }
 

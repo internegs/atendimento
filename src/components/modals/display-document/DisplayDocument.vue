@@ -4,8 +4,8 @@
         appear
     >
         <base-modal
-            v-if="isVisible"
-            @close-modal="handleCloseModal"
+            :is-visible="isVisible"
+            teleport-to="container-main"
         >
             <media-template
                 :data-media="dataDocumentSelected"

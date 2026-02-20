@@ -1,5 +1,5 @@
 <template>
-    <base-modal>
+    <div class="container-media">
         <header>
             <div class="header-wrapper">
                 <div class="user-wrapper">
@@ -63,18 +63,12 @@
         <footer>
             <slot name="footer"></slot>
         </footer>
-    </base-modal>
+    </div>
 </template>
 
 <script>
-import BaseModal from '../BaseModal.vue'
-
 export default {
     name: 'MediaTemplate',
-
-    components: {
-        BaseModal,
-    },
 
     props: {
         dataMedia: Object,
@@ -122,6 +116,20 @@ export default {
 </script>
 
 <style scoped>
+/* retire o estilo abaixo caso n quebre os estilos da pagina */
+.container-media {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+
+    background-color: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
+    z-index: 5;
+}
+
 header {
     display: flex;
     align-items: center;

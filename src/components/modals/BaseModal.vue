@@ -1,40 +1,40 @@
 <template>
-    <section>
-        <slot></slot>
-    </section>
+    <teleport
+        v-if="isVisible"
+        :to="teleportTo"
+    >
+        <section class="layout-modal-container">
+            <slot></slot>
+        </section>
+    </teleport>
 </template>
 
-<script>
-export default {
+<script setup>
+defineOptions({
     name: 'BaseModal',
+})
 
-    emits: ['close-modal'],
-
-    mounted() {
-        window.addEventListener('keydown', this.handleKeyEsc, { once: true })
+defineProps({
+    isVisible: {
+        type: Boolean,
+        default: false,
     },
 
-    methods: {
-        handleKeyEsc(e) {
-            if (e.key === 'Escape') {
-                this.$emit('close-modal')
-            }
-        },
+    teleportTo: {
+        type: String,
+        required: true,
     },
-}
+})
 </script>
 
-<style scoped>
-section {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+<style scoped lang="scss">
+.layout-modal-container {
+    @include flex-center();
+    position: fixed;
     width: 100%;
-    height: 100dvh;
-    z-index: 1000;
-
-    background-color: rgba(193, 193, 193, 0.4);
-    backdrop-filter: blur(20px);
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
+    z-index: 5;
 }
 </style>

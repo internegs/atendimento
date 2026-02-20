@@ -38,3 +38,13 @@ export async function conversaList(data) {
 
     return JSON.parse(atob(response.data))
 }
+
+export async function sincronizar(data) {
+    const dataEncripted = btoa(JSON.stringify(data))
+
+    const response = await API.post('/atendimento/sync/ZmlsYWRlYXRlbmRpbWVudG8=', dataEncripted)
+
+    // return JSON.parse(atob(response.data))
+
+    return response.data
+}

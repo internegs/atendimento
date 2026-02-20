@@ -1,6 +1,20 @@
 <template>
     <div
-        v-if="plano_id != 3"
+        v-if="plano_id === 3"
+        class="container-main"
+    >
+        <h1>Seu plano não possui Zapcenter</h1>
+    </div>
+
+    <div v-else-if="loadingPage">
+        <progress-bar-screen
+            :is-visible="loadingPage"
+            :percents="getPercentQtd"
+        />
+    </div>
+
+    <div
+        v-else
         class="container-main"
     >
         <div
@@ -993,13 +1007,6 @@
             @update-messages="updateMessages"
         />
     </div>
-
-    <div
-        v-else-if="plano_id == 3"
-        class="container-main"
-    >
-        <h1>Seu plano não possui Zapcenter</h1>
-    </div>
 </template>
 
 <script>
@@ -1031,13 +1038,17 @@ import AudioRecorderComponent from '@/components/atendimento/acao/AudioRecorderC
 import { mapActions } from 'pinia'
 import { useListStatesStore } from '@/stores/useListStatesStore.js'
 import ImgComponent from '@/components/ui/ImgComponent.vue'
-import { conversaList, enviaMidia } from '@/services/api/newApi.js'
+import { conversaList, enviaMidia, sincronizar } from '@/services/api/newApi.js'
 import IDBService from '@/services/IDBService.js'
+import ProgressBarScreen from '@/components/ui/screen-overlay/ProgressBarScreen.vue'
+import { markRaw } from 'vue'
 
 export default {
     name: 'atendimento',
 
     components: {
+        ProgressBarScreen,
+        ProgressBar: ProgressBarScreen,
         ImgComponent,
         ListaAtendimentos,
         ChatAtendimento,
@@ -1134,19 +1145,42 @@ export default {
 
             isRecorder: false,
             textareaRows: 1,
+
+            idbConn: null,
+            loadingPage: true,
+            qtdTotal: {
+                contatos: 0,
+                conversas: 0,
+            },
+            qtdContatos: 0,
+            processadosNestaSessao: 0,
         }
     },
 
     computed: {
+        getUserId() {
+            return localStorage.getItem(`@USER_ID`)
+        },
+
         templateData() {
             return {
-                user_id: localStorage.getItem(`@USER_ID`),
+                user_id: this.getUserId,
                 nome: this.selecionado.nome,
                 fone: this.selecionado.fone,
                 mensagem: null,
                 mensagem_id: this.message_id,
                 status: 1, // 1 - mensagem normal || 2 - responder
             }
+        },
+
+        getPercentQtd() {
+            const requestTotal = this.qtdTotal.contatos + this.qtdTotal.conversas
+
+            if (requestTotal <= 0) return 100
+
+            const resultado = Math.ceil((this.processadosNestaSessao / requestTotal) * 100)
+
+            return Math.max(0, Math.min(resultado, 100))
         },
     },
 
@@ -1262,42 +1296,139 @@ export default {
     },
 
     async mounted() {
-        await this.chamarMeusAtendimentos()
-        await this.chamarAtendimentosFila()
-        await this.chamarTodosAtendimentos()
-        await this.chamarConversas()
-        await this.getEstados()
+        await this.useIndexedDb()
 
-        this.session = localStorage.getItem('@SESSION')
-        this.alerta = localStorage.getItem('@MENSAGEM')
+        if (!this.loadingPage) {
+            await this.chamarMeusAtendimentos()
+            await this.chamarAtendimentosFila()
+            await this.chamarTodosAtendimentos()
+            await this.chamarConversas()
+            await this.getEstados()
 
-        if (this.alerta === 'browserClose') {
-            await Swal.fire(
-                'Celular Desconectado!',
-                'Solicite ao Administrador para reconectar o celular, mensagens não serão enviadas ou recebidas',
-                'error'
-            )
+            this.session = localStorage.getItem('@SESSION')
+            this.alerta = localStorage.getItem('@MENSAGEM')
+
+            if (this.alerta === 'browserClose') {
+                await Swal.fire(
+                    'Celular Desconectado!',
+                    'Solicite ao Administrador para reconectar o celular, mensagens não serão enviadas ou recebidas',
+                    'error'
+                )
+            }
+
+            this.number = localStorage.getItem('@NUMBER')
+            this.tipo_usuario = localStorage.getItem('@TIPO')
+            this.audioStatus = localStorage.getItem('@STATUS_NOTIFICACAO') !== 'false'
+
+            this.atualizaFilaFirebase()
+            this.updateStyleTabs()
         }
-
-        this.number = localStorage.getItem('@NUMBER')
-        this.tipo_usuario = localStorage.getItem('@TIPO')
-        this.audioStatus = localStorage.getItem('@STATUS_NOTIFICACAO') !== 'false'
-
-        this.transferenciainterna()
-        this.atualizaFilaFirebase()
-        this.novamensagem()
-        this.novamensageminterna()
-        this.chamaGrupo()
-        this.updateStyleTabs()
     },
 
     beforeUnmount() {
+        if (this.idbConn) {
+            this.idbConn.close()
+        }
+
         document.removeEventListener('click', this.handleClickOutside)
         document.removeEventListener('click', this.handleClickOutsideEscolha)
         document.removeEventListener('click', this.handleClickOutsideEmoji)
     },
 
     methods: {
+        async useIndexedDb() {
+            try {
+                const instance = await new IDBService('inzupt_chat', true)
+                await instance.conn()
+                this.idbConn = markRaw(instance)
+
+                await this.idbConn.createStore('sync', 'id', true)
+                await this.idbConn.createStore('contatos', 'id')
+                await this.idbConn.createStore('conversas', 'id')
+
+                await this.idbConn.createIndex('sync', 'last_sync_timestamp', true)
+
+                await this.idbConn.createIndex('contatos', 'fone', true)
+                await this.idbConn.createIndex('contatos', 'nome')
+
+                await this.idbConn.createIndex('conversas', 'message_id')
+                await this.idbConn.createIndex('conversas', 'fone_enviado')
+                await this.idbConn.createIndex('conversas', 'fone_destino')
+                await this.idbConn.createIndex('conversas', 'status')
+                await this.idbConn.createIndex('conversas', 'updated_at')
+                await this.idbConn.createIndex('conversas', 'type')
+                await this.idbConn.createIndex('conversas', 'contactName')
+                await this.idbConn.createIndex('conversas', 'wook')
+
+                await this.chamarSincronizacao()
+            } catch (error) {
+                console.error(error)
+            }
+        },
+
+        async chamarSincronizacao() {
+            let hasRequest = true
+            const cursor = {
+                contatos: null,
+                conversas: null,
+            }
+            let isFirstBatch = true
+            let lastSyncTimestamp =
+                (await this.idbConn?.getAll('sync'))?.at(-1)?.last_sync_timestamp ?? null
+
+            this.processadosNestaSessao = 0
+
+            while (hasRequest) {
+                const response = await sincronizar({
+                    atendente_id: this.getUserId,
+                    last_sync_timestamp: lastSyncTimestamp,
+                    cursor_contatos: cursor.contatos,
+                    cursor_conversas: cursor.conversas,
+                })
+
+                if (isFirstBatch) {
+                    this.qtdconversas = await this.idbConn.count('conversas')
+                    this.qtdContatos = await this.idbConn.count('contatos')
+
+                    this.qtdTotal.conversas = response?.meta_data?.qtd?.conversas ?? 0
+                    this.qtdTotal.contatos = response?.meta_data?.qtd?.contatos ?? 0
+
+                    isFirstBatch = false
+                }
+
+                const loteConversas = response?.conversas?.data ?? []
+                const loteContatos = response?.contatos?.data ?? []
+
+                if (loteConversas.length > 0) {
+                    await this.idbConn.bulkPut('conversas', response?.conversas?.data)
+                }
+
+                if (loteContatos.length > 0) {
+                    await this.idbConn.bulkPut('contatos', response?.contatos?.data)
+                }
+
+                this.processadosNestaSessao += loteConversas.length + loteContatos.length
+
+                cursor.contatos = response?.contatos?.next_cursor ?? null
+                cursor.conversas = response?.conversas?.next_cursor ?? null
+
+                if (!cursor.contatos && !cursor.conversas) {
+                    lastSyncTimestamp = response?.conversas.data?.at(-1)?.updated_at ?? null
+
+                    hasRequest = false
+                }
+            }
+
+            if (lastSyncTimestamp) {
+                await this.idbConn.put('sync', {
+                    id: 0,
+                    last_sync_timestamp: lastSyncTimestamp,
+                })
+            }
+
+            this.processadosNestaSessao = this.qtdTotal.contatos + this.qtdTotal.conversas
+        },
+
         formatTextForLimited,
         ...mapActions(useListStatesStore, ['setStates']),
 
@@ -1421,9 +1552,7 @@ export default {
 
                 this.fila_qtd = values.fila
 
-                this.chamarAtendimentosFila()
-                this.chamarMeusAtendimentos()
-                this.chamarTodosAtendimentos()
+                this.chamarSincronizacao()
             })
         },
 
@@ -1432,7 +1561,10 @@ export default {
 
             const dbRef = ref(this.$database, `/${instancia}`)
 
-            onValue(dbRef, () => this.atualizarConversa())
+            onValue(dbRef, () => {
+
+                this.atualizarConversa()
+            })
         },
 
         novamensageminterna() {
@@ -1472,7 +1604,7 @@ export default {
             }
 
             const objEnviaMensagem = {
-                user_id: localStorage.getItem(`@USER_ID`),
+                user_id: this.getUserId,
                 fone: this.selecionado.fone,
                 mensagem: mensagem,
                 mensagem_reply: this.estadoResponderMensagem
@@ -1510,13 +1642,13 @@ export default {
         enviarMensagemChatInterno() {
             const mensagem = this.mensagem
             const nova = {
-                de_chat: localStorage.getItem(`@USER_ID`),
+                de_chat: this.getUserId,
                 msg_chat: mensagem,
                 type: 'text',
             }
 
             const objEnviaMensagem = {
-                user_id: localStorage.getItem(`@USER_ID`),
+                user_id: this.getUserId,
                 id_transferido: this.selecionado.id,
                 mensagem: mensagem,
             }

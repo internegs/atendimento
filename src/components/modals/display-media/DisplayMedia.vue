@@ -4,7 +4,8 @@
         appear
     >
         <base-modal
-            v-if="isVisible"
+            :is-visible="isVisible"
+            teleport-to="container-main"
             @close-modal="handleCloseModal"
         >
             <media-template
