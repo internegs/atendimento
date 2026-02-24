@@ -1085,7 +1085,6 @@ export default {
             },
             listaContatosPesquisa: [],
             listaContatosInterno: null,
-            listaConversas: [],
             requisaoApi: null,
             abrirMsg: false,
             abrirEscolha: false,
@@ -1828,42 +1827,26 @@ export default {
                     return
                 }
 
-                let listaContatos = []
+                const conversasEnviadas = await this.idbConn.getAll('conversas', {
+                    name: 'conversas_fone_enviado_idx',
+                    value: this.selecionado?.fone,
+                })
 
-                switch (this.opcaoSelecionada) {
-                    case 'fila':
-                        listaContatos = this.listaContatos?.fila
-                        break
-                    case 'meus_atendimentos':
-                        listaContatos = this.listaContatos?.meusAtendimentos
-                        break
-                    case 'todos':
-                        listaContatos = this.listaContatos?.todos
-                        break
-                }
+                const conversasDestino = await this.idbConn.getAll('conversas', {
+                    name: 'conversas_fone_destino_idx',
+                    value: this.selecionado?.fone,
+                })
 
-                const objConversas = {
-                    atendente_id: localStorage.getItem('@USER_ID'),
-                    lista_contatos: listaContatos.map(contato => contato.fone).filter(Boolean),
-                }
+                const todasConversas = [...conversasEnviadas, ...conversasDestino]
 
-                this.mensagens = []
+                const conversasReordenadas = todasConversas.sort((a, b) =>
+                    a.updated_at.localeCompare(b.updated_at)
+                )
 
-                if (
-                    this.opcaoSelecionada === 'fila' ||
-                    !this.listaConversas?.[this.selecionado?.fone]
-                ) {
-                    const response = await conversaList(objConversas)
+                const data = conversasReordenadas ?? []
 
-                    this.listaConversas = {
-                        ...this.listaConversas,
-                        response,
-                    }
-                }
-
-                const data = this.listaConversas?.[this.selecionado?.fone] ?? null
-                const ativo = Boolean(data?.usuario?.ativo)
-                const qtd = data?.qtd ?? null
+                const ativo = true
+                const qtd = data.length
 
                 this.notificacao = false
 
@@ -1871,14 +1854,13 @@ export default {
                     this.qtdconversas = qtd
                     this.status_chat = true
 
-                    // pegando array de mensagens da requisição
-                    this.mensagens = data.conversas.slice(0).reverse()
+                    this.mensagens = data
 
                     this.foneConversa = this.selecionado.fone
                     this.ativado = this.selecionado.id
                     this.atendimentoStatus = ativo
 
-                    await this.salvaConversa()
+                    this.salvaConversa()
                 } else {
                     this.qtdconversas = 0
                     this.status_chat = false
@@ -1889,10 +1871,9 @@ export default {
                     this.ativado = this.selecionado.id
                     this.atendimentoStatus = ativo
 
-                    await this.salvaConversa()
+                    this.salvaConversa()
                 }
 
-                await this.chamarAtendimentosFila()
                 await this.chamarMeusAtendimentos()
 
                 this.processando = false
@@ -1902,35 +1883,6 @@ export default {
                 this.pesquisa = ''
 
                 this.updateStyleTabs()
-            } catch (error) {
-                console.error(error)
-            }
-        },
-
-        async chamarConversas() {
-            try {
-                let listaContatos = []
-
-                switch (this.opcaoSelecionada) {
-                    case 'fila':
-                        listaContatos = this.listaContatos?.fila
-                        break
-                    case 'meus_atendimentos':
-                        listaContatos = this.listaContatos?.meusAtendimentos
-                        break
-                    case 'todos':
-                        listaContatos = this.listaContatos?.todos
-                        break
-                }
-
-                const objConversas = {
-                    atendente_id: localStorage.getItem('@USER_ID'),
-                    lista_contatos: listaContatos.map(contato => contato.fone).filter(Boolean),
-                }
-
-                const response = await conversaList(objConversas)
-
-                this.listaConversas = response ?? []
             } catch (error) {
                 console.error(error)
             }

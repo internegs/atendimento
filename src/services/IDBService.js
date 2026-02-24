@@ -231,7 +231,7 @@ class IDBService {
         }
     }
 
-    async getAll(storeName) {
+    async getAll(storeName, index = {}) {
         try {
             if (!this.#ensureDb('getAll')) return null
 
@@ -241,10 +241,21 @@ class IDBService {
             }
 
             const tx = this.#db.transaction(storeName, 'readonly')
-            const result = await tx.store.getAll()
+            const store = tx.objectStore(storeName)
+
+            if (!index?.name && !index?.value) {
+                const result = await store.getAll()
+
+                await tx.done
+
+                return result ?? []
+            }
+
+            const result = await store.index(index?.name).getAll(index?.value)
+
             await tx.done
 
-            return result
+            return result ?? []
         } catch (error) {
             console.error(`[IDBService] getAll() Erro severo:`, error?.message)
             return null
