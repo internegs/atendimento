@@ -1,4 +1,5 @@
 import { openDB } from 'idb'
+import { searchLowers } from '@/utils/math.js'
 
 class IDBService {
     #dbName = null
@@ -88,12 +89,15 @@ class IDBService {
                 return
             }
 
-            if (!property) {
+            if (!property && property.length > 0) {
                 this.#log(`createIndex(): property não informado.`, 'warn')
                 return
             }
 
-            const indexName = `${storeName}_${property}_idx`
+            const indexName = Array.isArray(property)
+                ? `${storeName}_${property.join('_')}_idx`
+                : `${storeName}_${property}_idx`
+
             const indexList = this.getIndexList(storeName)
 
             if (indexList.includes(indexName)) {
@@ -108,6 +112,7 @@ class IDBService {
             this.#db = await openDB(this.#dbName, dbVersion, {
                 upgrade(db, old, cur, transaction) {
                     const store = transaction.objectStore(storeName)
+
                     store.createIndex(indexName, property, { unique })
                 },
             })
@@ -171,7 +176,7 @@ class IDBService {
         }
     }
 
-    async bulkPut(storeName, dataArray) {
+    async bulkPut(storeName, dataArray, limiter = {}) {
         try {
             if (!this.#ensureDb('bulkPut')) return
 
@@ -193,18 +198,7 @@ class IDBService {
 
             this.#log(`bulkPut(): ${dataArray.length} registros processados em "${storeName}".`)
 
-            // if (propertyToLimit) {
-            //     const indexName = `${storeName}_${propertyToLimit}_idx`
-            //
-            //     // Extrai valores únicos da propriedade (ex: todos os fones que sofreram put)
-            //     const uniqueValues = [...new Set(dataArray.map(item => item[propertyToLimit]))]
-            //
-            //     for (const value of uniqueValues) {
-            //         if (value) {
-            //             await this.enforceLimitByIndex(storeName, indexName, value, limit)
-            //         }
-            //     }
-            // }
+            await this.#clearOldItems(storeName, dataArray, limiter)
         } catch (error) {
             console.error(`[IDBService] bulkPut() Erro severo:`, error?.message)
         }
@@ -398,45 +392,57 @@ class IDBService {
         }
     }
 
-    async removeOldItems(storeName, indexName, indexValue, list, limit) {
-        /*
-         * preciso finalizar a logica dessa func
-         * 1. precisa receber a lista de mensagens enviadas
-         * 2. preciso extrair a dupla de telefones: fone_destino e fone_enviado (criar index para essa busca)
-         * 3. com base na qtd recebida, preciso retirar as ultimas msg, ou seja, se chegou 3 msg dessa duplicata, retire as 3 mais antigas
-         * */
+    async #clearOldItems(storeName, dataList, limiterData) {
         try {
-            if (!this.#ensureDb('enforceLimitByIndex')) return
+            if (!this.#ensureDb('clearOldItems')) return
 
-            const tx = this.#db.transaction(storeName, 'readwrite')
-            const index = tx.store.index(indexName)
+            const keys = limiterData?.keyValue || []
+            const indexList = limiterData?.indexList || []
+            const limit = limiterData?.limit ?? 0
 
-            const total = await index.count(indexValue)
+            const contentDataList = [
+                ...new Set(
+                    dataList
+                        .flatMap(item => keys.map(key => item[key]))
+                        .filter(data => data && !limiterData.blackList.includes(data))
+                ),
+            ]
 
-            if (total <= limit) {
+            if (contentDataList.length !== 0) {
+                const tx = this.#db.transaction(storeName, 'readwrite')
+
+                for (const contentData of contentDataList) {
+                    const contentIdList = await Promise.all(
+                        indexList.map(async indexName => {
+                            const idx = tx.store.index(indexName)
+                            let cursor = await idx.openKeyCursor(IDBKeyRange.only(contentData))
+                            const localIdList = []
+
+                            while (cursor) {
+                                localIdList.push(cursor.primaryKey)
+
+                                cursor = await cursor.continue()
+                            }
+
+                            return localIdList
+                        })
+                    )
+
+                    const idList = [...new Set(contentIdList.flat())]
+
+                    if (idList.length > limit) {
+                        const quantityToRemoved = Math.max(0, idList.length - limit)
+
+                        const idListToRemoved = searchLowers(idList, quantityToRemoved)
+
+                        await Promise.all(idListToRemoved.map(async id => tx.store.delete(id)))
+                    }
+                }
+
                 await tx.done
-                return
             }
-
-            let toDelete = total - limit
-
-            let cursor = await index.openCursor(IDBKeyRange.only(indexValue))
-
-            while (cursor && toDelete > 0) {
-                await cursor.delete()
-
-                cursor = await cursor.continue()
-
-                toDelete--
-            }
-
-            await tx.done
-
-            this.#log(
-                `enforceLimitByIndex(): Limite de ${limit} atingido. Mensagens antigas do contato ${indexValue} removidas.`
-            )
         } catch (error) {
-            console.error(`[IDBService] enforceLimitByIndex() Erro severo:`, error?.message)
+            console.error(`[IDBService] clearOldItems() Erro severo:`, error?.message)
         }
     }
 }

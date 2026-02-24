@@ -820,9 +820,9 @@
                 class="rightSide bg-cinza apresentacao"
             >
                 <img
-                    src="@/assets/img/inzupt.png"
-                    alt=""
-                    width="60%"
+                    src="@/assets/img/inzupt.webp"
+                    alt="Logo inzupt"
+                    class="back-logo"
                 />
             </div>
         </div>
@@ -1149,10 +1149,8 @@ export default {
             idbConn: null,
             loadingPage: true,
             qtdTotal: {
-                contatos: 0,
                 conversas: 0,
             },
-            qtdContatos: 0,
             processadosNestaSessao: 0,
         }
     },
@@ -1174,7 +1172,7 @@ export default {
         },
 
         getPercentQtd() {
-            const requestTotal = this.qtdTotal.contatos + this.qtdTotal.conversas
+            const requestTotal = this.qtdTotal.conversas
 
             if (requestTotal <= 0) return 100
 
@@ -1185,6 +1183,20 @@ export default {
     },
 
     watch: {
+        async getPercentQtd(newVal) {
+            if (newVal === 100) {
+                this.atualizaFilaFirebase()
+
+                await this.chamarRequisicaoAtendimentos()
+            }
+        },
+
+        loadingPage(newVal) {
+            if (!newVal) {
+                this.updateStyleTabs()
+            }
+        },
+
         openOpt(isOpen) {
             if (isOpen) {
                 this.$nextTick(() => {
@@ -1296,33 +1308,22 @@ export default {
     },
 
     async mounted() {
-        await this.useIndexedDb()
+        this.session = localStorage.getItem('@SESSION')
+        this.alerta = localStorage.getItem('@MENSAGEM')
 
-        if (!this.loadingPage) {
-            await this.chamarMeusAtendimentos()
-            await this.chamarAtendimentosFila()
-            await this.chamarTodosAtendimentos()
-            await this.chamarConversas()
-            await this.getEstados()
-
-            this.session = localStorage.getItem('@SESSION')
-            this.alerta = localStorage.getItem('@MENSAGEM')
-
-            if (this.alerta === 'browserClose') {
-                await Swal.fire(
-                    'Celular Desconectado!',
-                    'Solicite ao Administrador para reconectar o celular, mensagens não serão enviadas ou recebidas',
-                    'error'
-                )
-            }
-
-            this.number = localStorage.getItem('@NUMBER')
-            this.tipo_usuario = localStorage.getItem('@TIPO')
-            this.audioStatus = localStorage.getItem('@STATUS_NOTIFICACAO') !== 'false'
-
-            this.atualizaFilaFirebase()
-            this.updateStyleTabs()
+        if (this.alerta === 'browserClose') {
+            await Swal.fire(
+                'Celular Desconectado!',
+                'Solicite ao Administrador para reconectar o celular, mensagens não serão enviadas ou recebidas',
+                'error'
+            )
         }
+
+        this.number = localStorage.getItem('@NUMBER')
+        this.tipo_usuario = localStorage.getItem('@TIPO')
+        this.audioStatus = localStorage.getItem('@STATUS_NOTIFICACAO') !== 'false'
+
+        this.novamensagem()
     },
 
     beforeUnmount() {
@@ -1338,27 +1339,25 @@ export default {
     methods: {
         async useIndexedDb() {
             try {
-                const instance = await new IDBService('inzupt_chat', true)
-                await instance.conn()
-                this.idbConn = markRaw(instance)
+                if (!this.idbConn) {
+                    const instance = new IDBService('inzupt_chat')
+                    await instance.conn()
+                    this.idbConn = markRaw(instance)
 
-                await this.idbConn.createStore('sync', 'id', true)
-                await this.idbConn.createStore('contatos', 'id')
-                await this.idbConn.createStore('conversas', 'id')
+                    await this.idbConn.createStore('sync', 'id', true)
+                    await this.idbConn.createStore('conversas', 'id')
 
-                await this.idbConn.createIndex('sync', 'last_sync_timestamp', true)
+                    await this.idbConn.createIndex('sync', 'last_sync_timestamp', true)
 
-                await this.idbConn.createIndex('contatos', 'fone', true)
-                await this.idbConn.createIndex('contatos', 'nome')
-
-                await this.idbConn.createIndex('conversas', 'message_id')
-                await this.idbConn.createIndex('conversas', 'fone_enviado')
-                await this.idbConn.createIndex('conversas', 'fone_destino')
-                await this.idbConn.createIndex('conversas', 'status')
-                await this.idbConn.createIndex('conversas', 'updated_at')
-                await this.idbConn.createIndex('conversas', 'type')
-                await this.idbConn.createIndex('conversas', 'contactName')
-                await this.idbConn.createIndex('conversas', 'wook')
+                    await this.idbConn.createIndex('conversas', 'message_id')
+                    await this.idbConn.createIndex('conversas', 'fone_enviado')
+                    await this.idbConn.createIndex('conversas', 'fone_destino')
+                    await this.idbConn.createIndex('conversas', 'status')
+                    await this.idbConn.createIndex('conversas', 'updated_at')
+                    await this.idbConn.createIndex('conversas', 'type')
+                    await this.idbConn.createIndex('conversas', 'contactName')
+                    await this.idbConn.createIndex('conversas', 'wook')
+                }
 
                 await this.chamarSincronizacao()
             } catch (error) {
@@ -1368,10 +1367,7 @@ export default {
 
         async chamarSincronizacao() {
             let hasRequest = true
-            const cursor = {
-                contatos: null,
-                conversas: null,
-            }
+            let cursorConversas = null
             let isFirstBatch = true
             let lastSyncTimestamp =
                 (await this.idbConn?.getAll('sync'))?.at(-1)?.last_sync_timestamp ?? null
@@ -1382,37 +1378,34 @@ export default {
                 const response = await sincronizar({
                     atendente_id: this.getUserId,
                     last_sync_timestamp: lastSyncTimestamp,
-                    cursor_contatos: cursor.contatos,
-                    cursor_conversas: cursor.conversas,
+                    cursor_conversas: cursorConversas,
                 })
 
                 if (isFirstBatch) {
                     this.qtdconversas = await this.idbConn.count('conversas')
-                    this.qtdContatos = await this.idbConn.count('contatos')
-
-                    this.qtdTotal.conversas = response?.meta_data?.qtd?.conversas ?? 0
-                    this.qtdTotal.contatos = response?.meta_data?.qtd?.contatos ?? 0
+                    this.qtdTotal.conversas = response?.meta_data?.qtd ?? 0
 
                     isFirstBatch = false
                 }
 
                 const loteConversas = response?.conversas?.data ?? []
-                const loteContatos = response?.contatos?.data ?? []
+
+                const limiter = {
+                    limit: 500,
+                    indexList: ['conversas_fone_enviado_idx', 'conversas_fone_destino_idx'],
+                    keyValue: ['fone_enviado', 'fone_destino'],
+                    blackList: ['782833411572320'],
+                }
 
                 if (loteConversas.length > 0) {
-                    await this.idbConn.bulkPut('conversas', response?.conversas?.data)
+                    await this.idbConn.bulkPut('conversas', response?.conversas?.data, limiter)
                 }
 
-                if (loteContatos.length > 0) {
-                    await this.idbConn.bulkPut('contatos', response?.contatos?.data)
-                }
+                this.processadosNestaSessao += loteConversas.length
 
-                this.processadosNestaSessao += loteConversas.length + loteContatos.length
+                cursorConversas = response?.conversas?.next_cursor ?? null
 
-                cursor.contatos = response?.contatos?.next_cursor ?? null
-                cursor.conversas = response?.conversas?.next_cursor ?? null
-
-                if (!cursor.contatos && !cursor.conversas) {
+                if (!cursorConversas) {
                     lastSyncTimestamp = response?.conversas.data?.at(-1)?.updated_at ?? null
 
                     hasRequest = false
@@ -1426,7 +1419,22 @@ export default {
                 })
             }
 
-            this.processadosNestaSessao = this.qtdTotal.contatos + this.qtdTotal.conversas
+            this.processadosNestaSessao = this.qtdTotal.conversas
+        },
+
+        async chamarRequisicaoAtendimentos() {
+            try {
+                await Promise.all([
+                    this.chamarMeusAtendimentos(),
+                    this.chamarAtendimentosFila(),
+                    this.chamarTodosAtendimentos(),
+                    this.getEstados(),
+                ])
+
+                this.loadingPage = false
+            } catch (error) {
+                console.error(error)
+            }
         },
 
         formatTextForLimited,
@@ -1550,9 +1558,7 @@ export default {
                     this.executaSom(AudioFila)
                 }
 
-                this.fila_qtd = values.fila
-
-                this.chamarSincronizacao()
+                this.fila_qtd = values?.fila ?? 0
             })
         },
 
@@ -1562,6 +1568,7 @@ export default {
             const dbRef = ref(this.$database, `/${instancia}`)
 
             onValue(dbRef, () => {
+                this.useIndexedDb()
 
                 this.atualizarConversa()
             })
@@ -2609,6 +2616,10 @@ img {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.back-logo {
+    width: 50%;
 }
 
 .chatbox_wrapper {

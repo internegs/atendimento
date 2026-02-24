@@ -6,9 +6,10 @@
         <div class="progress-bar-wrapper">
             <div class="wrapper-img">
                 <img
-                    src="../../../assets/img/inzupt.png"
+                    src="@/assets/img/inzupt.webp"
                     alt="inzupt"
                     class="w-100"
+                    fetchpriority="high"
                 />
             </div>
 
@@ -67,7 +68,7 @@ const progress = computed(() => `width: ${props.percents}%`)
         }
 
         .progress-bar {
-            transition: width 0.2s ease-in-out;
+            transition: width 0.1s ease-in-out;
         }
     }
 }
