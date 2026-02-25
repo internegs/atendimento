@@ -1546,8 +1546,15 @@ export default {
         toggle() {
             this.showRecorder = !this.showRecorder
         },
-        sair() {
-            middleware.logout()
+
+        async sair() {
+            try {
+                await this.idbConn.deleteDb('inzupt_chat')
+
+                middleware.logout()
+            } catch (error) {
+                console.error(error)
+            }
         },
 
         onEmojiSelect(emoji) {

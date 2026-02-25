@@ -1,4 +1,4 @@
-import { openDB } from 'idb'
+import { deleteDB, openDB } from 'idb'
 import { searchLowers } from '@/utils/math.js'
 
 class IDBService {
@@ -330,6 +330,22 @@ class IDBService {
             this.#log(`deleteIndex(): Index "${indexName}" removido.`)
         } catch (error) {
             console.error(`[IDBService] deleteIndex() Erro severo:`, error?.message)
+        }
+    }
+
+    async deleteDb(dbName) {
+        try {
+            if (!this.#ensureDb('bulkPut')) return
+
+            if (!dbName) {
+                this.#log(`deleteDb(): DB "${dbName}" invalido.`, 'warn')
+
+                return
+            }
+
+            await deleteDB(dbName)
+        } catch (error) {
+            console.error(error)
         }
     }
 
