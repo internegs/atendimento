@@ -86,10 +86,9 @@ export default {
         fone: {
             type: String,
         },
-        atualizaConversa: {
-            type: Function,
-        },
     },
+
+    emits: ['handle-encaminhar-contato'],
 
     data() {
         return {
@@ -123,10 +122,12 @@ export default {
                     this.btn_encaminhaContato = false
                     const truck_modal = document.querySelector('#compartilharContato')
                     const modal = bootstrap.Modal.getInstance(truck_modal)
+
                     modal.hide()
-                    this.atualizaConversa()
+
+                    this.$emit('handle-encaminhar-contato')
                 })
-                .catch((error) => {
+                .catch(error => {
                     console.error(error)
                     this.btn_encaminhaContato = false
                 })
@@ -142,12 +143,12 @@ export default {
                 id: localStorage.getItem('@USER_ID'),
                 busca: this.pesquisa,
             })
-                .then((response) => {
+                .then(response => {
                     let data = response.data
 
                     this.listaContatos = data.contatos.data
                 })
-                .catch((erro) => console.error(erro))
+                .catch(erro => console.error(erro))
         },
     },
 }

@@ -961,12 +961,12 @@
             :mensagemdeleta="mensagemapagar"
             :id_mensagem="message_id"
             :fone="selecionado.fone"
-            :atualizarConversa="atualizarConversa"
+            @handle-apagar-mensagem="updateMessages"
         />
 
         <compartilhar-contato
             :fone="selecionado.fone"
-            :atualiza-conversa="atualizarConversa"
+            @handle-encaminhar-contato="updateMessages"
         />
 
         <encaminha-mensagens
@@ -1048,7 +1048,6 @@ export default {
 
     components: {
         ProgressBarScreen,
-        ProgressBar: ProgressBarScreen,
         ImgComponent,
         ListaAtendimentos,
         ChatAtendimento,
@@ -1151,6 +1150,7 @@ export default {
                 conversas: 0,
             },
             processadosNestaSessao: 0,
+            listenerActiveList: [],
         }
     },
 
@@ -1183,7 +1183,7 @@ export default {
 
     watch: {
         async getPercentQtd(newVal) {
-            if (newVal === 100) {
+            if (this.loadingPage && newVal === 100) {
                 this.atualizaFilaFirebase()
 
                 await this.chamarRequisicaoAtendimentos()
@@ -1330,6 +1330,16 @@ export default {
             this.idbConn.close()
         }
 
+        if (this.listenerActiveList.length > 0) {
+            this.listenerActiveList.forEach(listener => {
+                if (typeof listener === 'function') {
+                    listener()
+                }
+            })
+
+            this.listenerActiveList = []
+        }
+
         document.removeEventListener('click', this.handleClickOutside)
         document.removeEventListener('click', this.handleClickOutsideEscolha)
         document.removeEventListener('click', this.handleClickOutsideEmoji)
@@ -1370,6 +1380,15 @@ export default {
             let isFirstBatch = true
             let lastSyncTimestamp =
                 (await this.idbConn?.getAll('sync'))?.at(-1)?.last_sync_timestamp ?? null
+            let contatos
+
+            // Siga essa mesma estrutura para utilizar o limiter de bulkPut()
+            const limiter = {
+                limit: 100,
+                indexList: ['conversas_fone_enviado_idx', 'conversas_fone_destino_idx'],
+                keyValue: ['fone_enviado', 'fone_destino'],
+                blackList: ['782833411572320'],
+            }
 
             this.processadosNestaSessao = 0
 
@@ -1389,18 +1408,18 @@ export default {
 
                 const loteConversas = response?.conversas?.data ?? []
 
-                const limiter = {
-                    limit: 500,
-                    indexList: ['conversas_fone_enviado_idx', 'conversas_fone_destino_idx'],
-                    keyValue: ['fone_enviado', 'fone_destino'],
-                    blackList: ['782833411572320'],
-                }
+                contatos = loteConversas.flatMap(conversa => [
+                    conversa.fone_enviado,
+                    conversa.fone_destino,
+                ])
 
                 if (loteConversas.length > 0) {
                     await this.idbConn.bulkPut('conversas', response?.conversas?.data, limiter)
                 }
 
-                this.processadosNestaSessao += loteConversas.length
+                if (this.loadingPage) {
+                    this.processadosNestaSessao += loteConversas.length
+                }
 
                 cursorConversas = response?.conversas?.next_cursor ?? null
 
@@ -1418,7 +1437,16 @@ export default {
                 })
             }
 
-            this.processadosNestaSessao = this.qtdTotal.conversas
+            const fone = this.selecionado?.fone ?? null
+            const hasContato = [...new Set(contatos)]?.includes(fone)
+
+            if (this.abrirMsg && hasContato) {
+                await this.atualizarConversa(this.selecionado)
+            }
+
+            if (this.loadingPage) {
+                this.processadosNestaSessao = this.qtdTotal.conversas
+            }
         },
 
         async chamarRequisicaoAtendimentos() {
@@ -1542,7 +1570,9 @@ export default {
 
             const dbRef = ref(this.$database, `/${instancia}`)
 
-            onValue(dbRef, () => this.recebeuNovaTransferencia())
+            const listener = onValue(dbRef, () => this.recebeuNovaTransferencia())
+
+            this.listenerActiveList.push(listener)
         },
 
         atualizaFilaFirebase() {
@@ -1550,7 +1580,7 @@ export default {
 
             const dbRef = ref(this.$database, `/${instancia}`)
 
-            onValue(dbRef, data => {
+            const listener = onValue(dbRef, data => {
                 const values = data.val()
 
                 if (this.audioStatus) {
@@ -1559,6 +1589,8 @@ export default {
 
                 this.fila_qtd = values?.fila ?? 0
             })
+
+            this.listenerActiveList.push(listener)
         },
 
         novamensagem() {
@@ -1566,11 +1598,11 @@ export default {
 
             const dbRef = ref(this.$database, `/${instancia}`)
 
-            onValue(dbRef, () => {
+            const listener = onValue(dbRef, () => {
                 this.useIndexedDb()
-
-                this.atualizarConversa()
             })
+
+            this.listenerActiveList.push(listener)
         },
 
         novamensageminterna() {
@@ -1580,12 +1612,14 @@ export default {
 
             const dbRef = ref(this.$database, `/${instancia}`)
 
-            onValue(dbRef, () => {
+            const listener = onValue(dbRef, () => {
                 this.qtdmensagensinternas = 1
 
                 this.recebeumensageminterna()
                 this.atualizarConversaInterna()
             })
+
+            this.listenerActiveList.push(listener)
         },
 
         async enviarMensagem() {
@@ -1629,11 +1663,11 @@ export default {
                             'error'
                         )
 
-                        this.atualizarConversa()
+                        // this.atualizarConversa()
                     }
 
                     if (response.data.erro == 0) {
-                        this.atualizarConversa()
+                        // this.atualizarConversa()
                     }
                 })
                 .catch(error => {
@@ -1733,30 +1767,6 @@ export default {
             })
         },
 
-        atualizarConversa() {
-            this.processando = true
-
-            Api.post('/atualiza_conversas/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                id: localStorage.getItem('@USER_ID'),
-                fone: this.selecionado.fone,
-            })
-                .then(response => {
-                    this.status_chat = true
-
-                    const data = response.data
-
-                    if (typeof data === 'string') {
-                        this.mensagens = data
-                    } else {
-                        this.mensagens = data.conversas.slice(0).reverse()
-
-                        this.montarNotificacoes(data.qtdmensagens)
-                    }
-                })
-                .catch(error => console.error(error))
-                .finally(() => (this.processando = false))
-        },
-
         abrirConversaContatoEncaminhado(info) {
             const fone = info.mensagem
             const nome_contato = info.contactName
@@ -1821,60 +1831,9 @@ export default {
                 this.processando = true
                 this.selecionado = info_user.usuario
 
-                if (!this.selecionado?.fone) {
-                    console.error('abrirConversa(): O telefone do contato nao esta presente.')
+                await this.atualizarConversa(info_user.usuario)
 
-                    return
-                }
-
-                const conversasEnviadas = await this.idbConn.getAll('conversas', {
-                    name: 'conversas_fone_enviado_idx',
-                    value: this.selecionado?.fone,
-                })
-
-                const conversasDestino = await this.idbConn.getAll('conversas', {
-                    name: 'conversas_fone_destino_idx',
-                    value: this.selecionado?.fone,
-                })
-
-                const todasConversas = [...conversasEnviadas, ...conversasDestino]
-
-                const conversasReordenadas = todasConversas.sort((a, b) =>
-                    a.updated_at.localeCompare(b.updated_at)
-                )
-
-                const data = conversasReordenadas ?? []
-
-                const ativo = true
-                const qtd = data.length
-
-                this.notificacao = false
-
-                if (data) {
-                    this.qtdconversas = qtd
-                    this.status_chat = true
-
-                    this.mensagens = data
-
-                    this.foneConversa = this.selecionado.fone
-                    this.ativado = this.selecionado.id
-                    this.atendimentoStatus = ativo
-
-                    this.salvaConversa()
-                } else {
-                    this.qtdconversas = 0
-                    this.status_chat = false
-
-                    this.mensagens = 'Não há conversas para este contato.'
-
-                    this.foneConversa = this.selecionado.fone
-                    this.ativado = this.selecionado.id
-                    this.atendimentoStatus = ativo
-
-                    this.salvaConversa()
-                }
-
-                await this.chamarMeusAtendimentos()
+                this.chamarMeusAtendimentos()
 
                 this.processando = false
                 this.abrirMsg = true
@@ -1886,6 +1845,57 @@ export default {
             } catch (error) {
                 console.error(error)
             }
+        },
+
+        async atualizarConversa(contato) {
+            if (!contato?.fone) {
+                throw new Error('atualizarConversa(): O telefone do contato nao esta presente.')
+            }
+
+            const conversasEnviadas = await this.idbConn.getAll('conversas', {
+                name: 'conversas_fone_enviado_idx',
+                value: contato.fone,
+            })
+
+            const conversasDestino = await this.idbConn.getAll('conversas', {
+                name: 'conversas_fone_destino_idx',
+                value: contato.fone,
+            })
+
+            const todasConversas = [...conversasEnviadas, ...conversasDestino]
+
+            const conversasReordenadas = todasConversas.sort((a, b) => a.id - b.id)
+
+            const data = conversasReordenadas ?? []
+
+            console.log(data)
+
+            const ativo = true
+            const qtd = data.length
+
+            this.notificacao = false
+
+            if (data && data.length > 0) {
+                this.qtdconversas = qtd
+                this.status_chat = true
+
+                this.mensagens = data
+
+                this.foneConversa = contato.fone
+                this.ativado = contato.id
+                this.atendimentoStatus = ativo
+            } else {
+                this.qtdconversas = 0
+                this.status_chat = false
+
+                this.mensagens = 'Não há conversas para este contato.'
+
+                this.foneConversa = contato.fone
+                this.ativado = contato.id
+                this.atendimentoStatus = ativo
+            }
+
+            this.salvaConversa()
         },
 
         async salvaConversa() {
@@ -2413,7 +2423,7 @@ export default {
 
         updateMessages() {
             if (!this.isChatInternal) {
-                this.atualizarConversa()
+                this.atualizarConversa(this.selecionado)
 
                 return
             }

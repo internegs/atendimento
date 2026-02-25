@@ -76,23 +76,17 @@ export default {
         fone: {
             type: [Number, String],
         },
-
-        atualizarConversa: {
-            type: Function,
-        },
         mensagemdeleta: {
             type: String,
         },
     },
 
+    emits: ['handleApagarMensagem'],
+
     data() {
         return {
             status: true,
         }
-    },
-
-    mounted() {
-        this.atualizarConversa()
     },
 
     methods: {
@@ -114,7 +108,7 @@ export default {
                     if (response.status == 200) {
                         Swal.fire('Mensagem apagada!', response.data, 'success')
 
-                        this.atualizarConversa()
+                        this.$emit('handleApagarMensagem')
                     } else {
                         Swal.fire('Erro!', response.data.mensagem, 'error')
                         console.log(response.status)
