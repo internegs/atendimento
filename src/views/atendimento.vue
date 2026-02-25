@@ -1251,6 +1251,7 @@ export default {
                 }
             },
             immediate: true,
+            //teste
         },
 
         listaContatos: {
