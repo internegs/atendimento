@@ -1738,13 +1738,12 @@ export default {
                         id_atendimento: id_atendimento,
                     })
                         .then(() => {
-                            this.abrirMsg = !this.abrirMsg
+                            this.abrirMsg = false
 
                             this.listaContatosSelecionado = []
                             this.listaContatosPesquisa = []
 
                             this.chamarMeusAtendimentos()
-                            this.atualizaFilaFirebase()
                         })
                         .catch(error => {
                             console.error(error)
@@ -1822,7 +1821,6 @@ export default {
                         }
 
                         this.chamarMeusAtendimentos()
-                        this.atualizaFilaFirebase()
                     })
                 })
                 .catch(error => {
