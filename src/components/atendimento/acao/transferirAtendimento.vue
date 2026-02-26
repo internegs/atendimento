@@ -107,10 +107,7 @@ export default {
         chamarDados: {
             type: Function,
         },
-        atualizaMeusAtendimentos: {
-            type: Function,
-        },
-        
+
         Chamafirebase: {
             type: Function,
         },
@@ -118,6 +115,13 @@ export default {
             type: Function,
         },
     },
+
+    emits: [
+        'atualiza-meus-atendimentos',
+        'chamar-atendimentos-fila',
+        'chamar-firebase',
+        'fechar-tela-conversa',
+    ],
 
     data() {
         return {
@@ -157,7 +161,7 @@ export default {
                     objTransfere
                 )
 
-                this.fecharTelaDeConversa()
+                this.$emit('fechar-tela-conversa')
 
                 const truck_modal = document.querySelector('#transfereAtendimento')
                 const modal = bootstrap.Modal.getInstance(truck_modal)
@@ -165,19 +169,14 @@ export default {
 
                 if (response) {
                     Swal.fire('Transferido com Sucesso!', response, 'success')
-                
-                this.Chamafirebase()
-                this.chamarDados()
 
-                this.atualizaMeusAtendimentos()
-                    
+                    this.$emit('chamar-firebase')
+                    this.$emit('chamar-atendimentos-fila')
+
+                    this.$emit('atualiza-meus-atendimentos')
                 } else {
                     throw new Error(response)
                 }
-
-
-
-            
             } catch (error) {
                 this.btnLoading = false
 

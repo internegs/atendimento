@@ -626,7 +626,7 @@
 
                     <div
                         v-else
-                        class="d-flex flex-column w-100 py-3 px-2 gap-2 rounded-3 shadow-sm chatbox_input"
+                        class="d-flex flex-column justify-content-end px-2 py-2 w-100 gap-2 rounded-3 shadow-sm chatbox_input"
                     >
                         <transition
                             name="slide-bottom-top"
@@ -951,10 +951,10 @@
 
         <transferir-atendimento
             :id_atendimento="selecionado.id_atendimento"
-            :chamar-dados="chamarAtendimentosFila"
-            :atualizaMeusAtendimentos="chamarMeusAtendimentos"
-            :Chamafirebase="atualizaFilaFirebase"
-            :fechar-tela-de-conversa="fecharTelaDeConversa"
+            @chamar-atendimentos-fila="chamarAtendimentosFila"
+            @chamar-firebase="atualizaFilaFirebase"
+            @fechar-tela-conversa="fecharTelaDeConversa"
+            @atualiza-meus-atendimentos="chamarMeusAtendimentos"
         />
 
         <apagarMensagem
@@ -1670,13 +1670,9 @@ export default {
                             response.data.retorno + 'Reconecte o celular!',
                             'error'
                         )
-
-                        // this.atualizarConversa()
                     }
 
-                    if (response.data.erro == 0) {
-                        // this.atualizarConversa()
-                    }
+                    this.atualizarConversa()
                 })
                 .catch(error => {
                     console.error(error)
@@ -1842,6 +1838,7 @@ export default {
                 await this.atualizarConversa(info_user.usuario)
 
                 this.chamarMeusAtendimentos()
+                this.chamarAtendimentosFila()
 
                 this.processando = false
                 this.abrirMsg = true
@@ -1875,8 +1872,6 @@ export default {
             const conversasReordenadas = todasConversas.sort((a, b) => a.id - b.id)
 
             const data = conversasReordenadas ?? []
-
-            console.log(data)
 
             const ativo = true
             const qtd = data.length
@@ -1918,7 +1913,17 @@ export default {
         },
 
         async chamarMeusAtendimentos() {
+            const fone = this.selecionado?.fone ?? null
+
             try {
+                if (!fone) {
+                    console.error(
+                        'chamarMeusAtendimentos(): O telefone do contato nao esta presente.'
+                    )
+
+                    return
+                }
+
                 if (this.listaContatosInterno) {
                     this.abrirMsg = false
                 }
@@ -1929,6 +1934,7 @@ export default {
                 const response = await Api.post('/meus_atendimentos/ZmlsYWRlYXRlbmRpbWVudG8=', {
                     id: localStorage.getItem('@USER_ID'),
                     setor_id: localStorage.getItem('@SETOR_ID'),
+                    fone: fone,
                 })
 
                 const data = response.data
