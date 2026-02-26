@@ -1916,14 +1916,6 @@ export default {
             const fone = this.selecionado?.fone ?? null
 
             try {
-                if (!fone) {
-                    console.error(
-                        'chamarMeusAtendimentos(): O telefone do contato nao esta presente.'
-                    )
-
-                    return
-                }
-
                 if (this.listaContatosInterno) {
                     this.abrirMsg = false
                 }
