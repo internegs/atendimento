@@ -333,19 +333,31 @@ class IDBService {
         }
     }
 
-    async deleteDb(dbName) {
+    async deleteDb() {
         try {
             if (!this.#ensureDb('bulkPut')) return
 
-            if (!dbName) {
-                this.#log(`deleteDb(): DB "${dbName}" invalido.`, 'warn')
+            if (!this.#dbName) {
+                this.#log(`deleteDb(): DB "${this.#dbName}" invalido.`, 'warn')
 
                 return
             }
 
-            await deleteDB(dbName)
+            if (this.#db && this.#dbName) {
+                await this.close()
+            }
+
+            await deleteDB(this.#dbName, {
+                blocked: () => {
+                    this.#log(`deleteDb(): remocao do DB ${this.#dbName} bloqueada`, 'warn')
+                },
+            })
+
+            this.#log(`deleteDb(): DB "${this.#dbName}" removido com sucesso.`)
         } catch (error) {
-            console.error(error)
+            console.error(`[IDBService] deleteDb() Erro severo:`, error?.message)
+
+            throw error?.message ?? error
         }
     }
 

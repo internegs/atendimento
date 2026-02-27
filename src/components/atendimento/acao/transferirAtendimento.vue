@@ -171,7 +171,6 @@ export default {
                     Swal.fire('Transferido com Sucesso!', response, 'success')
 
                     this.$emit('chamar-firebase')
-                    this.$emit('chamar-atendimentos-fila')
 
                     this.$emit('atualiza-meus-atendimentos')
                 } else {

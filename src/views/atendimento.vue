@@ -952,7 +952,6 @@
         <transferir-atendimento
             :id_atendimento="selecionado.id_atendimento"
             @chamar-atendimentos-fila="chamarAtendimentosFila"
-            @chamar-firebase="atualizaFilaFirebase"
             @fechar-tela-conversa="fecharTelaDeConversa"
             @atualiza-meus-atendimentos="chamarMeusAtendimentos"
         />
@@ -1453,7 +1452,6 @@ export default {
         async chamarRequisicaoAtendimentos() {
             try {
                 await Promise.all([
-                    this.chamarMeusAtendimentos(),
                     this.chamarAtendimentosFila(),
                     this.chamarTodosAtendimentos(),
                     this.getEstados(),
@@ -1549,8 +1547,9 @@ export default {
 
         async sair() {
             try {
+                console.log("teste")
                 await this.idbConn.deleteDb('inzupt_chat')
-
+                console.log("teste2")
                 middleware.logout()
             } catch (error) {
                 console.error(error)
@@ -1608,6 +1607,8 @@ export default {
 
             const listener = onValue(dbRef, () => {
                 this.useIndexedDb()
+
+                this.chamarMeusAtendimentos()
             })
 
             this.listenerActiveList.push(listener)
