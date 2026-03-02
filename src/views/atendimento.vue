@@ -1185,7 +1185,7 @@ export default {
             if (this.loadingPage && newVal === 100) {
                 this.atualizaFilaFirebase()
 
-                await this.chamarRequisicaoAtendimentos()
+                await this.chamarOutrasRequisicoes()
             }
         },
 
@@ -1322,7 +1322,7 @@ export default {
         this.tipo_usuario = localStorage.getItem('@TIPO')
         this.audioStatus = localStorage.getItem('@STATUS_NOTIFICACAO') !== 'false'
 
-        this.novamensagem()
+        this.novaMensagemFirebase()
     },
 
     beforeUnmount() {
@@ -1449,13 +1449,9 @@ export default {
             }
         },
 
-        async chamarRequisicaoAtendimentos() {
+        async chamarOutrasRequisicoes() {
             try {
-                await Promise.all([
-                    this.chamarAtendimentosFila(),
-                    this.chamarTodosAtendimentos(),
-                    this.getEstados(),
-                ])
+                await Promise.all([this.chamarTodosAtendimentos(), this.getEstados()])
 
                 this.loadingPage = false
             } catch (error) {
@@ -1547,9 +1543,8 @@ export default {
 
         async sair() {
             try {
-                console.log("teste")
                 await this.idbConn.deleteDb('inzupt_chat')
-                console.log("teste2")
+
                 middleware.logout()
             } catch (error) {
                 console.error(error)
@@ -1595,12 +1590,14 @@ export default {
                 }
 
                 this.fila_qtd = values?.fila ?? 0
+
+                this.chamarAtendimentosFila()
             })
 
             this.listenerActiveList.push(listener)
         },
 
-        novamensagem() {
+        novaMensagemFirebase() {
             const instancia = 'aW56YXBicmFzaWx2dWU=/' + this.session + '/MENSAGENS'
 
             const dbRef = ref(this.$database, `/${instancia}`)
@@ -1931,7 +1928,6 @@ export default {
                 const data = response.data
 
                 this.listaContatos.meusAtendimentos = data?.meusatendimentos ?? []
-                this.fila_qtd = data?.qtdfila_atendimento ?? ''
                 this.meusatendimentos_qtd = data?.qtdmeus_atendimentos ?? ''
 
                 this.montarNotificacoes(data?.qtdmensagens)
@@ -1989,11 +1985,11 @@ export default {
 
             for (let i = 0; i < this.listaContatosSelecionado.length; i++) {
                 const qtdeMensagensFone = lista_qtde_mensagens.filter(mensagem => {
-                    return mensagem.fone_enviado == this.listaContatosSelecionado[i].fone
+                    return mensagem.fone_enviado === this.listaContatosSelecionado[i].fone
                 }).length
 
                 const index = fones_enviados.findIndex(
-                    val => val.fone_enviado == this.listaContatosSelecionado[i].fone
+                    val => val.fone_enviado === this.listaContatosSelecionado[i].fone
                 )
 
                 // // so rodar quando o numero que enviou mensagem não existe dentro de algum objeto do array
