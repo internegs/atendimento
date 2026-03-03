@@ -1098,7 +1098,7 @@ export default {
             ativado: 0,
             opcaoSelecionada: 'meus_atendimentos',
             pesquisa: '',
-            fila_qtd: '',
+            fila_qtd: 0,
             meusatendimentos_qtd: '',
             notificacao: false,
             lista_fones_notificados: [],
@@ -1183,7 +1183,7 @@ export default {
     watch: {
         async getPercentQtd(newVal) {
             if (this.loadingPage && newVal === 100) {
-                this.atualizaFilaFirebase()
+                // this.atualizaFilaFirebase()
 
                 await this.chamarOutrasRequisicoes()
             }
@@ -1590,8 +1590,6 @@ export default {
                 }
 
                 this.fila_qtd = values?.fila ?? 0
-
-                this.chamarAtendimentosFila()
             })
 
             this.listenerActiveList.push(listener)
@@ -1606,6 +1604,7 @@ export default {
                 this.useIndexedDb()
 
                 this.chamarMeusAtendimentos()
+                this.chamarAtendimentosFila()
             })
 
             this.listenerActiveList.push(listener)
@@ -1717,55 +1716,6 @@ export default {
                 .catch(err => {
                     console.log(err)
                 })
-        },
-
-        fecharAtendimento(id_atendimento) {
-            Swal.fire({
-                title: 'Encerrar',
-                text: 'Você tem certeza de que deseja encerrar este atendimento?',
-                icon: 'warning',
-                showCancelButton: true,
-                reverseButtons: true,
-                cancelButtonColor: '#d33',
-                confirmButtonColor: '#2cacbf',
-                cancelButtonText: 'VOLTAR',
-                confirmButtonText: 'SIM, ENCERRAR',
-            }).then(result => {
-                if (result.isConfirmed) {
-                    Api.post('/fechar_atendimento/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                        id_atendimento: id_atendimento,
-                    })
-                        .then(() => {
-                            this.abrirMsg = false
-
-                            this.listaContatosSelecionado = []
-                            this.listaContatosPesquisa = []
-
-                            this.chamarMeusAtendimentos()
-                        })
-                        .catch(error => {
-                            console.error(error)
-
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Erro ',
-                                text: 'Erro ao encerrar atendimento.',
-                                confirmButtonColor: '#17a2b8',
-
-                                didOpen: () => {
-                                    const confirmBtn = Swal.getConfirmButton()
-                                    const actionsContainer = confirmBtn.parentElement
-
-                                    actionsContainer.style.width = '100%'
-                                    actionsContainer.style.display = 'flex'
-                                    actionsContainer.style.justifyContent = 'center'
-
-                                    confirmBtn.style.width = '90%'
-                                },
-                            })
-                        })
-                }
-            })
         },
 
         abrirConversaContatoEncaminhado(info) {
@@ -1908,6 +1858,35 @@ export default {
             }
         },
 
+        async chamarAtendimentosFila() {
+            try {
+                if (this.listaContatosInterno) {
+                    this.abrirMsg = false
+                }
+
+                this.listaContatosInterno = null
+                this.pesquisa = ''
+
+                const response = await Api.post('/fila_atendimento/ZmlsYWRlYXRlbmRpbWVudG8=', {
+                    id: localStorage.getItem('@USER_ID'),
+                    setor_id: localStorage.getItem('@SETOR_ID'),
+                })
+
+                const data = response.data
+
+                this.plano_id = data?.plano ?? null
+
+                this.fila_qtd = data?.fila?.length ?? 0
+
+                this.listaContatos.fila = data?.fila ?? []
+
+                console.log(this.listaContatos.fila)
+                console.log(this.listaContatos.meusAtendimentos)
+            } catch (error) {
+                console.error(error)
+            }
+        },
+
         async chamarMeusAtendimentos() {
             const fone = this.selecionado?.fone ?? null
 
@@ -2001,32 +1980,6 @@ export default {
 
                     this.lista_fones_notificados.push(obj)
                 }
-            }
-        },
-
-        async chamarAtendimentosFila() {
-            try {
-                if (this.listaContatosInterno) {
-                    this.abrirMsg = false
-                }
-
-                this.listaContatosInterno = null
-                this.pesquisa = ''
-
-                const response = await Api.post('/fila_atendimento/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                    id: localStorage.getItem('@USER_ID'),
-                    setor_id: localStorage.getItem('@SETOR_ID'),
-                })
-
-                const data = response.data
-
-                this.plano_id = data.plano
-
-                this.fila_qtd = response.data.fila.length
-
-                this.listaContatos.fila = data?.fila ?? []
-            } catch (error) {
-                console.error(error)
             }
         },
 
@@ -2140,6 +2093,55 @@ export default {
 
         fecharAtendimentoContatoInterno() {
             this.abrirMsg = false
+        },
+
+        fecharAtendimento(id_atendimento) {
+            Swal.fire({
+                title: 'Encerrar',
+                text: 'Você tem certeza de que deseja encerrar este atendimento?',
+                icon: 'warning',
+                showCancelButton: true,
+                reverseButtons: true,
+                cancelButtonColor: '#d33',
+                confirmButtonColor: '#2cacbf',
+                cancelButtonText: 'VOLTAR',
+                confirmButtonText: 'SIM, ENCERRAR',
+            }).then(result => {
+                if (result.isConfirmed) {
+                    Api.post('/fechar_atendimento/ZmlsYWRlYXRlbmRpbWVudG8=', {
+                        id_atendimento: id_atendimento,
+                    })
+                        .then(() => {
+                            this.abrirMsg = false
+
+                            this.listaContatosSelecionado = []
+                            this.listaContatosPesquisa = []
+
+                            this.chamarMeusAtendimentos()
+                        })
+                        .catch(error => {
+                            console.error(error)
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro ',
+                                text: 'Erro ao encerrar atendimento.',
+                                confirmButtonColor: '#17a2b8',
+
+                                didOpen: () => {
+                                    const confirmBtn = Swal.getConfirmButton()
+                                    const actionsContainer = confirmBtn.parentElement
+
+                                    actionsContainer.style.width = '100%'
+                                    actionsContainer.style.display = 'flex'
+                                    actionsContainer.style.justifyContent = 'center'
+
+                                    confirmBtn.style.width = '90%'
+                                },
+                            })
+                        })
+                }
+            })
         },
 
         async getEstados() {
