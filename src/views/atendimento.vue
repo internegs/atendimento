@@ -1183,7 +1183,7 @@ export default {
     watch: {
         async getPercentQtd(newVal) {
             if (this.loadingPage && newVal === 100) {
-                // this.atualizaFilaFirebase()
+                this.atualizaFilaFirebase()
 
                 await this.chamarOutrasRequisicoes()
             }
@@ -1590,6 +1590,8 @@ export default {
                 }
 
                 this.fila_qtd = values?.fila ?? 0
+
+                this.chamarAtendimentosFila()
             })
 
             this.listenerActiveList.push(listener)
@@ -1603,8 +1605,8 @@ export default {
             const listener = onValue(dbRef, () => {
                 this.useIndexedDb()
 
-                this.chamarMeusAtendimentos()
                 this.chamarAtendimentosFila()
+                this.chamarMeusAtendimentos()
             })
 
             this.listenerActiveList.push(listener)
@@ -1783,8 +1785,8 @@ export default {
 
                 await this.atualizarConversa(info_user.usuario)
 
-                this.chamarMeusAtendimentos()
                 this.chamarAtendimentosFila()
+                this.chamarMeusAtendimentos()
 
                 this.processando = false
                 this.abrirMsg = true
@@ -1879,9 +1881,6 @@ export default {
                 this.fila_qtd = data?.fila?.length ?? 0
 
                 this.listaContatos.fila = data?.fila ?? []
-
-                console.log(this.listaContatos.fila)
-                console.log(this.listaContatos.meusAtendimentos)
             } catch (error) {
                 console.error(error)
             }
@@ -2108,6 +2107,9 @@ export default {
                 confirmButtonText: 'SIM, ENCERRAR',
             }).then(result => {
                 if (result.isConfirmed) {
+                    console.log(id_atendimento)
+                    console.log(this.listaContatos.meusAtendimentos)
+
                     Api.post('/fechar_atendimento/ZmlsYWRlYXRlbmRpbWVudG8=', {
                         id_atendimento: id_atendimento,
                     })
@@ -2116,8 +2118,11 @@ export default {
 
                             this.listaContatosSelecionado = []
                             this.listaContatosPesquisa = []
-
-                            this.chamarMeusAtendimentos()
+                            this.listaContatos.meusAtendimentos =
+                                this.listaContatos?.meusAtendimentos?.filter(
+                                    contato => contato?.id_atendimento !== id_atendimento
+                                ) ?? []
+                            this.meusatendimentos_qtd = this.listaContatos?.meusAtendimentos?.length
                         })
                         .catch(error => {
                             console.error(error)
