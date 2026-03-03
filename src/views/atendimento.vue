@@ -2107,9 +2107,6 @@ export default {
                 confirmButtonText: 'SIM, ENCERRAR',
             }).then(result => {
                 if (result.isConfirmed) {
-                    console.log(id_atendimento)
-                    console.log(this.listaContatos.meusAtendimentos)
-
                     Api.post('/fechar_atendimento/ZmlsYWRlYXRlbmRpbWVudG8=', {
                         id_atendimento: id_atendimento,
                     })
