@@ -1183,7 +1183,7 @@ export default {
     watch: {
         async getPercentQtd(newVal) {
             if (this.loadingPage && newVal === 100) {
-                this.atualizaFilaFirebase()
+                // this.atualizaFilaFirebase()
 
                 await this.chamarOutrasRequisicoes()
             }
@@ -1803,6 +1803,12 @@ export default {
         async atualizarConversa(contato) {
             if (!contato?.fone) {
                 throw new Error('atualizarConversa(): O telefone do contato nao esta presente.')
+            }
+
+            console.log(contato)
+
+            if (contato?.atendente_id && contato?.atendente_id !== this.getUserId) {
+                this.mensagens = `Esta conversa já está sendo atendida por ${contato?.nome_atendente ?? null}`
             }
 
             const conversasEnviadas = await this.idbConn.getAll('conversas', {

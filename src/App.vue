@@ -5,6 +5,13 @@
 <script>
 export default {
     name: 'App',
+
+    mounted() {
+        document.querySelectorAll('[data-bs-togle="tooltip"]').forEach(el => {
+            // eslint-disable-next-line no-undef
+            new bootstrap.Tooltip(el, { trigger: 'hover' })
+        })
+    },
 }
 </script>
 
