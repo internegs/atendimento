@@ -1783,10 +1783,28 @@ export default {
                 this.processando = true
                 this.selecionado = info_user.usuario
 
+                const objConversas = {
+                    id: localStorage.getItem('@USER_ID'),
+                    fone: info_user?.usuario?.fone ?? null,
+                    nome_contato: info_user?.usuario?.nome ?? null,
+                }
 
-                await Api.post(`/conversas_bd/ZmlsYWRlYXRlbmRpbWVudG8=`)
+                const response = await Api.post(
+                    `/conversas_bd/ZmlsYWRlYXRlbmRpbWVudG8=`,
+                    objConversas
+                )
 
-                return
+                const isBeingAssisted = !response?.data?.qtd
+
+                if (isBeingAssisted) {
+
+                    this.mensagens = response?.data?.mensagem ?? null
+
+                    this.processando = false
+                    this.abrirMsg = true
+
+                    return
+                }
 
                 await this.atualizarConversa(info_user.usuario)
 
@@ -1808,12 +1826,6 @@ export default {
         async atualizarConversa(contato) {
             if (!contato?.fone) {
                 throw new Error('atualizarConversa(): O telefone do contato nao esta presente.')
-            }
-
-            console.log(contato)
-
-            if (contato?.atendente_id && contato?.atendente_id !== this.getUserId) {
-                this.mensagens = `Esta conversa já está sendo atendida por ${contato?.nome_atendente ?? null}`
             }
 
             const conversasEnviadas = await this.idbConn.getAll('conversas', {
