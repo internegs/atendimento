@@ -1783,6 +1783,11 @@ export default {
                 this.processando = true
                 this.selecionado = info_user.usuario
 
+
+                await Api.post(`/conversas_bd/ZmlsYWRlYXRlbmRpbWVudG8=`)
+
+                return
+
                 await this.atualizarConversa(info_user.usuario)
 
                 this.chamarAtendimentosFila()
