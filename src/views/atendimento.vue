@@ -1797,7 +1797,6 @@ export default {
                 const isBeingAssisted = !response?.data?.qtd
 
                 if (isBeingAssisted) {
-
                     this.mensagens = response?.data?.mensagem ?? null
 
                     this.processando = false
@@ -1980,17 +1979,18 @@ export default {
         montarNotificacoes(lista_qtde_mensagens) {
             if (!lista_qtde_mensagens) return
 
-            const fones_enviados = lista_qtde_mensagens.map(usuarios => usuarios.fone_enviado)
+            const fones_enviados =
+                lista_qtde_mensagens?.map(usuarios => usuarios.fone_enviado) ?? []
 
             this.lista_fones_notificados = []
 
             for (let i = 0; i < this.listaContatosSelecionado.length; i++) {
-                const qtdeMensagensFone = lista_qtde_mensagens.filter(mensagem => {
-                    return mensagem.fone_enviado === this.listaContatosSelecionado[i].fone
-                }).length
+                const qtdeMensagensFone = fones_enviados.filter(
+                    fone => fone === this.listaContatosSelecionado[i].fone
+                ).length
 
                 const index = fones_enviados.findIndex(
-                    val => val.fone_enviado === this.listaContatosSelecionado[i].fone
+                    fone => fone === this.listaContatosSelecionado[i].fone
                 )
 
                 // // so rodar quando o numero que enviou mensagem não existe dentro de algum objeto do array
@@ -2460,9 +2460,11 @@ export default {
         },
 
         filterMessages(msgs) {
+            if (!msgs) return []
+
             if (typeof msgs === 'string') return msgs
 
-            if (!msgs && !Array.isArray(msgs) && msgs.length === 0) return []
+            if (!Array.isArray(msgs) && msgs.length === 0) return []
 
             return msgs.filter(msg => msg.type && (msg.type === 'image' || msg.type === 'video'))
         },
