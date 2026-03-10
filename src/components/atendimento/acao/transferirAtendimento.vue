@@ -165,6 +165,7 @@ export default {
 
                 const truck_modal = document.querySelector('#transfereAtendimento')
                 const modal = bootstrap.Modal.getInstance(truck_modal)
+
                 modal.hide()
 
                 if (response) {

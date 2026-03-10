@@ -19,6 +19,8 @@
                     :style="progress"
                 ></div>
             </div>
+
+            <span class="percent-number">{{ percents + '%' }}</span>
         </div>
     </base-modal>
 </template>
@@ -70,6 +72,11 @@ const progress = computed(() => `width: ${props.percents}%`)
         .progress-bar {
             transition: width 0.1s ease-in-out;
         }
+    }
+
+    .percent-number {
+        font-weight: bold;
+        font-size: 1rem;
     }
 }
 </style>
