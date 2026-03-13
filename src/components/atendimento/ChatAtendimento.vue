@@ -1081,7 +1081,7 @@ export default {
 
     computed: {
         validationMessage() {
-            if (this.mensagens.length < 1) {
+            if (!this.mensagens || this.mensagens.length < 1) {
                 return 'Não há mensagens disponíveis'
             }
 

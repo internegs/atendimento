@@ -44,5 +44,7 @@ export async function sincronizar(data) {
 
     const response = await API.post('/atendimento/sync/ZmlsYWRlYXRlbmRpbWVudG8=', dataEncripted)
 
-    return JSON.parse(atob(response.data))
+    // return JSON.parse(atob(response.data))
+
+    return response.data
 }

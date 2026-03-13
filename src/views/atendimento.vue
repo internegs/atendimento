@@ -1380,6 +1380,7 @@ export default {
             let isFirstBatch = true
             let lastSyncTimestamp =
                 (await this.idbConn?.getAll('sync'))?.at(-1)?.last_sync_timestamp ?? null
+            const isInitialSync = !lastSyncTimestamp
             let contatos
 
             // Siga essa mesma estrutura para utilizar o limiter de bulkPut()
@@ -1414,7 +1415,11 @@ export default {
                 ])
 
                 if (loteConversas.length > 0) {
-                    await this.idbConn.bulkPut('conversas', response?.conversas?.data, limiter)
+                    await this.idbConn.bulkPut(
+                        'conversas',
+                        response?.conversas?.data,
+                        isInitialSync ? {} : limiter
+                    )
                 }
 
                 if (this.loadingPage) {
