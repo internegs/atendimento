@@ -1346,26 +1346,28 @@ export default {
     },
 
     methods: {
+        async initIdbConn() {
+            const instance = new IDBService('inzupt_chat')
+            await instance.conn()
+            this.idbConn = markRaw(instance)
+
+            await this.idbConn.createStore('sync', 'id')
+            await this.idbConn.createStore('conversas', 'id')
+
+            await this.idbConn.createIndex('conversas', 'message_id')
+            await this.idbConn.createIndex('conversas', 'fone_enviado')
+            await this.idbConn.createIndex('conversas', 'fone_destino')
+            await this.idbConn.createIndex('conversas', 'status')
+            await this.idbConn.createIndex('conversas', 'updated_at')
+            await this.idbConn.createIndex('conversas', 'type')
+            await this.idbConn.createIndex('conversas', 'contactName')
+            await this.idbConn.createIndex('conversas', 'wook')
+        },
+
         async useIndexedDb() {
             try {
                 if (!this.idbConn) {
-                    const instance = new IDBService('inzupt_chat')
-                    await instance.conn()
-                    this.idbConn = markRaw(instance)
-
-                    await this.idbConn.createStore('sync', 'id', true)
-                    await this.idbConn.createStore('conversas', 'id')
-
-                    await this.idbConn.createIndex('sync', 'last_sync_timestamp', true)
-
-                    await this.idbConn.createIndex('conversas', 'message_id')
-                    await this.idbConn.createIndex('conversas', 'fone_enviado')
-                    await this.idbConn.createIndex('conversas', 'fone_destino')
-                    await this.idbConn.createIndex('conversas', 'status')
-                    await this.idbConn.createIndex('conversas', 'updated_at')
-                    await this.idbConn.createIndex('conversas', 'type')
-                    await this.idbConn.createIndex('conversas', 'contactName')
-                    await this.idbConn.createIndex('conversas', 'wook')
+                    await this.initIdbConn()
                 }
 
                 await this.chamarSincronizacao()
@@ -1375,11 +1377,21 @@ export default {
         },
 
         async chamarSincronizacao() {
+            const sync = (await this.idbConn?.getAll('sync'))?.at(-1) ?? null
+            const syncId = sync?.id ?? null
+            let lastSyncTimestamp = sync?.last_sync_timestamp ?? null
+
+            if (syncId && syncId !== this.getUserId) {
+                await this.idbConn.deleteDb()
+                this.idbConn = null
+                await this.initIdbConn()
+
+                lastSyncTimestamp = null
+            }
+
             let hasRequest = true
             let cursorConversas = null
             let isFirstBatch = true
-            let lastSyncTimestamp =
-                (await this.idbConn?.getAll('sync'))?.at(-1)?.last_sync_timestamp ?? null
             const isInitialSync = !lastSyncTimestamp
             let contatos
 
@@ -1394,6 +1406,8 @@ export default {
             this.processadosNestaSessao = 0
 
             while (hasRequest) {
+                console.log(lastSyncTimestamp)
+
                 const response = await sincronizar({
                     atendente_id: this.getUserId,
                     last_sync_timestamp: lastSyncTimestamp,
@@ -1437,7 +1451,7 @@ export default {
 
             if (lastSyncTimestamp) {
                 await this.idbConn.put('sync', {
-                    id: 0,
+                    id: this.getUserId,
                     last_sync_timestamp: lastSyncTimestamp,
                 })
             }
