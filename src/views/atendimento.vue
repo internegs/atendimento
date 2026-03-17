@@ -174,7 +174,7 @@
                             :ativado="ativado"
                             :tipo="tipo_usuario"
                             :novo="notificacao"
-                            :lista_fone="lista_fones_notificados"
+                            :qtd-nova-mensagem="qtdNovaMensagem"
                             :qtdmensagens="qtdmensagens"
                             @contato-selecionado="abrirConversa"
                         />
@@ -200,7 +200,7 @@
                             :ativado="ativado"
                             :tipo="tipo_usuario"
                             :novo="notificacao"
-                            :lista_fone="lista_fones_notificados"
+                            :qtd-nova-mensagem="qtdNovaMensagem"
                             :qtdmensagens="qtdmensagens"
                             @contato-selecionado="abrirConversa"
                         />
@@ -1101,7 +1101,7 @@ export default {
             fila_qtd: 0,
             meusatendimentos_qtd: '',
             notificacao: false,
-            lista_fones_notificados: [],
+            qtdNovaMensagem: {},
             qtdmensagens: '',
             qtdconversas: 0,
             qtdmensagensinternas: 0,
@@ -1406,8 +1406,6 @@ export default {
             this.processadosNestaSessao = 0
 
             while (hasRequest) {
-                console.log(lastSyncTimestamp)
-
                 const response = await sincronizar({
                     atendente_id: this.getUserId,
                     last_sync_timestamp: lastSyncTimestamp,
@@ -1417,6 +1415,7 @@ export default {
                 if (isFirstBatch) {
                     this.qtdconversas = await this.idbConn.count('conversas')
                     this.qtdTotal.conversas = response?.meta_data?.qtd ?? 0
+                    this.qtdNovaMensagem = response?.meta_data?.novas ?? {}
 
                     isFirstBatch = false
                 }
@@ -1801,10 +1800,11 @@ export default {
             try {
                 this.processando = true
                 this.selecionado = info_user.usuario
+                const fone = info_user?.usuario?.fone ?? null
 
                 const objConversas = {
                     id: localStorage.getItem('@USER_ID'),
-                    fone: info_user?.usuario?.fone ?? null,
+                    fone: fone,
                     nome_contato: info_user?.usuario?.nome ?? null,
                 }
 
@@ -1828,6 +1828,8 @@ export default {
 
                 this.chamarAtendimentosFila()
                 this.chamarMeusAtendimentos()
+
+                delete this.qtdNovaMensagem[fone]
 
                 this.processando = false
                 this.abrirMsg = true
@@ -1948,8 +1950,6 @@ export default {
 
                 this.listaContatos.meusAtendimentos = data?.meusatendimentos ?? []
                 this.meusatendimentos_qtd = data?.qtdmeus_atendimentos ?? ''
-
-                this.montarNotificacoes(data?.qtdmensagens)
             } catch (error) {
                 console.error(error)
             }
@@ -1993,35 +1993,6 @@ export default {
             setTimeout(() => {
                 this.mensageminterna = false
             }, 1000)
-        },
-
-        montarNotificacoes(lista_qtde_mensagens) {
-            if (!lista_qtde_mensagens) return
-
-            const fones_enviados =
-                lista_qtde_mensagens?.map(usuarios => usuarios.fone_enviado) ?? []
-
-            this.lista_fones_notificados = []
-
-            for (let i = 0; i < this.listaContatosSelecionado.length; i++) {
-                const qtdeMensagensFone = fones_enviados.filter(
-                    fone => fone === this.listaContatosSelecionado[i].fone
-                ).length
-
-                const index = fones_enviados.findIndex(
-                    fone => fone === this.listaContatosSelecionado[i].fone
-                )
-
-                // // so rodar quando o numero que enviou mensagem não existe dentro de algum objeto do array
-                if (index < 0) {
-                    const obj = {
-                        fone: this.listaContatosSelecionado[i].fone,
-                        qtdeMensagens: qtdeMensagensFone,
-                    }
-
-                    this.lista_fones_notificados.push(obj)
-                }
-            }
         },
 
         bloqueiaAtendimento(contato_id) {

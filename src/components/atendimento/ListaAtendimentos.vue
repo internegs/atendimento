@@ -50,14 +50,14 @@
                     {{ maskPhone(contato.fone) }}
 
                     <span
-                        v-for="(fones, index) in lista_fone"
-                        :key="index"
+                        v-for="(val, key) in qtdNovaMensagem"
+                        :key="key"
                     >
                         <span
-                            v-if="fones.fone == contato.fone && fones.qtdeMensagens != 0"
+                            v-if="key === contato.fone"
                             class="badge bg-warning rounded-pill"
                         >
-                            {{ fones.qtdeMensagens }}
+                            {{ val }}
                         </span>
                     </span>
                 </div>
@@ -91,8 +91,8 @@ export default {
         tipo: {
             type: [String, Number],
         },
-        lista_fone: {
-            type: Array,
+        qtdNovaMensagem: {
+            type: Object,
         },
     },
 
