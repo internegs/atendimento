@@ -1,12 +1,12 @@
 <template>
-    <transition
-        name="modal-fade"
-        appear
+    <base-modal
+        :is-visible="isVisible"
+        teleport-to=".container-main"
+        @close-modal="handleCloseModal"
     >
-        <base-modal
-            :is-visible="isVisible"
-            teleport-to="container-main"
-            @close-modal="handleCloseModal"
+        <transition
+            name="modal-fade"
+            appear
         >
             <media-template
                 :download="true"
@@ -25,8 +25,8 @@
                     />
                 </div>
             </media-template>
-        </base-modal>
-    </transition>
+        </transition>
+    </base-modal>
 </template>
 
 <script>

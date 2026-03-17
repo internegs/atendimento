@@ -35,6 +35,6 @@ defineProps({
     height: 100%;
     background-color: rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(8px);
-    z-index: 5;
+    z-index: 20;
 }
 </style>

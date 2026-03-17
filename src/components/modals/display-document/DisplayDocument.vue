@@ -1,11 +1,11 @@
 <template>
-    <transition
-        name="modal-slide"
-        appear
+    <base-modal
+        :is-visible="isVisible"
+        teleport-to=".container-main"
     >
-        <base-modal
-            :is-visible="isVisible"
-            teleport-to="container-main"
+        <transition
+            name="modal-slide"
+            appear
         >
             <media-template
                 :data-media="dataDocumentSelected"
@@ -73,8 +73,8 @@
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </media-template>
-        </base-modal>
-    </transition>
+        </transition>
+    </base-modal>
 </template>
 
 <script>
@@ -316,7 +316,6 @@ export default {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-
     overflow: hidden;
 
     header {
@@ -324,7 +323,6 @@ export default {
 
         h2 {
             margin-top: 10px;
-
             font-size: 14px;
             font-weight: 500;
             white-space: break-word;
@@ -332,9 +330,7 @@ export default {
             text-align: center;
 
             @media (min-width: 1400px) {
-                & {
-                    font-size: 16px;
-                }
+                font-size: 16px;
             }
         }
     }
@@ -348,24 +344,18 @@ export default {
         gap: 1rem;
 
         @media (min-width: 768px) {
-            & {
-                max-height: auto;
-            }
+            max-height: auto;
         }
 
         canvas {
             transform: scale(0.3);
 
             @media (min-width: 1200px) {
-                & {
-                    transform: scale(0.4);
-                }
+                transform: scale(0.4);
             }
 
             @media (min-width: 1400px) {
-                & {
-                    transform: scale(0.6);
-                }
+                transform: scale(0.6);
             }
         }
 
@@ -373,9 +363,7 @@ export default {
             font-size: 6rem;
 
             @media (min-width: 1400px) {
-                & {
-                    font-size: 8rem;
-                }
+                font-size: 8rem;
             }
         }
 
@@ -387,9 +375,7 @@ export default {
             text-align: center;
 
             @media (min-width: 1400px) {
-                & {
-                    font-size: 16px;
-                }
+                font-size: 16px;
             }
         }
     }
@@ -407,7 +393,6 @@ export default {
         align-items: center;
         width: 3rem;
         height: 3rem;
-
         background-color: #2cacbf;
         border-radius: 50%;
         transition: all 200ms ease;
@@ -422,17 +407,13 @@ export default {
         }
 
         @media (min-width: 768px) {
-            & {
-                width: 3.5rem;
-                height: 3.5rem;
-            }
+            width: 3.5rem;
+            height: 3.5rem;
         }
 
         @media (min-width: 1400px) {
-            & {
-                width: 4rem;
-                height: 4rem;
-            }
+            width: 4rem;
+            height: 4rem;
         }
 
         .icon-send {
@@ -440,17 +421,13 @@ export default {
             height: 1.2rem;
 
             @media (min-width: 768px) {
-                & {
-                    width: 1.4rem;
-                    height: 1.4rem;
-                }
+                width: 1.4rem;
+                height: 1.4rem;
             }
 
             @media (min-width: 1400px) {
-                & {
-                    width: 1.5rem;
-                    height: 1.5rem;
-                }
+                width: 1.5rem;
+                height: 1.5rem;
             }
         }
     }

@@ -115,144 +115,117 @@ export default {
 }
 </script>
 
-<style scoped>
-/* retire o estilo abaixo caso n quebre os estilos da pagina */
+<style scoped lang="scss">
 .container-media {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    @include flex-col-center();
     position: fixed;
     width: 100%;
     height: 100%;
-
     background-color: rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(8px);
-    z-index: 5;
-}
 
-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 0.5% 0;
-}
+    header {
+        @include flex-center();
+        width: 100%;
+        padding: 0.5% 0;
 
-.header-wrapper {
-    display: flex;
-    justify-content: space-between;
-    width: 97%;
-}
+        .header-wrapper {
+            display: flex;
+            justify-content: space-between;
+            width: 97%;
 
-.header-wrapper .user-wrapper {
-    display: flex;
-    align-items: center;
-}
+            .user-wrapper {
+                display: flex;
+                align-items: center;
 
-.user-photo {
-    width: 50px;
-}
+                .user-photo {
+                    width: 50px;
 
-.user-photo img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    font-size: clamp(2rem, 2.5vw, 3rem);
-}
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        border-radius: 50%;
+                        font-size: clamp(2rem, 2.5vw, 3rem);
+                    }
 
-.user-photo .callcenter-icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
+                    .callcenter-icon {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        width: 100%;
+                        height: 100%;
+                        border-radius: 50%;
+                        font-size: clamp(1.2rem, 1vw, 1.5rem);
+                        color: #f4f4f4;
+                        background-color: #465157;
 
-    border-radius: 50%;
-    font-size: clamp(1.2rem, 1vw, 1.5rem);
-    color: #f4f4f4;
-    background-color: #465157;
-}
+                        i {
+                            padding: 1rem 0;
+                        }
+                    }
+                }
 
-.user-photo .callcenter-icon i {
-    padding: 1rem 0;
-}
+                .user-info {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    gap: 1px;
+                }
 
-.user-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 1px;
-}
+                .user-name {
+                    font-size: 16px;
+                    color: #20292e;
+                    font-weight: bolder;
+                }
+            }
 
-.user-name {
-    font-size: 16px;
-    color: #20292e;
-    font-weight: bolder;
-}
+            .media-options {
+                display: flex;
+                align-items: center;
+                padding: 0 2%;
+                gap: 5%;
 
-.media-options {
-    display: flex;
-    align-items: center;
-    padding: 0 2%;
-    gap: 5%;
-}
+                .opt-btn-download,
+                .opt-btn-close {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 10px;
+                    border-radius: 50%;
+                    background-color: transparent;
+                    transition: background-color 300ms ease;
 
-.media-options .opt-btn-download {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
+                    &:active {
+                        background-color: #b1b1b1;
+                    }
+                }
 
-    border-radius: 50%;
-    background-color: transparent;
-    transition: background-color 300ms ease;
-}
+                .opt-btn-download img {
+                    width: 1.7rem;
+                }
 
-.media-options .opt-btn-download:active {
-    background-color: #b1b1b1;
-}
+                .opt-btn-close i {
+                    font-size: 1.5rem;
+                    color: #3b4a54;
+                }
+            }
+        }
+    }
 
-.media-options .opt-btn-download img {
-    width: 1.7rem;
-}
+    .template-main {
+        width: 100%;
+        height: 80dvh;
+        min-height: 300px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-.media-options .opt-btn-close {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-
-    border-radius: 50%;
-    background-color: transparent;
-    transition: background-color 300ms ease;
-}
-
-.media-options .opt-btn-close:active {
-    background-color: #b1b1b1;
-}
-
-.media-options .opt-btn-close i {
-    font-size: 1.5rem;
-    color: #3b4a54;
-}
-
-/* MAIN */
-
-.template-main {
-    width: 100%;
-    height: 80dvh;
-    min-height: 300px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* FOOTER */
-
-footer {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    footer {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 }
 </style>
