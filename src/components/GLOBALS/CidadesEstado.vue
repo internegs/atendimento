@@ -64,7 +64,7 @@
 <script>
 import Api from '@/services/api/api.js'
 import { mapState } from 'pinia'
-import { useListStatesStore } from '@/stores/useListStatesStore.js'
+import { useListStatesStore } from '@/stores/index.js'
 
 export default {
     name: 'CidadesEstado',

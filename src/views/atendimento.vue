@@ -1035,9 +1035,9 @@ import { formatSize, formatTextForLimited } from '@/utils/formatters'
 import DisplayMediaPreview from '@/components/modals/display-media-preview/DisplayMediaPreview.vue'
 import AudioRecorderComponent from '@/components/atendimento/acao/AudioRecorderComponent.vue'
 import { mapActions } from 'pinia'
-import { useListStatesStore } from '@/stores/useListStatesStore.js'
+import { useListStatesStore } from '@/stores/index.js'
 import ImgComponent from '@/components/ui/ImgComponent.vue'
-import { conversaList, enviaMidia, sincronizar } from '@/services/api/newApi.js'
+import { enviaMidia, sincronizar } from '@/services/api/newApi.js'
 import IDBService from '@/services/IDBService.js'
 import ProgressBarScreen from '@/components/ui/screen-overlay/ProgressBarScreen.vue'
 import { markRaw } from 'vue'
@@ -1346,6 +1346,9 @@ export default {
     },
 
     methods: {
+        formatTextForLimited,
+        ...mapActions(useListStatesStore, ['setStates']),
+
         async initIdbConn() {
             const instance = new IDBService('inzupt_chat')
             await instance.conn()
@@ -1400,7 +1403,7 @@ export default {
                 limit: 100,
                 indexList: ['conversas_fone_enviado_idx', 'conversas_fone_destino_idx'],
                 keyValue: ['fone_enviado', 'fone_destino'],
-                blackList: ['782833411572320'],
+                blackList: [btoa('782833411572320')],
             }
 
             this.processadosNestaSessao = 0
@@ -1476,9 +1479,6 @@ export default {
                 console.error(error)
             }
         },
-
-        formatTextForLimited,
-        ...mapActions(useListStatesStore, ['setStates']),
 
         ativarNotificacao() {
             this.audioStatus = !this.audioStatus
@@ -1850,19 +1850,19 @@ export default {
 
             const conversasEnviadas = await this.idbConn.getAll('conversas', {
                 name: 'conversas_fone_enviado_idx',
-                value: contato.fone,
+                value: btoa(contato.fone),
             })
 
             const conversasDestino = await this.idbConn.getAll('conversas', {
                 name: 'conversas_fone_destino_idx',
-                value: contato.fone,
+                value: btoa(contato.fone),
             })
 
             const todasConversas = [...conversasEnviadas, ...conversasDestino]
 
             const conversasReordenadas = todasConversas.sort((a, b) => a.id - b.id)
 
-            const data = conversasReordenadas ?? []
+            const data = this.decodeList(conversasReordenadas ?? [], ['id', 'updated_at'])
 
             const ativo = true
             const qtd = data.length
@@ -1890,6 +1890,22 @@ export default {
             }
 
             this.salvaConversa()
+        },
+
+        decodeList(list, ignoredKeys = []) {
+            if (!Array.isArray(list)) return []
+
+            if (list.length === 0) return []
+
+            return list.map(obj => {
+                return Object.fromEntries(
+                    Object.entries(obj).map(([key, val]) => {
+                        if (ignoredKeys.includes(key)) return [key, val]
+
+                        return [key, val ? atob(val) : null]
+                    })
+                )
+            })
         },
 
         async salvaConversa() {
