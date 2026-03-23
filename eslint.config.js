@@ -14,6 +14,7 @@ export default [
             ecmaVersion: 'latest',
             sourceType: 'module',
             globals: {
+                bootstrap: 'readonly',
                 console: 'readonly',
                 window: 'readonly',
                 document: 'readonly',

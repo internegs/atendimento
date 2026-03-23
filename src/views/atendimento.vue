@@ -19,14 +19,14 @@
     >
         <div
             class="box"
-            :class="abrirMsg ? 'chatAtivo' : ''"
+            :class="conversaAberta ? 'chatAtivo' : ''"
         >
             <div class="leftSide">
                 <div class="header">
                     <button
                         id="btn-fila"
                         class="text-white"
-                        @click="handleClickTabs($event)"
+                        @click="selecionarAba($event)"
                     >
                         <div>
                             <span class="fw-bold text-center">FILA</span>
@@ -45,7 +45,7 @@
                     <button
                         id="btn-atendimentos"
                         class="text-white"
-                        @click="handleClickTabs($event)"
+                        @click="selecionarAba($event)"
                     >
                         <div>
                             <span class="fw-bold text-center">MEUS</span>
@@ -67,7 +67,7 @@
                     <button
                         id="btn-todos"
                         class="text-white"
-                        @click="handleClickTabs($event)"
+                        @click="selecionarAba($event)"
                     >
                         <span class="fw-bold text-center">TODOS</span>
                     </button>
@@ -78,20 +78,20 @@
                             class: 'tooltip-modern',
                         }"
                         class="btn-opt text-white"
-                        @click="openOpt = !openOpt"
+                        @click="dropdownAberto = !dropdownAberto"
                     >
                         <i class="fa-solid fa-ellipsis-vertical"></i>
                     </button>
 
                     <div
-                        v-show="openOpt"
+                        v-show="dropdownAberto"
                         class="opt-modal"
                     >
                         <ul ref="dropdownContent">
                             <li>
                                 <button
                                     id="btn-atendimentos-internos"
-                                    @click="(handleClickTabs($event), (openOpt = false))"
+                                    @click="(selecionarAba($event), (dropdownAberto = false))"
                                 >
                                     <span>Conversas Internas</span>
                                 </button>
@@ -120,7 +120,7 @@
                     <div class="d-flex align-items-center gap-2">
                         <span
                             class="icone-pesquisa"
-                            :class="novaTransferencia ? 'layoutNovaTransferencia' : ''"
+                            :class="novaTransferenciaBanner ? 'layoutNovaTransferencia' : ''"
                         >
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </span>
@@ -131,7 +131,7 @@
                             type="text"
                             placeholder="Pesquise Contato"
                             style="flex: 6; color: #4d4f5c"
-                            @keyup.enter="Pesquisar"
+                            @keyup.enter="pesquisar"
                         />
 
                         <button
@@ -149,14 +149,14 @@
                     </div>
 
                     <span
-                        v-if="novaTransferencia"
+                        v-if="novaTransferenciaBanner"
                         class="fw-bold text-warning text-center"
                     >
                         VOCÊ RECEBEU UMA NOVA TRANSFERÊNCIA!
                     </span>
 
                     <span
-                        v-if="mensageminterna"
+                        v-if="novaMensagemInternaBanner"
                         class="fw-bold text-warning text-center"
                     >
                         NOVA MENSAGEM INTERNA!
@@ -171,11 +171,10 @@
                         <!-- Pesquisando contatos -->
                         <lista-atendimentos
                             :lista="listaContatosPesquisa"
-                            :ativado="ativado"
+                            :ativado="idContatoAtivo"
                             :tipo="tipo_usuario"
                             :novo="notificacao"
                             :qtd-nova-mensagem="qtdNovaMensagem"
-                            :qtdmensagens="qtdmensagens"
                             @contato-selecionado="abrirConversa"
                         />
                     </div>
@@ -190,18 +189,17 @@
                             v-if="listaContatosInterno"
                             :lista="listaContatosInterno"
                             :change="abrirConversaChatInterno"
-                            :ativado="ativado"
+                            :ativado="idContatoAtivo"
                             :novointerno="qtdmensagensinternas"
                         />
 
                         <lista-atendimentos
                             v-else
                             :lista="listaContatosSelecionado"
-                            :ativado="ativado"
+                            :ativado="idContatoAtivo"
                             :tipo="tipo_usuario"
                             :novo="notificacao"
                             :qtd-nova-mensagem="qtdNovaMensagem"
-                            :qtdmensagens="qtdmensagens"
                             @contato-selecionado="abrirConversa"
                         />
                     </div>
@@ -221,7 +219,7 @@
             </div>
 
             <div
-                v-if="abrirMsg"
+                v-if="conversaAberta"
                 class="rightSide"
             >
                 <div
@@ -243,12 +241,12 @@
 
                                 <img
                                     v-else
-                                    :src="selecionado.foto"
+                                    :src="contatoSelecionado.foto"
                                     alt="foto de perfil"
                                     @error="hasImgError = true"
                                 />
 
-                                <h5 class="ps-2 fs-5">{{ selecionado.nome }}</h5>
+                                <h5 class="ps-2 fs-5">{{ contatoSelecionado.nome }}</h5>
                             </div>
                         </div>
 
@@ -320,11 +318,11 @@
 
                                 <img
                                     v-else
-                                    :src="selecionado.foto"
+                                    :src="contatoSelecionado.foto"
                                     alt="foto de perfil"
                                     @error="hasImgError = true"
                                 />
-                                <h5 class="ps-2 fs-5">{{ selecionado.nome }}</h5>
+                                <h5 class="ps-2 fs-5">{{ contatoSelecionado.nome }}</h5>
                             </div>
                         </div>
 
@@ -346,7 +344,7 @@
                                     type="button"
                                     class="btn"
                                     :class="atendimentoStatus ? 'btn-success' : 'btn-danger'"
-                                    @click="bloqueiaAtendimento(selecionado.id)"
+                                    @click="alternarBloqueioContato(contatoSelecionado.id)"
                                 >
                                     <i
                                         v-show="atendimentoStatus"
@@ -396,7 +394,7 @@
                                     }"
                                     type="button"
                                     class="btn btn-danger"
-                                    @click="fecharAtendimento(selecionado.id_atendimento)"
+                                    @click="encerrarAtendimento(contatoSelecionado.id_atendimento)"
                                 >
                                     <i
                                         class="fa-solid fa-arrow-right-from-bracket"
@@ -419,7 +417,7 @@
                                 type="button"
                                 class="btn justify-content-center align-items-center py-1 px-2"
                                 :class="atendimentoStatus ? 'btn-success' : 'btn-danger'"
-                                @click="bloqueiaAtendimento(selecionado.id)"
+                                @click="alternarBloqueioContato(contatoSelecionado.id)"
                             >
                                 <i
                                     v-show="atendimentoStatus"
@@ -469,7 +467,7 @@
                                 }"
                                 type="button"
                                 class="btn btn-danger justify-content-center align-items-center py-1 px-2"
-                                @click="fecharAtendimento(selecionado.id_atendimento)"
+                                @click="encerrarAtendimento(contatoSelecionado.id_atendimento)"
                             >
                                 <i
                                     class="fa-solid fa-arrow-right-from-bracket icon-size"
@@ -482,15 +480,14 @@
                     <chat-atendimento
                         :abrir-conversa="abrirConversaContatoEncaminhado"
                         :mensagens="mensagens"
-                        :processando="processando"
-                        :mensagemdireta="mensagemdireta"
+                        :processando="enviandoMensagem"
                         :status="status_chat"
                         :foneAtendido="foneConversa"
                         :alterarLayoutBatePapo="alterarLayoutBatePapo"
-                        :estado-encaminhar-mensagens="estadoEncaminharMensagens"
-                        :estado-responder-mensagem="estadoResponderMensagem"
-                        :lista-mensagens-selecionadas="listaMensagensSelecionadas"
-                        @abremodal_apagarmensagem="abremodal_apagarmensagem"
+                        :estado-encaminhar-mensagens="modoEncaminhar"
+                        :estado-responder-mensagem="modoResponder"
+                        :lista-mensagens-selecionadas="mensagensSelecionadas"
+                        @abremodal_apagarmensagem="abreModalApagarMensagem"
                         @handle-media="handleModalMedia"
                         @responder-layout="responderLayout"
                     />
@@ -509,7 +506,7 @@
                                 appear
                             >
                                 <div
-                                    v-if="abrirEscolha"
+                                    v-if="acaoMenuAberto"
                                     ref="optMenu"
                                     class="menu-escolhas"
                                 >
@@ -534,7 +531,7 @@
                             >
                                 <i
                                     class="fa-solid fa-plus fs-4"
-                                    :class="{ rotated: abrirEscolha }"
+                                    :class="{ rotated: acaoMenuAberto }"
                                 ></i>
                             </button>
                         </div>
@@ -548,20 +545,20 @@
                                 <i class="fa-solid fa-face-smile fs-3"></i>
                             </button>
 
-                            <emoji-picker
+                            <EmojiPicker
                                 v-show="showEmojiPicker"
                                 ref="emojiPicker"
                                 :native="true"
                                 class="emoji_picker_position"
                                 @select="onEmojiSelect"
-                            ></emoji-picker>
+                            ></EmojiPicker>
                         </div>
 
                         <div class="d-flex gap-2 w-100 align-items-center">
                             <textarea
                                 v-model="mensagem"
                                 class="input-area form-control px-2 py-1 w-100"
-                                :rows="textareaRowsSize"
+                                :rows="textareaRows"
                                 placeholder="Mensagem"
                                 @keyup.enter.exact="enviarMensagemChatInterno()"
                             ></textarea>
@@ -584,7 +581,7 @@
 
                 <div v-else>
                     <div
-                        v-if="estadoEncaminharMensagens"
+                        v-if="modoEncaminhar"
                         class="layout_encaminharMensagem bg-message position-relative chatbox_input"
                     >
                         <div class="input-group-prepend">
@@ -602,11 +599,11 @@
                         </div>
 
                         <div class="input-group-prepend fs-16">
-                            {{ listaMensagensSelecionadas.length }} Selecionadas
+                            {{ mensagensSelecionadas.length }} Selecionadas
                         </div>
 
                         <span
-                            v-if="listaMensagensSelecionadas.length !== 0"
+                            v-if="mensagensSelecionadas.length !== 0"
                             style="padding: 10px"
                             class="cursor-pointer"
                             data-bs-toggle="modal"
@@ -633,7 +630,7 @@
                             appear
                         >
                             <div
-                                v-if="estadoResponderMensagem"
+                                v-if="modoResponder"
                                 class="position-relative d-flex justify-content-between align-items-center w-100 rounded-3 py-2 px-3 bg-white response-msg-wrapper"
                                 :style="
                                     mensagemResponder.wook === 'onack'
@@ -680,7 +677,7 @@
                                     appear
                                 >
                                     <div
-                                        v-if="abrirEscolha"
+                                        v-if="acaoMenuAberto"
                                         ref="optMenu"
                                         class="menu-escolhas"
                                     >
@@ -748,7 +745,7 @@
                                 >
                                     <i
                                         class="fa-solid fa-plus fs-4"
-                                        :class="{ rotated: abrirEscolha }"
+                                        :class="{ rotated: acaoMenuAberto }"
                                     ></i>
                                 </button>
                             </div>
@@ -769,13 +766,13 @@
                                     name="menu-slide"
                                     appear
                                 >
-                                    <emoji-picker
+                                    <EmojiPicker
                                         v-show="showEmojiPicker"
                                         ref="emojiPicker"
                                         :native="true"
                                         class="emoji_picker_position"
                                         @select="onEmojiSelect"
-                                    ></emoji-picker>
+                                    ></EmojiPicker>
                                 </transition>
                             </div>
 
@@ -803,12 +800,6 @@
                                         alt="Enviar"
                                     />
                                 </button>
-
-                                <!--                                <audio-recorder-component-->
-                                <!--                                    v-else-->
-                                <!--                                    @is-recording="viewIsRecordingEvent"-->
-                                <!--                                    @handle-btn-send="sendRecorderAudio"-->
-                                <!--                                />-->
                             </div>
                         </div>
                     </div>
@@ -944,13 +935,13 @@
         </div>
 
         <editar-contato
-            :user="selecionado"
+            :user="contatoSelecionado"
             :grupos="grupos"
             @updated-atendimentos="chamarMeusAtendimentos"
         />
 
         <transferir-atendimento
-            :id_atendimento="selecionado.id_atendimento"
+            :id_atendimento="contatoSelecionado.id_atendimento"
             @chamar-atendimentos-fila="chamarAtendimentosFila"
             @fechar-tela-conversa="fecharTelaDeConversa"
             @atualiza-meus-atendimentos="chamarMeusAtendimentos"
@@ -959,20 +950,20 @@
         <apagarMensagem
             :mensagemdeleta="mensagemapagar"
             :id_mensagem="message_id"
-            :fone="selecionado.fone"
+            :fone="contatoSelecionado.fone"
             @handle-apagar-mensagem="updateMessages"
         />
 
         <compartilhar-contato
-            :fone="selecionado.fone"
+            :fone="contatoSelecionado.fone"
             @handle-encaminhar-contato="updateMessages"
         />
 
         <encaminha-mensagens
-            :fone="selecionado.fone"
-            :name="selecionado.nome"
+            :fone="contatoSelecionado.fone"
+            :name="contatoSelecionado.nome"
             :limpa-array="limparArrayMensagensSelecionadas"
-            :lista-mensagens-selecionadas="listaMensagensSelecionadas"
+            :lista-mensagens-selecionadas="mensagensSelecionadas"
         />
 
         <adicionar-contato
@@ -1008,1532 +999,953 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, inject, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import ListaAtendimentos from '@/components/atendimento/ListaAtendimentos.vue'
 import ListaAtendimentosChatInterno from '@/components/atendimento/ListaAtendimentosChatInterno.vue'
 import ChatAtendimento from '@/components/atendimento/ChatAtendimento.vue'
 import ChatAtendimentoContatosInterno from '@/components/atendimento/ChatAtendimentoContatosInterno.vue'
 import Api from '@/services/api/api.js'
 import EditarContato from '@/components/atendimento/acao/editarContato.vue'
-
 import TransferirAtendimento from '@/components/atendimento/acao/transferirAtendimento.vue'
 import apagarMensagem from '@/components/atendimento/acao/apagaMensagem.vue'
-
 import compartilharContato from '@/components/atendimento/acao/compartilharContato.vue'
 import encaminhaMensagens from '@/components/atendimento/acao/encaminhaMensagens.vue'
 import AdicionarContato from '@/components/atendimento/acao/ADDUSUARIOVUE.vue'
-
 import AudioFila from '@/assets/audios/notifica.mp3'
 import EmojiPicker from 'vue3-emoji-picker'
 import middleware from '@/services/middleware'
 import Swal from 'sweetalert2'
 import DisplayMedia from '@/components/modals/display-media/DisplayMedia.vue'
-import { ref, onValue } from 'firebase/database'
 import DisplayDocument from '@/components/modals/display-document/DisplayDocument.vue'
 import DisplayTemplateMessage from '@/components/modals/display-template-message/DisplayTemplateMessage.vue'
 import { formatSize, formatTextForLimited } from '@/utils/formatters'
 import DisplayMediaPreview from '@/components/modals/display-media-preview/DisplayMediaPreview.vue'
-import AudioRecorderComponent from '@/components/atendimento/acao/AudioRecorderComponent.vue'
-import { mapActions } from 'pinia'
 import { useListStatesStore } from '@/stores/index.js'
 import ImgComponent from '@/components/ui/ImgComponent.vue'
-import { enviaMidia, sincronizar } from '@/services/api/newApi.js'
-import IDBService from '@/services/IDBService.js'
 import ProgressBarScreen from '@/components/ui/screen-overlay/ProgressBarScreen.vue'
-import { markRaw } from 'vue'
+import {
+    useAtendimentoFirebase,
+    useAtendimentoIDB,
+    useListasContatos,
+    useNotificacoesAtendimento,
+} from '@/components/atendimento/composables/index.js'
 
-export default {
-    name: 'atendimento',
+defineOptions({ name: 'Atendimento' })
 
-    components: {
-        ProgressBarScreen,
-        ImgComponent,
-        ListaAtendimentos,
-        ChatAtendimento,
-        EditarContato,
-        TransferirAtendimento,
-        apagarMensagem,
-        compartilharContato,
-        AdicionarContato,
-        EmojiPicker,
-        ListaAtendimentosChatInterno,
-        ChatAtendimentoContatosInterno,
-        encaminhaMensagens,
-        DisplayMedia,
-        DisplayDocument,
-        DisplayTemplateMessage,
-        DisplayMediaPreview,
-        AudioRecorderComponent,
+const database = inject('database')
+
+const getUserId = () => localStorage.getItem('@USER_ID')
+const grupos = []
+
+const session = ref('')
+const tipo_usuario = ref(null)
+const contatoSelecionado = ref({})
+const idContatoAtivo = ref(0)
+const conversaAberta = ref(false)
+const acaoMenuAberto = ref(false)
+const dropdownAberto = ref(false)
+const abrirDropdown = ref(false)
+const mensagens = ref([])
+const foneConversa = ref(null)
+const status_chat = ref(false)
+const atendimentoStatus = ref(null)
+const notificacao = ref(false)
+const qtdconversas = ref(0)
+const mensagem = ref('')
+const enviandoMensagem = ref(false)
+const modoEncaminhar = ref(false)
+const modoResponder = ref(false)
+const mensagensSelecionadas = ref([])
+const mensagemResponder = ref({})
+const mensagemapagar = ref('')
+const message_id = ref(null)
+const opcaoSelecionada = ref('meus_atendimentos')
+const showEmojiPicker = ref(false)
+const isChatInternal = ref(false)
+const hasImgError = ref(false)
+const isRecorder = ref(false)
+const textareaRows = ref(1)
+const modalMediaData = ref({})
+const modalMediaPreviewData = ref({})
+const modalDocumentData = ref({})
+const openModalMedia = ref(false)
+const openModalMediaPreview = ref(false)
+const openModalDocument = ref(false)
+const dropdownContent = ref(null)
+const optMenu = ref(null)
+const emojiPicker = ref(null)
+const textarea = ref(null)
+
+const listStatesStore = useListStatesStore()
+
+const {
+    audioStatus,
+    novaTransferenciaBanner,
+    novaMensagemInternaBanner,
+    inicializarAudioStatus,
+    ativarNotificacao,
+    tocarSom,
+    recebeuNovaTransferencia,
+    recebeumensageminterna,
+} = useNotificacoesAtendimento()
+
+const {
+    qtdTotal,
+    processadosNestaSessao,
+    loadingPage,
+    qtdNovaMensagem,
+    useIndexedDb,
+    carregarMensagens,
+    fecharIdb,
+    deletarIdb,
+} = useAtendimentoIDB({
+    userId: getUserId,
+    contatoSelecionado,
+    conversaAberta,
+    onConversaAtualizada: (msgs, meta) => {
+        notificacao.value = false
+        mensagens.value = msgs
+        status_chat.value = meta.status
+        qtdconversas.value = meta.qtd
+        foneConversa.value = meta.fone
+        idContatoAtivo.value = meta.id
+        atendimentoStatus.value = meta.ativo
+        marcarConversaVisualizada()
     },
+    onSincronizacaoConcluida: () => carregarDadosAdicionais(),
+})
 
-    data() {
-        return {
-            processando: false,
-            mensagemdireta: '',
-            mensagemapagar: '',
-            plano_id: 0,
-            mediaRecorder: null,
-            chunks: [],
-            mensagem: '',
-            listaContatosSelecionado: [],
-            listaContatos: {
-                fila: [],
-                meusAtendimentos: [],
-                todos: [],
-            },
-            listaContatosPesquisa: [],
-            listaContatosInterno: null,
-            requisaoApi: null,
-            abrirMsg: false,
-            abrirEscolha: false,
-            abrirDropdown: false,
-            localId: null,
-            mensagens: [],
-            foneConversa: null,
-            selecionado: {},
-            status_chat: false,
-            grupos: [],
-            dados: {},
-            atendimentoStatus: null,
-            ativado: 0,
-            opcaoSelecionada: 'meus_atendimentos',
-            pesquisa: '',
-            fila_qtd: 0,
-            meusatendimentos_qtd: '',
-            notificacao: false,
-            qtdNovaMensagem: {},
-            qtdmensagens: '',
-            qtdconversas: 0,
-            qtdmensagensinternas: 0,
-            session: '',
-            alerta: '',
-            number: '',
-            listaMensagensSelecionadas: [],
-            estadoEncaminharMensagens: false,
-            estadoResponderMensagem: false,
-            mensagemResponder: {},
-            message_id: null,
-            tipo_usuario: null,
-            audioStatus: null,
+const {
+    listaContatos,
+    listaContatosSelecionado,
+    listaContatosPesquisa,
+    listaContatosInterno,
+    listaContatosLoading,
+    fila_qtd,
+    meusatendimentos_qtd,
+    qtdmensagensinternas,
+    plano_id,
+    pesquisa,
+    chamarAtendimentosFila,
+    chamarMeusAtendimentos,
+    chamarTodosAtendimentos,
+    pesquisar,
+} = useListasContatos({ contatoSelecionado, conversaAberta, opcaoSelecionada })
 
-            recordMode: {
-                audio: 'hold',
-                video: 'press',
-            },
-            recordings: [],
-            novaTransferencia: false,
-            mensageminterna: false,
-
-            mimetype: 'audio/webm',
-
-            openOpt: false,
-
-            modalMediaData: {},
-            modalMediaPreviewData: {},
-            modalDocumentData: {},
-            openModalMedia: false,
-            openModalMediaPreview: false,
-            openModalDocument: false,
-
-            showEmojiPicker: false,
-            isChatInternal: false,
-            listaContatosLoading: false,
-            hasImgError: false,
-
-            isRecorder: false,
-            textareaRows: 1,
-
-            idbConn: null,
-            loadingPage: true,
-            qtdTotal: {
-                conversas: 0,
-            },
-            processadosNestaSessao: 0,
-            listenerActiveList: [],
-        }
+const { iniciarListenersFirebase, pararListeners } = useAtendimentoFirebase({
+    session,
+    database,
+    userId: getUserId,
+    audioStatus,
+    onMensagens: () => {
+        useIndexedDb()
+        chamarAtendimentosFila()
+        chamarMeusAtendimentos()
     },
-
-    computed: {
-        getUserId() {
-            return localStorage.getItem(`@USER_ID`)
-        },
-
-        templateData() {
-            return {
-                user_id: this.getUserId,
-                nome: this.selecionado.nome,
-                fone: this.selecionado.fone,
-                mensagem: null,
-                mensagem_id: this.message_id,
-                status: 1, // 1 - mensagem normal || 2 - responder
-            }
-        },
-
-        getPercentQtd() {
-            const requestTotal = this.qtdTotal.conversas
-
-            if (requestTotal <= 0) return 100
-
-            const resultado = Math.ceil((this.processadosNestaSessao / requestTotal) * 100)
-
-            return Math.max(0, Math.min(resultado, 100))
-        },
+    onFila: count => {
+        tocarSom(AudioFila)
+        fila_qtd.value = count
+        chamarAtendimentosFila()
     },
-
-    watch: {
-        async getPercentQtd(newVal) {
-            if (this.loadingPage && newVal === 100) {
-                // this.atualizaFilaFirebase()
-
-                await this.chamarOutrasRequisicoes()
-            }
-        },
-
-        loadingPage(newVal) {
-            if (!newVal) {
-                this.updateStyleTabs()
-            }
-        },
-
-        openOpt(isOpen) {
-            if (isOpen) {
-                this.$nextTick(() => {
-                    document.addEventListener('click', this.handleClickOutside)
-                })
-            } else {
-                document.removeEventListener('click', this.handleClickOutside)
-            }
-        },
-
-        showEmojiPicker(isOpen) {
-            if (isOpen) {
-                this.$nextTick(() => {
-                    document.addEventListener('click', this.handleClickOutsideEmoji)
-                })
-            } else {
-                document.removeEventListener('click', this.handleClickOutsideEmoji)
-            }
-        },
-
-        abrirEscolha(newValue) {
-            if (newValue) {
-                this.$nextTick(() => {
-                    document.addEventListener('click', this.handleClickOutsideEscolha)
-                })
-            } else {
-                document.removeEventListener('click', this.handleClickOutsideEscolha)
-            }
-        },
-
-        pesquisa(newValue) {
-            if (newValue.length === 0) {
-                this.listaContatosPesquisa = []
-            }
-        },
-
-        opcaoSelecionada: {
-            handler(newVal) {
-                switch (newVal) {
-                    case 'meus_atendimentos':
-                        this.listaContatosSelecionado = this.listaContatos.meusAtendimentos
-
-                        break
-
-                    case 'fila':
-                        this.listaContatosSelecionado = this.listaContatos.fila
-
-                        break
-
-                    case 'todos':
-                        this.listaContatosSelecionado = this.listaContatos.todos
-
-                        break
-
-                    case 'interno':
-                        this.chamarMeusChatsInternos()
-
-                        break
-
-                    default:
-                        console.warn('WATCH(opcaoSelecionada): Nenhuma das alternativas é válida.')
-
-                        break
-                }
-            },
-            immediate: true,
-            //teste
-        },
-
-        listaContatos: {
-            handler(newVal) {
-                switch (this.opcaoSelecionada) {
-                    case 'meus_atendimentos':
-                        this.listaContatosSelecionado = newVal.meusAtendimentos
-
-                        break
-
-                    case 'fila':
-                        this.listaContatosSelecionado = newVal.fila
-
-                        break
-
-                    case 'todos':
-                        this.listaContatosSelecionado = newVal.todos
-
-                        break
-
-                    case 'interno':
-                        this.chamarMeusChatsInternos()
-
-                        break
-                }
-            },
-            deep: true,
-        },
-
-        selecionado: {
-            handler(newVal) {
-                if (!newVal?.foto || newVal?.foto?.length === 0) {
-                    this.hasImgError = true
-
-                    return
-                }
-
-                this.hasImgError = false
-            },
-            immediate: true,
-            deep: true,
-        },
+    onTransferencia: () => recebeuNovaTransferencia(),
+    onChatInterno: () => {
+        qtdmensagensinternas.value = 1
+        recebeumensageminterna()
+        atualizarConversaInterna()
     },
-
-    async mounted() {
-        this.session = localStorage.getItem('@SESSION')
-        this.alerta = localStorage.getItem('@MENSAGEM')
-
-        if (this.alerta === 'browserClose') {
-            await Swal.fire(
-                'Celular Desconectado!',
-                'Solicite ao Administrador para reconectar o celular, mensagens não serão enviadas ou recebidas',
-                'error'
-            )
-        }
-
-        this.number = localStorage.getItem('@NUMBER')
-        this.tipo_usuario = localStorage.getItem('@TIPO')
-        this.audioStatus = localStorage.getItem('@STATUS_NOTIFICACAO') !== 'false'
-
-        this.novaMensagemFirebase()
-    },
-
-    beforeUnmount() {
-        if (this.idbConn) {
-            this.idbConn.close()
-        }
-
-        if (this.listenerActiveList.length > 0) {
-            this.listenerActiveList.forEach(listener => {
-                if (typeof listener === 'function') {
-                    listener()
-                }
-            })
-
-            this.listenerActiveList = []
-        }
-
-        document.removeEventListener('click', this.handleClickOutside)
-        document.removeEventListener('click', this.handleClickOutsideEscolha)
-        document.removeEventListener('click', this.handleClickOutsideEmoji)
-    },
-
-    methods: {
-        formatTextForLimited,
-        ...mapActions(useListStatesStore, ['setStates']),
-
-        async initIdbConn() {
-            const instance = new IDBService('inzupt_chat')
-            await instance.conn()
-            this.idbConn = markRaw(instance)
-
-            await this.idbConn.createStore('sync', 'id')
-            await this.idbConn.createStore('conversas', 'id')
-
-            await this.idbConn.createIndex('conversas', 'message_id')
-            await this.idbConn.createIndex('conversas', 'fone_enviado')
-            await this.idbConn.createIndex('conversas', 'fone_destino')
-            await this.idbConn.createIndex('conversas', 'status')
-            await this.idbConn.createIndex('conversas', 'updated_at')
-            await this.idbConn.createIndex('conversas', 'type')
-            await this.idbConn.createIndex('conversas', 'contactName')
-            await this.idbConn.createIndex('conversas', 'wook')
-        },
-
-        async useIndexedDb() {
-            try {
-                if (!this.idbConn) {
-                    await this.initIdbConn()
-                }
-
-                await this.chamarSincronizacao()
-            } catch (error) {
-                console.error(error)
-            }
-        },
-
-        async chamarSincronizacao() {
-            const sync = (await this.idbConn?.getAll('sync'))?.at(-1) ?? null
-            const syncId = sync?.id ?? null
-            let lastSyncTimestamp = sync?.last_sync_timestamp ?? null
-
-            if (syncId && syncId !== this.getUserId) {
-                await this.idbConn.deleteDb()
-                this.idbConn = null
-                await this.initIdbConn()
-
-                lastSyncTimestamp = null
-            }
-
-            let hasRequest = true
-            let cursorConversas = null
-            let isFirstBatch = true
-            const isInitialSync = !lastSyncTimestamp
-            let contatos
-
-            // Siga essa mesma estrutura para utilizar o limiter de bulkPut()
-            const limiter = {
-                limit: 100,
-                indexList: ['conversas_fone_enviado_idx', 'conversas_fone_destino_idx'],
-                keyValue: ['fone_enviado', 'fone_destino'],
-                blackList: [btoa('782833411572320')],
-            }
-
-            this.processadosNestaSessao = 0
-
-            while (hasRequest) {
-                const response = await sincronizar({
-                    atendente_id: this.getUserId,
-                    last_sync_timestamp: lastSyncTimestamp,
-                    cursor_conversas: cursorConversas,
-                })
-
-                if (isFirstBatch) {
-                    this.qtdconversas = await this.idbConn.count('conversas')
-                    this.qtdTotal.conversas = response?.meta_data?.qtd ?? 0
-                    this.qtdNovaMensagem = response?.meta_data?.novas ?? {}
-
-                    isFirstBatch = false
-                }
-
-                const loteConversas = response?.conversas?.data ?? []
-
-                contatos = loteConversas.flatMap(conversa => [
-                    conversa.fone_enviado,
-                    conversa.fone_destino,
-                ])
-
-                if (loteConversas.length > 0) {
-                    await this.idbConn.bulkPut(
-                        'conversas',
-                        response?.conversas?.data,
-                        isInitialSync ? {} : limiter
-                    )
-                }
-
-                if (this.loadingPage) {
-                    this.processadosNestaSessao += loteConversas.length
-                }
-
-                cursorConversas = response?.conversas?.next_cursor ?? null
-
-                if (!cursorConversas) {
-                    lastSyncTimestamp = response?.conversas.data?.at(-1)?.updated_at ?? null
-
-                    hasRequest = false
-                }
-            }
-
-            if (lastSyncTimestamp) {
-                await this.idbConn.put('sync', {
-                    id: this.getUserId,
-                    last_sync_timestamp: lastSyncTimestamp,
-                })
-            }
-
-            const fone = this.selecionado?.fone ?? null
-            const hasContato = [...new Set(contatos)]?.includes(fone)
-
-            if (this.abrirMsg && hasContato) {
-                await this.atualizarConversa(this.selecionado)
-            }
-
-            if (this.loadingPage) {
-                this.processadosNestaSessao = this.qtdTotal.conversas
-            }
-        },
-
-        async chamarOutrasRequisicoes() {
-            try {
-                await Promise.all([this.chamarTodosAtendimentos(), this.getEstados()])
-
-                this.loadingPage = false
-            } catch (error) {
-                console.error(error)
-            }
-        },
-
-        ativarNotificacao() {
-            this.audioStatus = !this.audioStatus
-
-            localStorage.setItem('@STATUS_NOTIFICACAO', this.audioStatus)
-        },
-
-        fecharLayoutBatePapo() {
-            this.estadoEncaminharMensagens = false
-            this.listaMensagensSelecionadas = []
-        },
-
-        limparArrayMensagensSelecionadas() {
-            this.listaMensagensSelecionadas = []
-            this.fecharLayoutBatePapo()
-        },
-
-        alterarLayoutBatePapo() {
-            this.estadoEncaminharMensagens = true
-            this.estadoResponderMensagem = false
-        },
-
-        responderLayout(payload) {
-            this.estadoEncaminharMensagens = false
-            this.estadoResponderMensagem = true
-            this.message_id = payload.id
-
-            this.mensagemResponder = {
-                mensagem: payload.mensagem,
-                nome:
-                    payload?.wook === 'onack'
-                        ? 'Você'
-                        : payload?.nome
-                          ? payload.nome
-                          : payload.fone,
-                wook: payload?.wook,
-                mediaUrl: payload?.mediaUrl,
-            }
-        },
-
-        abremodal_apagarmensagem(payload) {
-            const abrirmodal = document.querySelector('#apagarmensagemmodal')
-            const modal = bootstrap.Modal.getOrCreateInstance(abrirmodal)
-
-            modal.show()
-
-            this.mensagemapagar = payload.mensagem
-            this.message_id = payload.id
-        },
-
-        fecharResponderLayout() {
-            this.estadoResponderMensagem = false
-            this.listaMensagensSelecionadas = []
-        },
-
-        async Pesquisar() {
-            this.listaContatosLoading = true
-
-            if (this.pesquisa.length === 0) return
-
-            try {
-                const response = await Api.post(`/busca_contatos/ZmlsYWRlYXRlbmRpbWVudG8=`, {
-                    id: localStorage.getItem('@USER_ID'),
-                    busca: this.pesquisa,
-                })
-
-                this.listaContatosPesquisa = response.data.contatos.data
-            } catch (error) {
-                console.error(error)
-
-                this.listaContatosLoading = false
-            } finally {
-                this.listaContatosLoading = false
-            }
-        },
-
-        toggle() {
-            this.showRecorder = !this.showRecorder
-        },
-
-        async sair() {
-            try {
-                await this.idbConn.deleteDb('inzupt_chat')
-
-                middleware.logout()
-            } catch (error) {
-                console.error(error)
-            }
-        },
-
-        onEmojiSelect(emoji) {
-            this.mensagem += emoji.i
-
-            this.showEmojiPicker = false
-        },
-
-        handleClickOutsideEmoji(event) {
-            const emojiPickerElement = this.$refs.emojiPicker?.$el
-            const emojiButton = event.target.closest('.input-group-prepend button')
-
-            if (emojiPickerElement && !emojiPickerElement.contains(event.target) && !emojiButton) {
-                this.showEmojiPicker = false
-            }
-        },
-
-        transferenciainterna() {
-            const id = localStorage.getItem('@USER_ID')
-            const instancia = 'aW56YXBicmFzaWx2dWU=/' + this.session + '/TRANSFERENCIA/' + id
-
-            const dbRef = ref(this.$database, `/${instancia}`)
-
-            const listener = onValue(dbRef, () => this.recebeuNovaTransferencia())
-
-            this.listenerActiveList.push(listener)
-        },
-
-        atualizaFilaFirebase() {
-            const instancia = 'aW56YXBicmFzaWx2dWU=/' + this.session + '/FILA'
-
-            const dbRef = ref(this.$database, `/${instancia}`)
-
-            const listener = onValue(dbRef, data => {
-                const values = data.val()
-
-                if (this.audioStatus) {
-                    this.executaSom(AudioFila)
-                }
-
-                this.fila_qtd = values?.fila ?? 0
-
-                this.chamarAtendimentosFila()
-            })
-
-            this.listenerActiveList.push(listener)
-        },
-
-        novaMensagemFirebase() {
-            const instancia = 'aW56YXBicmFzaWx2dWU=/' + this.session + '/MENSAGENS'
-
-            const dbRef = ref(this.$database, `/${instancia}`)
-
-            const listener = onValue(dbRef, () => {
-                this.useIndexedDb()
-
-                this.chamarAtendimentosFila()
-                this.chamarMeusAtendimentos()
-            })
-
-            this.listenerActiveList.push(listener)
-        },
-
-        novamensageminterna() {
-            const id = localStorage.getItem('@USER_ID')
-
-            const instancia = 'aW56YXBicmFzaWx2dWU=/' + this.session + '/CHAT_INTERNO/' + id
-
-            const dbRef = ref(this.$database, `/${instancia}`)
-
-            const listener = onValue(dbRef, () => {
-                this.qtdmensagensinternas = 1
-
-                this.recebeumensageminterna()
-                this.atualizarConversaInterna()
-            })
-
-            this.listenerActiveList.push(listener)
-        },
-
-        async enviarMensagem() {
-            if (this.mensagem === '') return
-
-            this.textareaRows = 1
-
-            const mensagem = this.mensagem
-            const nome = localStorage.getItem(`@USER_NAME`) + '\r\n\t\t' + mensagem
-
-            const novaMensagemText = {
-                mensagem: nome,
-                type: 'text',
-            }
-
-            this.mensagem = ''
-
-            if (this.mensagens == 'Nao ha mensagem para esse contato') {
-                this.mensagens = 'processando...'
-            } else {
-                this.mensagens.push(novaMensagemText)
-            }
-
-            const objEnviaMensagem = {
-                user_id: this.getUserId,
-                fone: this.selecionado.fone,
-                mensagem: mensagem,
-                mensagem_reply: this.estadoResponderMensagem
-                    ? this.mensagemResponder?.mensagem
-                    : null,
-                mensagem_id: this.message_id,
-                status: this.estadoResponderMensagem ? 2 : 1, // 1 - mensagem normal || 2 - responder
-            }
-
-            await Api.post('/envia_mensagemnova/ZmlsYWRlYXRlbmRpbWVudG8=', objEnviaMensagem)
-                .then(response => {
-                    if (response.data.erro == 'number_incorret') {
-                        Swal.fire(
-                            'Mensagem não enviada!',
-                            response.data.retorno + 'Reconecte o celular!',
-                            'error'
-                        )
-                    }
-
-                    this.atualizarConversa()
-                })
-                .catch(error => {
-                    console.error(error)
-                })
-
-            this.fecharResponderLayout()
-
-            this.message_id = null
-        },
-
-        enviarMensagemChatInterno() {
-            const mensagem = this.mensagem
-            const nova = {
-                de_chat: this.getUserId,
-                msg_chat: mensagem,
-                type: 'text',
-            }
-
-            const objEnviaMensagem = {
-                user_id: this.getUserId,
-                id_transferido: this.selecionado.id,
-                mensagem: mensagem,
-            }
-
-            this.mensagem = ''
-            this.mensagens.push(nova)
-
-            Api.post('/mensagem_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', objEnviaMensagem)
-                .then(() => {
-                    this.atualizarConversaInterna()
-                })
-                .catch(error => {
-                    console.error(error)
-                })
-        },
-
-        chamaGrupo() {
-            Api.post('/grupos/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                id: localStorage.getItem('@USER_ID'),
-            })
-                .then(response => {
-                    this.grupos = response.data.grupos
-                })
-                .catch(err => {
-                    console.log(err)
-                })
-        },
-
-        abrirConversaContatoEncaminhado(info) {
-            const fone = info.mensagem
-            const nome_contato = info.contactName
-
-            const objConversas = {
-                id: localStorage.getItem('@USER_ID'),
-                fone: fone,
-                nome_contato: nome_contato,
-            }
-
-            Api.post('/conversas_bd/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
-                .then(response => {
-                    const data = response.data
-
-                    const ativo = response.data.usuario
-                    const qtd = data.qtd
-
-                    this.notificacao = false
-
-                    Api.post(`/busca_contatos/ZmlsYWRlYXRlbmRpbWVudG8=`, {
-                        id: localStorage.getItem('@USER_ID'),
-                        busca: info.mensagem,
-                    }).then(resposta => {
-                        const dados = resposta.data
-
-                        this.selecionado = dados.contatos.data[0]
-
-                        this.mensagens = []
-
-                        if (qtd > 0) {
-                            this.qtdconversas = qtd
-                            this.status_chat = true
-                            // pegando array de mensagens da requisição
-                            this.mensagens = data.conversas.slice(0).reverse()
-                            this.foneConversa = this.selecionado.fone
-                            this.ativado = this.selecionado.id
-                            this.atendimentoStatus = ativo.ativo === 1
-
-                            this.salvaConversa()
-                        } else {
-                            this.qtdconversas = qtd
-                            this.status_chat = false
-
-                            this.mensagens = data.mensagem
-                            this.foneConversa = this.selecionado.fone
-                            this.ativado = this.selecionado.id
-                            this.atendimentoStatus = ativo.ativo === 1
-                            this.salvaConversa()
-                        }
-
-                        this.chamarMeusAtendimentos()
-                    })
-                })
-                .catch(error => {
-                    console.error(error)
-                })
-        },
-
-        async abrirConversa(info_user) {
-            try {
-                this.processando = true
-                this.selecionado = info_user.usuario
-                const fone = info_user?.usuario?.fone ?? null
-
-                const objConversas = {
-                    id: localStorage.getItem('@USER_ID'),
-                    fone: fone,
-                    nome_contato: info_user?.usuario?.nome ?? null,
-                }
-
-                const response = await Api.post(
-                    `/conversas_bd/ZmlsYWRlYXRlbmRpbWVudG8=`,
-                    objConversas
-                )
-
-                const isBeingAssisted = !response?.data?.qtd
-
-                if (isBeingAssisted) {
-                    this.mensagens = response?.data?.mensagem ?? null
-
-                    this.processando = false
-                    this.abrirMsg = true
-
-                    return
-                }
-
-                await this.atualizarConversa(info_user.usuario)
-
-                this.chamarAtendimentosFila()
-                this.chamarMeusAtendimentos()
-
-                delete this.qtdNovaMensagem[fone]
-
-                this.processando = false
-                this.abrirMsg = true
-
-                this.opcaoSelecionada = 'meus_atendimentos'
-                this.pesquisa = ''
-
-                this.updateStyleTabs()
-            } catch (error) {
-                console.error(error)
-            }
-        },
-
-        async atualizarConversa(contato) {
-            if (!contato?.fone) {
-                throw new Error('atualizarConversa(): O telefone do contato nao esta presente.')
-            }
-
-            const conversasEnviadas = await this.idbConn.getAll('conversas', {
-                name: 'conversas_fone_enviado_idx',
-                value: btoa(contato.fone),
-            })
-
-            const conversasDestino = await this.idbConn.getAll('conversas', {
-                name: 'conversas_fone_destino_idx',
-                value: btoa(contato.fone),
-            })
-
-            const todasConversas = [...conversasEnviadas, ...conversasDestino]
-
-            const conversasReordenadas = todasConversas.sort((a, b) => a.id - b.id)
-
-            const data = this.decodeList(conversasReordenadas ?? [], ['id', 'updated_at'])
-
-            const ativo = true
-            const qtd = data.length
-
-            this.notificacao = false
-
-            if (data && data.length > 0) {
-                this.qtdconversas = qtd
-                this.status_chat = true
-
-                this.mensagens = data
-
-                this.foneConversa = contato.fone
-                this.ativado = contato.id
-                this.atendimentoStatus = ativo
-            } else {
-                this.qtdconversas = 0
-                this.status_chat = false
-
-                this.mensagens = 'Não há conversas para este contato.'
-
-                this.foneConversa = contato.fone
-                this.ativado = contato.id
-                this.atendimentoStatus = ativo
-            }
-
-            this.salvaConversa()
-        },
-
-        decodeList(list, ignoredKeys = []) {
-            if (!Array.isArray(list)) return []
-
-            if (list.length === 0) return []
-
-            return list.map(obj => {
-                return Object.fromEntries(
-                    Object.entries(obj).map(([key, val]) => {
-                        if (ignoredKeys.includes(key)) return [key, val]
-
-                        return [key, val ? atob(val) : null]
-                    })
-                )
-            })
-        },
-
-        async salvaConversa() {
-            try {
-                await Api.post('/conversas/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                    id: localStorage.getItem('@USER_ID'),
-                    fone: this.selecionado.fone,
-                })
-            } catch (error) {
-                console.error(error)
-            }
-        },
-
-        async chamarAtendimentosFila() {
-            try {
-                if (this.listaContatosInterno) {
-                    this.abrirMsg = false
-                }
-
-                this.listaContatosInterno = null
-                this.pesquisa = ''
-
-                const response = await Api.post('/fila_atendimento/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                    id: localStorage.getItem('@USER_ID'),
-                    setor_id: localStorage.getItem('@SETOR_ID'),
-                })
-
-                const data = response.data
-
-                this.plano_id = data?.plano ?? null
-
-                this.fila_qtd = data?.fila?.length ?? 0
-
-                this.listaContatos.fila = data?.fila ?? []
-            } catch (error) {
-                console.error(error)
-            }
-        },
-
-        async chamarMeusAtendimentos() {
-            const fone = this.selecionado?.fone ?? null
-
-            try {
-                if (this.listaContatosInterno) {
-                    this.abrirMsg = false
-                }
-
-                this.listaContatosInterno = null
-                this.pesquisa = ''
-
-                const response = await Api.post('/meus_atendimentos/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                    id: localStorage.getItem('@USER_ID'),
-                    setor_id: localStorage.getItem('@SETOR_ID'),
-                    fone: fone,
-                })
-
-                const data = response.data
-
-                this.listaContatos.meusAtendimentos = data?.meusatendimentos ?? []
-                this.meusatendimentos_qtd = data?.qtdmeus_atendimentos ?? ''
-            } catch (error) {
-                console.error(error)
-            }
-        },
-
-        async chamarTodosAtendimentos() {
-            try {
-                if (this.listaContatosInterno) {
-                    this.abrirMsg = false
-                }
-
-                this.listaContatosInterno = null
-                this.pesquisa = ''
-
-                const response = await Api.post(
-                    '/fila_atendimento_todas/ZmlsYWRlYXRlbmRpbWVudG8=?dXNlcl9pZA=MTEy',
-                    {
-                        dXNlcl9pZA: btoa(localStorage.getItem('@USER_ID')),
-                    }
-                )
-
-                const data = response.data
-
-                this.listaContatos.todos = data?.fila ?? []
-            } catch (error) {
-                console.error(error)
-            }
-        },
-
-        recebeuNovaTransferencia() {
-            this.novaTransferencia = true
-
-            setTimeout(() => {
-                this.novaTransferencia = false
-            }, 1000)
-        },
-
-        recebeumensageminterna() {
-            this.mensageminterna = true
-
-            setTimeout(() => {
-                this.mensageminterna = false
-            }, 1000)
-        },
-
-        bloqueiaAtendimento(contato_id) {
-            Api.post('/bloqueia_contato/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                id: localStorage.getItem('@USER_ID'),
-                contato_id: contato_id,
-            })
-                .then(response => {
-                    this.atendimentoStatus = response.data.status
-                })
-                .catch(error => {
-                    console.error(error)
-                })
-        },
-
-        abrirEscolhas() {
-            this.abrirEscolha = !this.abrirEscolha
-        },
-
-        voltar() {
-            this.abrirMsg = !this.abrirMsg
-
-            this.fecharLayoutBatePapo()
-            this.fecharResponderLayout()
-        },
-
-        responsivo() {
-            this.abrirDropdown = !this.abrirDropdown
-        },
-
-        fecharTelaDeConversa() {
-            this.abrirMsg = false
-        },
-
-        executaSom(som) {
-            if (som) {
-                let audio = new Audio(som)
-                audio.play()
-            }
-        },
-
-        chamarMeusChatsInternos() {
-            this.opcaoSelecionada = 'interno'
-            this.pesquisa = ''
-            this.abrirMsg = false
-
-            Api.post('/meus_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                id: localStorage.getItem('@USER_ID'),
-            })
-                .then(response => {
-                    const data = response.data
-
-                    this.qtdmensagensinternas = data.lido
-                    this.listaContatosInterno = data.atendentes
-                })
-                .catch(error => {
-                    console.error(error)
-                })
-        },
-
-        abrirConversaChatInterno(info_user) {
-            this.selecionado = info_user.usuario
-            let objConversas = {
-                id: localStorage.getItem('@USER_ID'),
-                id_transferido: this.selecionado.id,
-            }
-
-            this.mensagens = []
-            Api.post('/conversa_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
-                .then(response => {
-                    let data = response.data.conversas
-
-                    // verificando se ta vindo vazio
-                    if (typeof data.mensagem === 'string') {
-                        this.mensagens = []
-                    } else {
-                        this.mensagens = data
-
-                        this.foneConversa = this.selecionado.id
-
-                        this.ativado = this.selecionado.id
-
-                        this.qtdmensagensinternas = response.lido
-                    }
-                })
-                .catch(error => console.error(error))
-
-            this.abrirMsg = true
-        },
-
-        atualizarConversaInterna() {
-            let objConversas = {
-                id: localStorage.getItem('@USER_ID'),
-                id_transferido: this.selecionado.id,
-            }
-
-            this.mensagens = []
-            Api.post('/conversa_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
-                .then(response => {
-                    const data = response.data.conversas
-
-                    if (typeof data.mensagem === 'string') {
-                        this.mensagens = []
-                    } else {
-                        this.mensagens = data
-                    }
-                })
-                .catch(error => console.error(error))
-        },
-
-        fecharAtendimentoContatoInterno() {
-            this.abrirMsg = false
-        },
-
-        fecharAtendimento(id_atendimento) {
-            Swal.fire({
-                title: 'Encerrar',
-                text: 'Você tem certeza de que deseja encerrar este atendimento?',
-                icon: 'warning',
-                showCancelButton: true,
-                reverseButtons: true,
-                cancelButtonColor: '#d33',
-                confirmButtonColor: '#2cacbf',
-                cancelButtonText: 'VOLTAR',
-                confirmButtonText: 'SIM, ENCERRAR',
-            }).then(result => {
-                if (result.isConfirmed) {
-                    Api.post('/fechar_atendimento/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                        id_atendimento: id_atendimento,
-                    })
-                        .then(() => {
-                            this.abrirMsg = false
-
-                            this.listaContatosSelecionado = []
-                            this.listaContatosPesquisa = []
-                            this.listaContatos.meusAtendimentos =
-                                this.listaContatos?.meusAtendimentos?.filter(
-                                    contato => contato?.id_atendimento !== id_atendimento
-                                ) ?? []
-                            this.meusatendimentos_qtd = this.listaContatos?.meusAtendimentos?.length
-                        })
-                        .catch(error => {
-                            console.error(error)
-
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Erro ',
-                                text: 'Erro ao encerrar atendimento.',
-                                confirmButtonColor: '#17a2b8',
-
-                                didOpen: () => {
-                                    const confirmBtn = Swal.getConfirmButton()
-                                    const actionsContainer = confirmBtn.parentElement
-
-                                    actionsContainer.style.width = '100%'
-                                    actionsContainer.style.display = 'flex'
-                                    actionsContainer.style.justifyContent = 'center'
-
-                                    confirmBtn.style.width = '90%'
-                                },
-                            })
-                        })
-                }
-            })
-        },
-
-        async getEstados() {
-            try {
-                const response = await Api.post(`/cidades/ZmlsYWRlYXRlbmRpbWVudG8=`, {
-                    id: localStorage.getItem('@USER_ID'),
-                })
-
-                this.setStates(response.data.estados)
-            } catch (error) {
-                console.error(error)
-            }
-        },
-
-        handleClickOutside(event) {
-            const dropdownContent = this.$refs.dropdownContent
-            const btnOptClick = event.target.closest('.btn-opt')
-
-            if (dropdownContent && !dropdownContent.contains(event.target) && !btnOptClick) {
-                this.openOpt = false
-            }
-        },
-
-        handleClickOutsideEscolha(event) {
-            const optMenu = this.$refs.optMenu
-            const btnEscolhasClick = event.target.closest('.btn-escolhas')
-
-            if (optMenu && !optMenu.contains(event.target) && !btnEscolhasClick) {
-                this.abrirEscolha = false
-            }
-        },
-
-        updateStyleTabs() {
-            this.$nextTick(() => {
-                const btnQueue = document.querySelector('#btn-fila')
-                const btnServices = document.querySelector('#btn-atendimentos')
-                const btnAll = document.querySelector('#btn-todos')
-
-                ;[btnQueue, btnServices, btnAll].forEach(btn => {
-                    if (btn) btn.classList.remove('btn-active')
-                })
-
-                switch (this.opcaoSelecionada) {
-                    case 'fila':
-                        btnQueue?.classList.add('btn-active')
-                        break
-                    case 'meus_atendimentos':
-                        btnServices?.classList.add('btn-active')
-                        break
-                    case 'todos':
-                        btnAll?.classList.add('btn-active')
-                        break
-                }
-            })
-        },
-
-        handleClickTabs(event) {
-            const btnQueue = event.target.closest('#btn-fila')
-            const btnServices = event.target.closest('#btn-atendimentos')
-            const btnAll = event.target.closest('#btn-todos')
-            const btnInternalServices = event.target.closest('#btn-atendimentos-internos')
-
-            this.pesquisa = ''
-
-            if (btnQueue) {
-                this.opcaoSelecionada = 'fila'
-            } else if (btnServices) {
-                this.opcaoSelecionada = 'meus_atendimentos'
-            } else if (btnInternalServices) {
-                this.opcaoSelecionada = 'interno'
-            } else if (btnAll) {
-                this.opcaoSelecionada = 'todos'
-            }
-
-            this.updateStyleTabs()
-        },
-
-        handleModalMedia(value = []) {
-            this.modalMediaData = {
-                userPhoto: this.selecionado.foto,
-                userName: value.userName,
-                urlMedia: value.url,
-                type: value.type,
-                wook: value.wook,
-            }
-
-            this.openModalMedia = true
-        },
-
-        openFileManager(isInternal) {
-            this.isChatInternal = !!isInternal
-
-            const allowedMimeTypes = [
-                'application/pdf',
-                'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'application/vnd.ms-excel',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'application/vnd.ms-powerpoint',
-                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-                'text/plain',
-                'application/rtf',
-                'text/csv',
-                'application/zip',
-                'application/vnd.rar',
-                'application/x-rar-compressed',
-                'application/x-7z-compressed',
-            ]
-
-            const maxSize = 30 * 1024 * 1024 // 30 MB
-
-            const input = document.createElement('input')
-            input.type = 'file'
-            input.accept = '.pdf,.doc,.docx,.xlsx,.xls,.ppt,.pptx,.txt,.rtf,.csv,.zip,.rar,.7z'
-
-            input.addEventListener(
-                'change',
-                event => {
-                    const file = event.target.files[0]
-
-                    if (file) {
-                        if (!allowedMimeTypes.includes(file.type)) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Erro',
-                                text: 'Formato de arquivo não permitido.',
-                                confirmButtonColor: '#17a2b8',
-
-                                didOpen: () => {
-                                    const confirmBtn = Swal.getConfirmButton()
-                                    const actionsContainer = confirmBtn.parentElement
-
-                                    actionsContainer.style.width = '100%'
-                                    actionsContainer.style.display = 'flex'
-                                    actionsContainer.style.justifyContent = 'center'
-
-                                    confirmBtn.style.width = '90%'
-                                },
-                            })
-
-                            return
-                        }
-
-                        if (file.size > maxSize) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Erro',
-                                text: `O arquivo selecionado é muito grande (${formatSize(file.size)}).
-                                    Por favor, selecione um arquivo de até ${formatSize(maxSize)}.`,
-                                confirmButtonColor: '#17a2b8',
-
-                                didOpen: () => {
-                                    const confirmBtn = Swal.getConfirmButton()
-                                    const actionsContainer = confirmBtn.parentElement
-
-                                    actionsContainer.style.width = '100%'
-                                    actionsContainer.style.display = 'flex'
-                                    actionsContainer.style.justifyContent = 'center'
-
-                                    confirmBtn.style.width = '90%'
-                                },
-                            })
-
-                            return
-                        }
-
-                        this.modalDocumentData = {
-                            dataFile: file ?? null,
-                            recipientId: this.selecionado?.id ?? null,
-                            recipientFone: this.selecionado?.fone ?? null,
-                            isChatInternal: this.isChatInternal,
-                            wook: 'onack',
-                        }
-
-                        this.openModalDocument = true
-                    }
-                },
-                { once: true }
-            )
-
-            input.click()
-        },
-
-        openFileManagerMidiaPreview() {
-            const allowedMimeTypes = [
-                'image/jpeg',
-                'image/jpg',
-                'image/png',
-                'image/gif',
-                'image/webp',
-                'image/bmp',
-                'image/tiff',
-
-                'video/mp4',
-                'video/quicktime', // .mov
-                'video/x-msvideo', // .avi
-                'video/x-ms-wmv', // .wmv
-                'video/3gpp', // .3gp
-                'video/x-flv', // .flv
-                'video/webm',
-                'video/x-matroska', // .mkv
-            ]
-            const maxSize = 100 * 1024 ** 2 // 30 MB
-
-            const input = document.createElement('input')
-            input.type = 'file'
-            input.accept =
-                '.jpeg,.jpg,.png,.gif,.webp,.bmp,.tiff,.tif,.mp4,.mov,.avi,.wmv,.3gp,.flv,.webm,.mkv'
-
-            input.addEventListener(
-                'change',
-                event => {
-                    const file = event.target.files[0]
-
-                    if (file) {
-                        if (!allowedMimeTypes.includes(file.type)) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Erro',
-                                text: 'Formato de arquivo não permitido.',
-                                confirmButtonColor: '#17a2b8',
-
-                                didOpen: () => {
-                                    const confirmBtn = Swal.getConfirmButton()
-                                    const actionsContainer = confirmBtn.parentElement
-
-                                    actionsContainer.style.width = '100%'
-                                    actionsContainer.style.display = 'flex'
-                                    actionsContainer.style.justifyContent = 'center'
-
-                                    confirmBtn.style.width = '90%'
-                                },
-                            })
-
-                            return
-                        }
-
-                        if (file.size > maxSize) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Erro',
-                                text: `A mídia selecionado é muito grande (${formatSize(file.size)}).
-                                    Por favor, selecione uma mídia de até ${formatSize(maxSize)}.`,
-                                confirmButtonColor: '#17a2b8',
-
-                                didOpen: () => {
-                                    const confirmBtn = Swal.getConfirmButton()
-                                    const actionsContainer = confirmBtn.parentElement
-
-                                    actionsContainer.style.width = '100%'
-                                    actionsContainer.style.display = 'flex'
-                                    actionsContainer.style.justifyContent = 'center'
-
-                                    confirmBtn.style.width = '90%'
-                                },
-                            })
-
-                            return
-                        }
-
-                        this.modalMediaPreviewData = {
-                            dataFile: file ?? null,
-                            recipientId: this.selecionado?.id ?? null,
-                            recipientFone: this.selecionado?.fone ?? null,
-                            wook: 'onack',
-                        }
-
-                        this.openModalMediaPreview = true
-                    }
-                },
-                { once: true }
-            )
-
-            input.click()
-        },
-
-        handleCloseModal() {
-            this.openModalMedia = false
-            this.openModalDocument = false
-            this.openModalMediaPreview = false
-        },
-
-        updateMessages() {
-            if (!this.isChatInternal) {
-                this.atualizarConversa(this.selecionado)
-
-                return
-            }
-
-            this.atualizarConversaInterna()
-        },
-
-        filterMessages(msgs) {
-            if (!msgs) return []
-
-            if (typeof msgs === 'string') return msgs
-
-            if (!Array.isArray(msgs) && msgs.length === 0) return []
-
-            return msgs.filter(msg => msg.type && (msg.type === 'image' || msg.type === 'video'))
-        },
-
-        viewIsRecordingEvent(isRecording) {
-            this.isRecorder = isRecording
-        },
-
-        async sendRecorderAudio(audioData) {
-            // temporariamente em desuso
-            try {
-                const data = {
-                    user_id: localStorage.getItem('@USER_ID'),
-                    fone: this.selecionado?.fone,
-                    midia: audioData,
-                    type: 2,
-                }
-
-                await enviaMidia(data)
-
-                this.atualizarConversa()
-            } catch (error) {
-                console.error(error)
-
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro ',
-                    text: 'Erro ao enviar audio.',
-                    confirmButtonColor: '#17a2b8',
-
-                    didOpen: () => {
-                        const confirmBtn = Swal.getConfirmButton()
-                        const actionsContainer = confirmBtn.parentElement
-
-                        actionsContainer.style.width = '100%'
-                        actionsContainer.style.display = 'flex'
-                        actionsContainer.style.justifyContent = 'center'
-
-                        confirmBtn.style.width = '90%'
-                    },
-                }).then(() => {
-                    this.isRecorder = false
-                })
-            } finally {
-                this.isRecorder = false
-            }
-        },
-
-        verifyTextareaRowsSize() {
-            const textarea = this.$refs.textarea
-            this.textareaRows = 1
-
-            this.$nextTick(() => {
-                const style = window.getComputedStyle(textarea)
-                const lineHeight = parseInt(style.lineHeight) // altura de uma linha
-                const scrollHeight = textarea.scrollHeight // altura total
-
-                const requiredRows = Math.floor(scrollHeight / lineHeight) // número de linhas
-                this.textareaRows = Math.min(requiredRows, 10)
-            })
-        },
-    },
+})
+
+const templateData = computed(() => ({
+    user_id: getUserId(),
+    nome: contatoSelecionado.value.nome,
+    fone: contatoSelecionado.value.fone,
+    mensagem: null,
+    mensagem_id: message_id.value,
+    status: 1,
+}))
+
+const getPercentQtd = computed(() => {
+    const requestTotal = qtdTotal.conversas
+
+    if (requestTotal <= 0) return 100
+
+    const resultado = Math.ceil((processadosNestaSessao.value / requestTotal) * 100)
+
+    return Math.max(0, Math.min(resultado, 100))
+})
+
+async function carregarDadosAdicionais() {
+    try {
+        await Promise.all([chamarTodosAtendimentos(), getEstados()])
+
+        loadingPage.value = false
+    } catch (error) {
+        console.error(error)
+    }
 }
+
+async function marcarConversaVisualizada() {
+    try {
+        await Api.post('/conversas/ZmlsYWRlYXRlbmRpbWVudG8=', {
+            id: localStorage.getItem('@USER_ID'),
+            fone: contatoSelecionado.value.fone,
+        })
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+async function sair() {
+    try {
+        await deletarIdb()
+        middleware.logout()
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+async function abrirConversa(info_user) {
+    try {
+        enviandoMensagem.value = true
+        contatoSelecionado.value = info_user.usuario
+        const fone = info_user?.usuario?.fone ?? null
+
+        const objConversas = {
+            id: localStorage.getItem('@USER_ID'),
+            fone: fone,
+            nome_contato: info_user?.usuario?.nome ?? null,
+        }
+
+        const response = await Api.post(`/conversas_bd/ZmlsYWRlYXRlbmRpbWVudG8=`, objConversas)
+
+        const isBeingAssisted = !response?.data?.qtd
+
+        if (isBeingAssisted) {
+            mensagens.value = response?.data?.mensagem ?? null
+            enviandoMensagem.value = false
+            conversaAberta.value = true
+            return
+        }
+
+        await carregarMensagens(info_user.usuario)
+
+        chamarAtendimentosFila()
+        chamarMeusAtendimentos()
+
+        delete qtdNovaMensagem.value[fone]
+
+        enviandoMensagem.value = false
+        conversaAberta.value = true
+
+        opcaoSelecionada.value = 'meus_atendimentos'
+        pesquisa.value = ''
+
+        updateStyleTabs()
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+function abrirConversaContatoEncaminhado(info) {
+    const fone = info.mensagem
+    const nome_contato = info.contactName
+
+    const objConversas = {
+        id: localStorage.getItem('@USER_ID'),
+        fone: fone,
+        nome_contato: nome_contato,
+    }
+
+    Api.post('/conversas_bd/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
+        .then(response => {
+            const data = response.data
+            const ativo = response.data.usuario
+            const qtd = data.qtd
+
+            notificacao.value = false
+
+            Api.post(`/busca_contatos/ZmlsYWRlYXRlbmRpbWVudG8=`, {
+                id: localStorage.getItem('@USER_ID'),
+                busca: info.mensagem,
+            }).then(resposta => {
+                const dados = resposta.data
+
+                contatoSelecionado.value = dados.contatos.data[0]
+                mensagens.value = []
+
+                if (qtd > 0) {
+                    qtdconversas.value = qtd
+                    status_chat.value = true
+                    mensagens.value = data.conversas.slice(0).reverse()
+                    foneConversa.value = contatoSelecionado.value.fone
+                    idContatoAtivo.value = contatoSelecionado.value.id
+                    atendimentoStatus.value = ativo.ativo === 1
+                    marcarConversaVisualizada()
+                } else {
+                    qtdconversas.value = qtd
+                    status_chat.value = false
+                    mensagens.value = data.mensagem
+                    foneConversa.value = contatoSelecionado.value.fone
+                    idContatoAtivo.value = contatoSelecionado.value.id
+                    atendimentoStatus.value = ativo.ativo === 1
+                    marcarConversaVisualizada()
+                }
+
+                chamarMeusAtendimentos()
+            })
+        })
+        .catch(error => {
+            console.error(error)
+        })
+}
+
+function abrirConversaChatInterno(info_user) {
+    contatoSelecionado.value = info_user.usuario
+    const objConversas = {
+        id: localStorage.getItem('@USER_ID'),
+        id_transferido: contatoSelecionado.value.id,
+    }
+
+    mensagens.value = []
+    Api.post('/conversa_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
+        .then(response => {
+            const data = response.data.conversas
+
+            if (typeof data.mensagem === 'string') {
+                mensagens.value = []
+            } else {
+                mensagens.value = data
+                foneConversa.value = contatoSelecionado.value.id
+                idContatoAtivo.value = contatoSelecionado.value.id
+                qtdmensagensinternas.value = response.lido
+            }
+        })
+        .catch(error => console.error(error))
+
+    conversaAberta.value = true
+}
+
+function atualizarConversaInterna() {
+    const objConversas = {
+        id: localStorage.getItem('@USER_ID'),
+        id_transferido: contatoSelecionado.value.id,
+    }
+
+    mensagens.value = []
+    Api.post('/conversa_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
+        .then(response => {
+            const data = response.data.conversas
+
+            if (typeof data.mensagem === 'string') {
+                mensagens.value = []
+            } else {
+                mensagens.value = data
+            }
+        })
+        .catch(error => console.error(error))
+}
+
+function alternarBloqueioContato(contato_id) {
+    Api.post('/bloqueia_contato/ZmlsYWRlYXRlbmRpbWVudG8=', {
+        id: localStorage.getItem('@USER_ID'),
+        contato_id: contato_id,
+    })
+        .then(response => {
+            atendimentoStatus.value = response.data.status
+        })
+        .catch(error => {
+            console.error(error)
+        })
+}
+
+function encerrarAtendimento(id_atendimento) {
+    Swal.fire({
+        title: 'Encerrar',
+        text: 'Você tem certeza de que deseja encerrar este atendimento?',
+        icon: 'warning',
+        showCancelButton: true,
+        reverseButtons: true,
+        cancelButtonColor: '#d33',
+        confirmButtonColor: '#2cacbf',
+        cancelButtonText: 'VOLTAR',
+        confirmButtonText: 'SIM, ENCERRAR',
+    }).then(result => {
+        if (result.isConfirmed) {
+            Api.post('/fechar_atendimento/ZmlsYWRlYXRlbmRpbWVudG8=', {
+                id_atendimento: id_atendimento,
+            })
+                .then(() => {
+                    conversaAberta.value = false
+                    listaContatosSelecionado.value = []
+                    listaContatosPesquisa.value = []
+                    listaContatos.value.meusAtendimentos =
+                        listaContatos.value?.meusAtendimentos?.filter(
+                            contato => contato?.id_atendimento !== id_atendimento
+                        ) ?? []
+                    meusatendimentos_qtd.value = listaContatos.value?.meusAtendimentos?.length
+                })
+                .catch(error => {
+                    console.error(error)
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro ',
+                        text: 'Erro ao encerrar atendimento.',
+                        confirmButtonColor: '#17a2b8',
+
+                        didOpen: () => {
+                            const confirmBtn = Swal.getConfirmButton()
+                            const actionsContainer = confirmBtn.parentElement
+
+                            actionsContainer.style.width = '100%'
+                            actionsContainer.style.display = 'flex'
+                            actionsContainer.style.justifyContent = 'center'
+
+                            confirmBtn.style.width = '90%'
+                        },
+                    })
+                })
+        }
+    })
+}
+
+async function enviarMensagem() {
+    if (mensagem.value === '') return
+
+    textareaRows.value = 1
+
+    const msgText = mensagem.value
+    const nome = localStorage.getItem(`@USER_NAME`) + '\r\n\t\t' + msgText
+
+    const novaMensagemText = {
+        mensagem: nome,
+        type: 'text',
+    }
+
+    mensagem.value = ''
+
+    if (mensagens.value == 'Nao ha mensagem para esse contato') {
+        mensagens.value = 'processando...'
+    } else {
+        mensagens.value.push(novaMensagemText)
+    }
+
+    const objEnviaMensagem = {
+        user_id: getUserId(),
+        fone: contatoSelecionado.value.fone,
+        mensagem: msgText,
+        mensagem_reply: modoResponder.value ? mensagemResponder.value?.mensagem : null,
+        mensagem_id: message_id.value,
+        status: modoResponder.value ? 2 : 1,
+    }
+
+    await Api.post('/envia_mensagemnova/ZmlsYWRlYXRlbmRpbWVudG8=', objEnviaMensagem)
+        .then(response => {
+            if (response.data.erro == 'number_incorret') {
+                Swal.fire(
+                    'Mensagem não enviada!',
+                    response.data.retorno + 'Reconecte o celular!',
+                    'error'
+                )
+            }
+
+            carregarMensagens(contatoSelecionado.value)
+        })
+        .catch(error => {
+            console.error(error)
+        })
+
+    fecharResponderLayout()
+    message_id.value = null
+}
+
+function enviarMensagemChatInterno() {
+    const msgText = mensagem.value
+    const nova = {
+        de_chat: getUserId(),
+        msg_chat: msgText,
+        type: 'text',
+    }
+
+    const objEnviaMensagem = {
+        user_id: getUserId(),
+        id_transferido: contatoSelecionado.value.id,
+        mensagem: msgText,
+    }
+
+    mensagem.value = ''
+    mensagens.value.push(nova)
+
+    Api.post('/mensagem_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', objEnviaMensagem)
+        .then(() => {
+            atualizarConversaInterna()
+        })
+        .catch(error => {
+            console.error(error)
+        })
+}
+
+async function getEstados() {
+    try {
+        const response = await Api.post(`/cidades/ZmlsYWRlYXRlbmRpbWVudG8=`, {
+            id: localStorage.getItem('@USER_ID'),
+        })
+
+        listStatesStore.setStates(response.data.estados)
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+function selecionarAba(event) {
+    const btnQueue = event.target.closest('#btn-fila')
+    const btnServices = event.target.closest('#btn-atendimentos')
+    const btnAll = event.target.closest('#btn-todos')
+    const btnInternalServices = event.target.closest('#btn-atendimentos-internos')
+
+    pesquisa.value = ''
+
+    if (btnQueue) {
+        opcaoSelecionada.value = 'fila'
+    } else if (btnServices) {
+        opcaoSelecionada.value = 'meus_atendimentos'
+    } else if (btnInternalServices) {
+        opcaoSelecionada.value = 'interno'
+    } else if (btnAll) {
+        opcaoSelecionada.value = 'todos'
+    }
+
+    updateStyleTabs()
+}
+
+function updateStyleTabs() {
+    nextTick(() => {
+        const btnQueue = document.querySelector('#btn-fila')
+        const btnServices = document.querySelector('#btn-atendimentos')
+        const btnAll = document.querySelector('#btn-todos')
+
+        ;[btnQueue, btnServices, btnAll].forEach(btn => {
+            if (btn) btn.classList.remove('btn-active')
+        })
+
+        switch (opcaoSelecionada.value) {
+            case 'fila':
+                btnQueue?.classList.add('btn-active')
+                break
+            case 'meus_atendimentos':
+                btnServices?.classList.add('btn-active')
+                break
+            case 'todos':
+                btnAll?.classList.add('btn-active')
+                break
+        }
+    })
+}
+
+function voltar() {
+    conversaAberta.value = !conversaAberta.value
+    fecharLayoutBatePapo()
+    fecharResponderLayout()
+}
+
+function responsivo() {
+    abrirDropdown.value = !abrirDropdown.value
+}
+
+function fecharTelaDeConversa() {
+    conversaAberta.value = false
+}
+
+function fecharAtendimentoContatoInterno() {
+    conversaAberta.value = false
+}
+
+function abrirEscolhas() {
+    acaoMenuAberto.value = !acaoMenuAberto.value
+}
+
+function fecharLayoutBatePapo() {
+    modoEncaminhar.value = false
+    mensagensSelecionadas.value = []
+}
+
+function limparArrayMensagensSelecionadas() {
+    mensagensSelecionadas.value = []
+    fecharLayoutBatePapo()
+}
+
+function alterarLayoutBatePapo() {
+    modoEncaminhar.value = true
+    modoResponder.value = false
+}
+
+function responderLayout(payload) {
+    modoEncaminhar.value = false
+    modoResponder.value = true
+    message_id.value = payload.id
+
+    mensagemResponder.value = {
+        mensagem: payload.mensagem,
+        nome: payload?.wook === 'onack' ? 'Você' : payload?.nome ? payload.nome : payload.fone,
+        wook: payload?.wook,
+        mediaUrl: payload?.mediaUrl,
+    }
+}
+
+function abreModalApagarMensagem(payload) {
+    const abrirmodal = document.querySelector('#apagarmensagemmodal')
+    const modal = bootstrap.Modal.getOrCreateInstance(abrirmodal)
+
+    modal.show()
+
+    mensagemapagar.value = payload.mensagem
+    message_id.value = payload.id
+}
+
+function fecharResponderLayout() {
+    modoResponder.value = false
+    mensagensSelecionadas.value = []
+}
+
+function onEmojiSelect(emoji) {
+    mensagem.value += emoji.i
+    showEmojiPicker.value = false
+}
+
+function handleModalMedia(value = []) {
+    modalMediaData.value = {
+        userPhoto: contatoSelecionado.value.foto,
+        userName: value.userName,
+        urlMedia: value.url,
+        type: value.type,
+        wook: value.wook,
+    }
+
+    openModalMedia.value = true
+}
+
+function openFileManager(isInternal) {
+    isChatInternal.value = !!isInternal
+
+    const allowedMimeTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'text/plain',
+        'application/rtf',
+        'text/csv',
+        'application/zip',
+        'application/vnd.rar',
+        'application/x-rar-compressed',
+        'application/x-7z-compressed',
+    ]
+
+    const maxSize = 30 * 1024 * 1024
+
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.pdf,.doc,.docx,.xlsx,.xls,.ppt,.pptx,.txt,.rtf,.csv,.zip,.rar,.7z'
+
+    input.addEventListener(
+        'change',
+        event => {
+            const file = event.target.files[0]
+
+            if (file) {
+                if (!allowedMimeTypes.includes(file.type)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: 'Formato de arquivo não permitido.',
+                        confirmButtonColor: '#17a2b8',
+
+                        didOpen: () => {
+                            const confirmBtn = Swal.getConfirmButton()
+                            const actionsContainer = confirmBtn.parentElement
+
+                            actionsContainer.style.width = '100%'
+                            actionsContainer.style.display = 'flex'
+                            actionsContainer.style.justifyContent = 'center'
+
+                            confirmBtn.style.width = '90%'
+                        },
+                    })
+
+                    return
+                }
+
+                if (file.size > maxSize) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: `O arquivo selecionado é muito grande (${formatSize(file.size)}).
+                            Por favor, selecione um arquivo de até ${formatSize(maxSize)}.`,
+                        confirmButtonColor: '#17a2b8',
+
+                        didOpen: () => {
+                            const confirmBtn = Swal.getConfirmButton()
+                            const actionsContainer = confirmBtn.parentElement
+
+                            actionsContainer.style.width = '100%'
+                            actionsContainer.style.display = 'flex'
+                            actionsContainer.style.justifyContent = 'center'
+
+                            confirmBtn.style.width = '90%'
+                        },
+                    })
+
+                    return
+                }
+
+                modalDocumentData.value = {
+                    dataFile: file ?? null,
+                    recipientId: contatoSelecionado.value?.id ?? null,
+                    recipientFone: contatoSelecionado.value?.fone ?? null,
+                    isChatInternal: isChatInternal.value,
+                    wook: 'onack',
+                }
+
+                openModalDocument.value = true
+            }
+        },
+        { once: true }
+    )
+
+    input.click()
+}
+
+function openFileManagerMidiaPreview() {
+    const allowedMimeTypes = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+        'image/bmp',
+        'image/tiff',
+
+        'video/mp4',
+        'video/quicktime',
+        'video/x-msvideo',
+        'video/x-ms-wmv',
+        'video/3gpp',
+        'video/x-flv',
+        'video/webm',
+        'video/x-matroska',
+    ]
+    const maxSize = 100 * 1024 ** 2
+
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept =
+        '.jpeg,.jpg,.png,.gif,.webp,.bmp,.tiff,.tif,.mp4,.mov,.avi,.wmv,.3gp,.flv,.webm,.mkv'
+
+    input.addEventListener(
+        'change',
+        event => {
+            const file = event.target.files[0]
+
+            if (file) {
+                if (!allowedMimeTypes.includes(file.type)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: 'Formato de arquivo não permitido.',
+                        confirmButtonColor: '#17a2b8',
+
+                        didOpen: () => {
+                            const confirmBtn = Swal.getConfirmButton()
+                            const actionsContainer = confirmBtn.parentElement
+
+                            actionsContainer.style.width = '100%'
+                            actionsContainer.style.display = 'flex'
+                            actionsContainer.style.justifyContent = 'center'
+
+                            confirmBtn.style.width = '90%'
+                        },
+                    })
+
+                    return
+                }
+
+                if (file.size > maxSize) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: `A mídia selecionado é muito grande (${formatSize(file.size)}).
+                            Por favor, selecione uma mídia de até ${formatSize(maxSize)}.`,
+                        confirmButtonColor: '#17a2b8',
+
+                        didOpen: () => {
+                            const confirmBtn = Swal.getConfirmButton()
+                            const actionsContainer = confirmBtn.parentElement
+
+                            actionsContainer.style.width = '100%'
+                            actionsContainer.style.display = 'flex'
+                            actionsContainer.style.justifyContent = 'center'
+
+                            confirmBtn.style.width = '90%'
+                        },
+                    })
+
+                    return
+                }
+
+                modalMediaPreviewData.value = {
+                    dataFile: file ?? null,
+                    recipientId: contatoSelecionado.value?.id ?? null,
+                    recipientFone: contatoSelecionado.value?.fone ?? null,
+                    wook: 'onack',
+                }
+
+                openModalMediaPreview.value = true
+            }
+        },
+        { once: true }
+    )
+
+    input.click()
+}
+
+function handleCloseModal() {
+    openModalMedia.value = false
+    openModalDocument.value = false
+    openModalMediaPreview.value = false
+}
+
+function updateMessages() {
+    if (!isChatInternal.value) {
+        carregarMensagens(contatoSelecionado.value)
+        return
+    }
+
+    atualizarConversaInterna()
+}
+
+function filterMessages(msgs) {
+    if (!msgs) return []
+    if (typeof msgs === 'string') return msgs
+    if (!Array.isArray(msgs) && msgs.length === 0) return []
+    return msgs.filter(msg => msg.type && (msg.type === 'image' || msg.type === 'video'))
+}
+
+function verifyTextareaRowsSize() {
+    textareaRows.value = 1
+
+    nextTick(() => {
+        const style = window.getComputedStyle(textarea.value)
+        const lineHeight = parseInt(style.lineHeight)
+        const scrollHeight = textarea.value.scrollHeight
+
+        const requiredRows = Math.floor(scrollHeight / lineHeight)
+        textareaRows.value = Math.min(requiredRows, 10)
+    })
+}
+
+function handleClickOutside(event) {
+    const btnOptClick = event.target.closest('.btn-opt')
+
+    if (dropdownContent.value && !dropdownContent.value.contains(event.target) && !btnOptClick) {
+        dropdownAberto.value = false
+    }
+}
+
+function handleClickOutsideEmoji(event) {
+    const emojiPickerElement = emojiPicker.value?.$el
+    const emojiButton = event.target.closest('.input-group-prepend button')
+
+    if (emojiPickerElement && !emojiPickerElement.contains(event.target) && !emojiButton) {
+        showEmojiPicker.value = false
+    }
+}
+
+function handleClickOutsideEscolha(event) {
+    const btnEscolhasClick = event.target.closest('.btn-escolhas')
+
+    if (optMenu.value && !optMenu.value.contains(event.target) && !btnEscolhasClick) {
+        acaoMenuAberto.value = false
+    }
+}
+
+watch(loadingPage, newVal => {
+    if (!newVal) {
+        updateStyleTabs()
+    }
+})
+
+watch(dropdownAberto, isOpen => {
+    if (isOpen) {
+        nextTick(() => {
+            document.addEventListener('click', handleClickOutside)
+        })
+    } else {
+        document.removeEventListener('click', handleClickOutside)
+    }
+})
+
+watch(showEmojiPicker, isOpen => {
+    if (isOpen) {
+        nextTick(() => {
+            document.addEventListener('click', handleClickOutsideEmoji)
+        })
+    } else {
+        document.removeEventListener('click', handleClickOutsideEmoji)
+    }
+})
+
+watch(acaoMenuAberto, newValue => {
+    if (newValue) {
+        nextTick(() => {
+            document.addEventListener('click', handleClickOutsideEscolha)
+        })
+    } else {
+        document.removeEventListener('click', handleClickOutsideEscolha)
+    }
+})
+
+watch(
+    contatoSelecionado,
+    newVal => {
+        if (!newVal?.foto || newVal?.foto?.length === 0) {
+            hasImgError.value = true
+            return
+        }
+        hasImgError.value = false
+    },
+    { immediate: true, deep: true }
+)
+
+onMounted(async () => {
+    session.value = localStorage.getItem('@SESSION') || ''
+    const alerta = localStorage.getItem('@MENSAGEM')
+
+    if (alerta === 'browserClose') {
+        await Swal.fire(
+            'Celular Desconectado!',
+            'Solicite ao Administrador para reconectar o celular, mensagens não serão enviadas ou recebidas',
+            'error'
+        )
+    }
+
+    tipo_usuario.value = localStorage.getItem('@TIPO')
+    inicializarAudioStatus()
+
+    iniciarListenersFirebase()
+})
+
+onBeforeUnmount(() => {
+    fecharIdb()
+    pararListeners()
+
+    document.removeEventListener('click', handleClickOutside)
+    document.removeEventListener('click', handleClickOutsideEscolha)
+    document.removeEventListener('click', handleClickOutsideEmoji)
+})
 </script>
 
 <style scoped>
