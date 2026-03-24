@@ -1,6 +1,7 @@
 import { ref, reactive, markRaw } from 'vue'
 import IDBService from '@/services/IDBService.js'
 import { sincronizar } from '@/services/newApi.js'
+import { base64 } from '@/utils/base64.js'
 
 export function useAtendimentoIDB({
     userId,
@@ -68,7 +69,7 @@ export function useAtendimentoIDB({
             limit: 100,
             indexList: ['conversas_fone_enviado_idx', 'conversas_fone_destino_idx'],
             keyValue: ['fone_enviado', 'fone_destino'],
-            blackList: [btoa('782833411572320')],
+            blackList: [base64.encode('782833411572320')],
         }
 
         processadosNestaSessao.value = 0
@@ -122,7 +123,7 @@ export function useAtendimentoIDB({
         }
 
         const fone = contatoSelecionado.value?.fone ?? null
-        const hasContato = [...new Set(contatos)]?.includes(btoa(fone))
+        const hasContato = [...new Set(contatos)]?.includes(base64.encode(fone))
 
         if (conversaAberta.value && hasContato) {
 
@@ -143,12 +144,12 @@ export function useAtendimentoIDB({
 
         const conversasEnviadas = await idbConn.value.getAll('conversas', {
             name: 'conversas_fone_enviado_idx',
-            value: btoa(contato.fone),
+            value: base64.encode(contato.fone),
         })
 
         const conversasDestino = await idbConn.value.getAll('conversas', {
             name: 'conversas_fone_destino_idx',
-            value: btoa(contato.fone),
+            value: base64.encode(contato.fone),
         })
 
         const todasConversas = [...conversasEnviadas, ...conversasDestino]
@@ -177,7 +178,7 @@ export function useAtendimentoIDB({
             return Object.fromEntries(
                 Object.entries(obj).map(([key, val]) => {
                     if (ignoredKeys.includes(key)) return [key, val]
-                    return [key, val ? atob(val) : null]
+                    return [key, val ? base64.decode(val) : null]
                 })
             )
         })

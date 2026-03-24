@@ -1,6 +1,7 @@
 import Api from '@/services/api.js'
 import LINKS from '@/utils/links'
 import { localStorageDecode } from '@/utils/localStorageDecode'
+import { base64 } from '@/utils/base64.js'
 
 export default {
     logout: function (to, from, next) {
@@ -27,7 +28,7 @@ export default {
                 name: 'error',
                 query: {
                     code: 403,
-                    error: btoa('Acesso não autorizado'),
+                    error: base64.encode('Acesso não autorizado'),
                 },
             })
 

@@ -13,6 +13,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { base64 } from '@/utils/base64.js'
 
 defineOptions({
     name: 'ErrosPage',
@@ -24,7 +25,7 @@ const errorMessage = ref({})
 onMounted(() => {
     if (route.query.error) {
         try {
-            errorMessage.value.message = decodeURIComponent(atob(route.query.error))
+            errorMessage.value.message = base64.decode(route.query.error)
             errorMessage.value.status = route.query.code
         } catch (error) {
             errorMessage.value.message = 'Erro inesperado.'

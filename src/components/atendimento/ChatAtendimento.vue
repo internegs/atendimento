@@ -39,29 +39,29 @@
                     @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
-                        v-if="mensagem.status == 'DELETED'"
+                        v-if="mensagem.status === 'DELETED'"
                         class="cinza"
                     >
                         Mensagem apagada
                     </span>
 
-                    <span v-if="mensagem.status != 'DELETED'">
+                    <span v-if="mensagem.status !== 'DELETED'">
                         <span v-html="formatMessageWhatsapp(mensagem.mensagem)"></span>
 
                         <div
-                            v-if="mensagem.wook == 'onack'"
+                            v-if="mensagem.wook === 'onack'"
                             class="alinhadireita"
                         >
                             <i
-                                v-if="mensagem.status == 'RECEIVED'"
+                                v-if="mensagem.status === 'RECEIVED'"
                                 class="fa-solid fa-check-double cinza"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'SENT'"
+                                v-if="mensagem.status === 'SENT'"
                                 class="fa-solid fa-check"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'READ'"
+                                v-if="mensagem.status === 'READ'"
                                 class="fa-solid fa-check-double text-success"
                             ></i>
                         </div>
@@ -123,19 +123,19 @@
                         </div>
 
                         <div
-                            v-if="mensagem.wook == 'onack'"
+                            v-if="mensagem.wook === 'onack'"
                             class="alinhadireita"
                         >
                             <i
-                                v-if="mensagem.status == 'RECEIVED'"
+                                v-if="mensagem.status === 'RECEIVED'"
                                 class="fa-solid fa-check-double cinza"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'SENT'"
+                                v-if="mensagem.status === 'SENT'"
                                 class="fa-solid fa-check"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'READ'"
+                                v-if="mensagem.status === 'READ'"
                                 class="fa-solid fa-check-double text-success"
                             ></i>
                         </div>
@@ -176,13 +176,13 @@
                         @mouseleave="onBoxOpt($event, mensagem.message_id)"
                     >
                         <span
-                            v-if="mensagem.status == 'DELETED'"
+                            v-if="mensagem.status === 'DELETED'"
                             class="cinza"
                         >
                             Mensagem apagada
                         </span>
 
-                        <span v-if="mensagem.status != 'DELETED'">
+                        <span v-if="mensagem.status !== 'DELETED'">
                             <div>
                                 <!-- {{ mensagem.message_id }}<br><br> -->
                             </div>
@@ -197,19 +197,19 @@
                             ></span>
 
                             <div
-                                v-if="mensagem.wook == 'onack'"
+                                v-if="mensagem.wook === 'onack'"
                                 class="alinhadireita"
                             >
                                 <i
-                                    v-if="mensagem.status == 'RECEIVED'"
+                                    v-if="mensagem.status === 'RECEIVED'"
                                     class="fa-solid fa-check-double cinza"
                                 ></i>
                                 <i
-                                    v-if="mensagem.status == 'SENT'"
+                                    v-if="mensagem.status === 'SENT'"
                                     class="fa-solid fa-check"
                                 ></i>
                                 <i
-                                    v-if="mensagem.status == 'READ'"
+                                    v-if="mensagem.status === 'READ'"
                                     class="fa-solid fa-check-double text-success"
                                 ></i>
                             </div>
@@ -264,13 +264,13 @@
                         @mouseleave="onBoxOpt($event, mensagem.message_id)"
                     >
                         <span
-                            v-if="mensagem.status == 'DELETED'"
+                            v-if="mensagem.status === 'DELETED'"
                             class="cinza"
                         >
                             Mensagem apagada
                         </span>
 
-                        <span v-if="mensagem.status != 'DELETED'">
+                        <span v-if="mensagem.status !== 'DELETED'">
                             <span
                                 v-html="
                                     formatMessageWhatsapp(
@@ -281,19 +281,19 @@
                             ></span>
 
                             <div
-                                v-if="mensagem.wook == 'onack'"
+                                v-if="mensagem.wook === 'onack'"
                                 class="alinhadireita"
                             >
                                 <i
-                                    v-if="mensagem.status == 'RECEIVED'"
+                                    v-if="mensagem.status === 'RECEIVED'"
                                     class="fa-solid fa-check-double cinza"
                                 ></i>
                                 <i
-                                    v-if="mensagem.status == 'SENT'"
+                                    v-if="mensagem.status === 'SENT'"
                                     class="fa-solid fa-check"
                                 ></i>
                                 <i
-                                    v-if="mensagem.status == 'READ'"
+                                    v-if="mensagem.status === 'READ'"
                                     class="fa-solid fa-check-double text-success"
                                 ></i>
                             </div>
@@ -361,13 +361,13 @@
                     @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
-                        v-if="mensagem.status == 'DELETED'"
+                        v-if="mensagem.status === 'DELETED'"
                         class="cinza"
                     >
                         Mensagem apagada
                     </span>
 
-                    <span v-if="mensagem.status != 'DELETED'">
+                    <span v-if="mensagem.status !== 'DELETED'">
                         <span
                             v-html="
                                 formatMessageWhatsapp(
@@ -379,19 +379,19 @@
                         ></span>
 
                         <div
-                            v-if="mensagem.wook == 'onack'"
+                            v-if="mensagem.wook === 'onack'"
                             class="alinhadireita"
                         >
                             <i
-                                v-if="mensagem.status == 'RECEIVED'"
+                                v-if="mensagem.status === 'RECEIVED'"
                                 class="fa-solid fa-check-double cinza"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'SENT'"
+                                v-if="mensagem.status === 'SENT'"
                                 class="fa-solid fa-check"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'READ'"
+                                v-if="mensagem.status === 'READ'"
                                 class="fa-solid fa-check-double text-success"
                             ></i>
                         </div>
@@ -429,13 +429,13 @@
                     @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
-                        v-if="mensagem.status == 'DELETED'"
+                        v-if="mensagem.status === 'DELETED'"
                         class="cinza"
                     >
                         Mensagem apagada
                     </span>
 
-                    <span v-if="mensagem.status != 'DELETED'">
+                    <span v-if="mensagem.status !== 'DELETED'">
                         <span
                             v-html="
                                 formatMessageWhatsapp(
@@ -447,19 +447,19 @@
                         ></span>
 
                         <div
-                            v-if="mensagem.wook == 'onack'"
+                            v-if="mensagem.wook === 'onack'"
                             class="alinhadireita"
                         >
                             <i
-                                v-if="mensagem.status == 'RECEIVED'"
+                                v-if="mensagem.status === 'RECEIVED'"
                                 class="fa-solid fa-check-double cinza"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'SENT'"
+                                v-if="mensagem.status === 'SENT'"
                                 class="fa-solid fa-check"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'READ'"
+                                v-if="mensagem.status === 'READ'"
                                 class="fa-solid fa-check-double text-success"
                             ></i>
                         </div>
@@ -495,13 +495,13 @@
                     class="vcard message-normal"
                 >
                     <span
-                        v-if="mensagem.status == 'DELETED'"
+                        v-if="mensagem.status === 'DELETED'"
                         class="cinza"
                     >
                         Mensagem apagada
                     </span>
 
-                    <span v-if="mensagem.status != 'DELETED'">
+                    <span v-if="mensagem.status !== 'DELETED'">
                         <div class="vcard-header">
                             <img
                                 src="@/assets/default.png"
@@ -516,19 +516,19 @@
                             <span v-html="formatMessageWhatsapp(mensagem.mensagem)"></span>
 
                             <div
-                                v-if="mensagem.wook == 'onack'"
+                                v-if="mensagem.wook === 'onack'"
                                 class="alinhadireita"
                             >
                                 <i
-                                    v-if="mensagem.status == 'RECEIVED'"
+                                    v-if="mensagem.status === 'RECEIVED'"
                                     class="fa-solid fa-check-double cinza"
                                 ></i>
                                 <i
-                                    v-if="mensagem.status == 'SENT'"
+                                    v-if="mensagem.status === 'SENT'"
                                     class="fa-solid fa-check"
                                 ></i>
                                 <i
-                                    v-if="mensagem.status == 'READ'"
+                                    v-if="mensagem.status === 'READ'"
                                     class="fa-solid fa-check-double text-success"
                                 ></i>
                             </div>
@@ -577,13 +577,13 @@
                     @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
-                        v-if="mensagem.status == 'DELETED'"
+                        v-if="mensagem.status === 'DELETED'"
                         class="cinza"
                     >
                         Audio apagado
                     </span>
 
-                    <span v-if="mensagem.status != 'DELETED'">
+                    <span v-if="mensagem.status !== 'DELETED'">
                         <audio
                             controls="controls"
                             style="max-width: 100%"
@@ -597,19 +597,19 @@
                         </audio>
 
                         <div
-                            v-if="mensagem.wook == 'onack'"
+                            v-if="mensagem.wook === 'onack'"
                             class="alinhadireita"
                         >
                             <i
-                                v-if="mensagem.status == 'RECEIVED'"
+                                v-if="mensagem.status === 'RECEIVED'"
                                 class="fa-solid fa-check-double cinza"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'SENT'"
+                                v-if="mensagem.status === 'SENT'"
                                 class="fa-solid fa-check"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'READ'"
+                                v-if="mensagem.status === 'READ'"
                                 class="fa-solid fa-check-double text-success"
                             ></i>
                         </div>
@@ -647,31 +647,31 @@
                     @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
-                        v-if="mensagem.status == 'DELETED'"
+                        v-if="mensagem.status === 'DELETED'"
                         class="cinza"
                     >
                         Mensagem apagada
                     </span>
 
-                    <span v-if="mensagem.status != 'DELETED'">
+                    <span v-if="mensagem.status !== 'DELETED'">
                         <img
                             :src="mensagem.url_link"
                             class="img-thumbnail"
                         />
                         <div
-                            v-if="mensagem.wook == 'onack'"
+                            v-if="mensagem.wook === 'onack'"
                             class="alinhadireita"
                         >
                             <i
-                                v-if="mensagem.status == 'RECEIVED'"
+                                v-if="mensagem.status === 'RECEIVED'"
                                 class="fa-solid fa-check-double cinza"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'SENT'"
+                                v-if="mensagem.status === 'SENT'"
                                 class="fa-solid fa-check"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'READ'"
+                                v-if="mensagem.status === 'READ'"
                                 class="fa-solid fa-check-double text-success"
                             ></i>
                         </div>
@@ -709,29 +709,29 @@
                     @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
-                        v-if="mensagem.status == 'DELETED'"
+                        v-if="mensagem.status === 'DELETED'"
                         class="cinza"
                     >
                         Mensagem apagada
                     </span>
 
-                    <span v-if="mensagem.status != 'DELETED'">
+                    <span v-if="mensagem.status !== 'DELETED'">
                         {{ mensagem.mensagem }}
 
                         <div
-                            v-if="mensagem.wook == 'onack'"
+                            v-if="mensagem.wook === 'onack'"
                             class="alinhadireita"
                         >
                             <i
-                                v-if="mensagem.status == 'RECEIVED'"
+                                v-if="mensagem.status === 'RECEIVED'"
                                 class="fa-solid fa-check-double cinza"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'SENT'"
+                                v-if="mensagem.status === 'SENT'"
                                 class="fa-solid fa-check"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'READ'"
+                                v-if="mensagem.status === 'READ'"
                                 class="fa-solid fa-check-double text-success"
                             ></i>
                         </div>
@@ -769,14 +769,14 @@
                     @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
-                        v-if="mensagem.status == 'DELETED'"
+                        v-if="mensagem.status === 'DELETED'"
                         class="cinza"
                     >
                         Vídeo apagado
                     </span>
 
                     <div
-                        v-if="mensagem.status != 'DELETED'"
+                        v-if="mensagem.status !== 'DELETED'"
                         class="video-wrapper"
                     >
                         <button
@@ -804,19 +804,19 @@
                         ></p>
 
                         <div
-                            v-if="mensagem.wook == 'onack'"
+                            v-if="mensagem.wook === 'onack'"
                             class="alinhadireita"
                         >
                             <i
-                                v-if="mensagem.status == 'RECEIVED'"
+                                v-if="mensagem.status === 'RECEIVED'"
                                 class="fa-solid fa-check-double cinza"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'SENT'"
+                                v-if="mensagem.status === 'SENT'"
                                 class="fa-solid fa-check"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'READ'"
+                                v-if="mensagem.status === 'READ'"
                                 class="fa-solid fa-check-double text-success"
                             ></i>
                         </div>
@@ -855,13 +855,13 @@
                     @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
-                        v-if="mensagem.status == 'DELETED'"
+                        v-if="mensagem.status === 'DELETED'"
                         class="cinza"
                     >
                         Imagem apagada
                     </span>
 
-                    <span v-if="mensagem.status != 'DELETED'">
+                    <span v-if="mensagem.status !== 'DELETED'">
                         <button
                             @click="
                                 $emit('handleMedia', {
@@ -882,19 +882,19 @@
                         <br />
 
                         <div
-                            v-if="mensagem.wook == 'onack'"
+                            v-if="mensagem.wook === 'onack'"
                             class="alinhadireita"
                         >
                             <i
-                                v-if="mensagem.status == 'RECEIVED'"
+                                v-if="mensagem.status === 'RECEIVED'"
                                 class="fa-solid fa-check-double cinza"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'SENT'"
+                                v-if="mensagem.status === 'SENT'"
                                 class="fa-solid fa-check"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'READ'"
+                                v-if="mensagem.status === 'READ'"
                                 class="fa-solid fa-check-double text-success"
                             ></i>
                         </div>
@@ -932,13 +932,13 @@
                     @mouseleave="onBoxOpt($event, mensagem.message_id)"
                 >
                     <span
-                        v-if="mensagem.status == 'DELETED'"
+                        v-if="mensagem.status === 'DELETED'"
                         class="cinza"
                     >
                         Documento deletado
                     </span>
 
-                    <span v-if="mensagem.status != 'DELETED'">
+                    <span v-if="mensagem.status !== 'DELETED'">
                         <a
                             :href="mensagem.url_link"
                             target="_blank"
@@ -953,19 +953,19 @@
                         <!-- {{ teste(mensagem) }} -->
 
                         <div
-                            v-if="mensagem.wook == 'onack'"
+                            v-if="mensagem.wook === 'onack'"
                             class="alinhadireita"
                         >
                             <i
-                                v-if="mensagem.status == 'RECEIVED'"
+                                v-if="mensagem.status === 'RECEIVED'"
                                 class="fa-solid fa-check-double cinza"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'SENT'"
+                                v-if="mensagem.status === 'SENT'"
                                 class="fa-solid fa-check"
                             ></i>
                             <i
-                                v-if="mensagem.status == 'READ'"
+                                v-if="mensagem.status === 'READ'"
                                 class="fa-solid fa-check-double text-success"
                             ></i>
                         </div>
@@ -1018,250 +1018,220 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { formatDateTime, formatMessageWhatsapp, formatTextForLimited } from '@/utils/formatters'
 
-export default {
-    name: 'ChatAtendimento',
+defineOptions({ name: 'ChatAtendimento' })
 
-    props: {
-        mensagens: {
-            type: [Array, String],
-        },
-        processando: {
-            type: Boolean,
-        },
-        status: {
-            type: Boolean,
-        },
-        foneAtendido: {
-            type: [String, Number],
-        },
-        conversa: {
-            type: String,
-        },
-        estadoEncaminharMensagens: {
-            type: Boolean,
-        },
-        alterarLayoutBatePapo: {
-            type: Function,
-        },
-        estadoResponderMensagem: {
-            type: Boolean,
-        },
-        listaMensagensSelecionadas: {
-            type: Array,
-        },
-        abrirConversa: {
-            type: Function,
-        },
+const props = defineProps({
+    mensagens: {
+        type: [Array, String],
     },
-
-    emits: ['handleMedia', 'responderLayout', 'abremodal_apagarmensagem'],
-
-    data() {
-        return {
-            mostrar: '',
-            option: [
-                {
-                    id: 2,
-                    msg: 'Apagar mensagem',
-                },
-                {
-                    id: 3,
-                    msg: 'Responder ',
-                },
-            ],
-            id_mensagem: '',
-            fone: '',
-            openBoxOpt: null,
-            showBoxOptIcon: null,
-        }
+    processando: {
+        type: Boolean,
     },
-
-    computed: {
-        validationMessage() {
-            if (!this.mensagens || this.mensagens.length < 1) {
-                return 'Não há mensagens disponíveis'
-            }
-
-            return this.mensagens
-        },
+    status: {
+        type: Boolean,
     },
+    foneAtendido: {
+        type: [String, Number],
+    },
+    conversa: {
+        type: String,
+    },
+    estadoEncaminharMensagens: {
+        type: Boolean,
+    },
+    estadoResponderMensagem: {
+        type: Boolean,
+    },
+    listaMensagensSelecionadas: {
+        type: Array,
+    },
+})
 
-    watch: {
-        mensagens: {
-            handler() {
-                this.$nextTick(() => {
-                    this.scrollToBottom()
+const emit = defineEmits(['handleMedia', 'responderLayout', 'abremodal_apagarmensagem', 'abrir-conversa'])
+
+const option = [
+    { id: 2, msg: 'Apagar mensagem' },
+    { id: 3, msg: 'Responder ' },
+]
+
+const chatContainer = ref(null)
+const boxOpt = ref(null)
+const openBoxOpt = ref(null)
+const showBoxOptIcon = ref(null)
+
+const validationMessage = computed(() => {
+    if (!props.mensagens || props.mensagens.length < 1) {
+        return 'Não há mensagens disponíveis'
+    }
+
+    return props.mensagens
+})
+
+function escolhaSelecionado(opcao, mensagem) {
+    openBoxOpt.value = null
+
+    let payload = {
+        id: mensagem.message_id,
+        nome: mensagem.contactName,
+        fone: mensagem.fone_enviado,
+        wook: mensagem.wook,
+        mediaUrl: mensagem.url_link,
+    }
+
+    switch (opcao) {
+        case 2:
+            if (typeof parsedMessage(mensagem) === 'string') {
+                emit('abremodal_apagarmensagem', {
+                    id: mensagem.message_id,
+                    mensagem: parsedMessage(mensagem),
                 })
-            },
-            deep: true,
-        },
 
-        openBoxOpt(newValue) {
-            if (newValue) {
-                document.addEventListener('click', this.handleClickOutsideBoxOpt)
-
-                return
+                break
             }
 
-            document.removeEventListener('click', this.handleClickOutsideBoxOpt)
-        },
-    },
-
-    mounted() {
-        this.scrollToBottom()
-    },
-
-    beforeUnmount() {
-        document.removeEventListener('click', this.handleClickOutsideBoxOpt)
-    },
-
-    methods: {
-        formatMessageWhatsapp,
-        formatTextForLimited,
-        formatDateTime,
-
-        escolhaSelecionado(opcao, mensagem) {
-            this.openBoxOpt = false
-
-            let payload = {
+            emit('abremodal_apagarmensagem', {
                 id: mensagem.message_id,
-                nome: mensagem.contactName,
-                fone: mensagem.fone_enviado,
-                wook: mensagem.wook,
-                mediaUrl: mensagem.url_link,
-            }
+                mensagem:
+                    parsedMessage(mensagem)?.entry[0]?.changes[0]?.value?.messages[0]?.interactive
+                        ?.button_reply?.title,
+            })
 
-            switch (opcao) {
-                case 2:
-                    if (typeof this.parsedMessage(mensagem) === 'string') {
-                        this.$emit('abremodal_apagarmensagem', {
-                            id: mensagem.message_id,
-                            mensagem: this.parsedMessage(mensagem),
-                        })
+            break
 
-                        break
-                    }
-
-                    this.$emit('abremodal_apagarmensagem', {
-                        id: mensagem.message_id,
-                        mensagem:
-                            this.parsedMessage(mensagem)?.entry[0]?.changes[0]?.value?.messages[0]
-                                ?.interactive?.button_reply?.title,
-                    })
-
-                    break
-
-                case 3:
-                    // console.log(mensagem)
-
-                    if (typeof this.parsedMessage(mensagem) === 'string') {
-                        payload = {
-                            ...payload,
-                            mensagem: this.parsedMessage(mensagem),
-                        }
-
-                        this.$emit('responderLayout', payload)
-
-                        break
-                    }
-
-                    payload = {
-                        ...payload,
-                        mensagem:
-                            this.parsedMessage(mensagem)?.entry[0]?.changes[0]?.value?.messages[0]
-                                ?.interactive?.button_reply?.title,
-                    }
-
-                    this.$emit('responderLayout', payload)
-
-                    break
-
-                default:
-                    break
-            }
-        },
-
-        marcarMensagem(e) {
-            const labelCheckBox = e.target
-            const elementoPai = labelCheckBox.parentNode
-            const checkbox = elementoPai.querySelector('.selecionarMensagens')
-
-            const message_id = labelCheckBox.getAttribute('data-id')
-
-            if (checkbox.checked) {
-                this.listaMensagensSelecionadas.splice(
-                    this.listaMensagensSelecionadas.indexOf(message_id),
-                    1
-                )
-            } else {
-                this.listaMensagensSelecionadas.push(message_id)
-            }
-        },
-
-        getMessageById(id) {
-            if (!id) return null
-
-            return this.mensagens.find(msg => msg.message_id === id) || null
-        },
-
-        parsedMessage(mensagem) {
-            if (
-                mensagem.status !== 'DELETED' &&
-                mensagem.mensagem &&
-                typeof mensagem.mensagem === 'string'
-            ) {
-                try {
-                    return JSON.parse(mensagem.mensagem)
-                } catch {
-                    return mensagem.mensagem
-                }
-            }
-
-            return null
-        },
-
-        handleBoxOpt(message_id) {
-            // console.log(message_id)
-
-            this.openBoxOpt = !this.openBoxOpt ? message_id : null
-        },
-
-        handleClickOutsideBoxOpt(e) {
-            const btnOpt = e.target.closest('.box_abre_selecoes')
-
-            if (!btnOpt) {
-                this.openBoxOpt = null
-                this.showBoxOptIcon = null
-            }
-        },
-
-        onBoxOpt(e, message_id) {
-            if (!this.openBoxOpt) {
-                if (e.type === 'mouseenter') {
-                    this.showBoxOptIcon = message_id
-
-                    return
+        case 3:
+            if (typeof parsedMessage(mensagem) === 'string') {
+                payload = {
+                    ...payload,
+                    mensagem: parsedMessage(mensagem),
                 }
 
-                this.showBoxOptIcon = null
-            }
-        },
+                emit('responderLayout', payload)
 
-        scrollToBottom() {
-            const container = this.$refs.chatContainer
-
-            if (container) {
-                container.scrollTop = container.scrollHeight
+                break
             }
-        },
-    },
+
+            payload = {
+                ...payload,
+                mensagem:
+                    parsedMessage(mensagem)?.entry[0]?.changes[0]?.value?.messages[0]?.interactive
+                        ?.button_reply?.title,
+            }
+
+            emit('responderLayout', payload)
+
+            break
+
+        default:
+            break
+    }
 }
+
+function marcarMensagem(e) {
+    const labelCheckBox = e.target
+    const elementoPai = labelCheckBox.parentNode
+    const checkbox = elementoPai.querySelector('.selecionarMensagens')
+
+    const message_id = labelCheckBox.getAttribute('data-id')
+
+    if (checkbox.checked) {
+        props.listaMensagensSelecionadas.splice(
+            props.listaMensagensSelecionadas.indexOf(message_id),
+            1
+        )
+    } else {
+        props.listaMensagensSelecionadas.push(message_id)
+    }
+}
+
+function getMessageById(id) {
+    if (!id) return null
+
+    return props.mensagens.find(msg => msg.message_id === id) || null
+}
+
+function parsedMessage(mensagem) {
+    if (
+        mensagem.status !== 'DELETED' &&
+        mensagem.mensagem &&
+        typeof mensagem.mensagem === 'string'
+    ) {
+        try {
+            return JSON.parse(mensagem.mensagem)
+        } catch {
+            return mensagem.mensagem
+        }
+    }
+
+    return null
+}
+
+function handleBoxOpt(message_id) {
+    openBoxOpt.value = !openBoxOpt.value ? message_id : null
+}
+
+function handleClickOutsideBoxOpt(e) {
+    const btnOpt = e.target.closest('.box_abre_selecoes')
+
+    if (!btnOpt) {
+        openBoxOpt.value = null
+        showBoxOptIcon.value = null
+    }
+}
+
+function onBoxOpt(e, message_id) {
+    if (!openBoxOpt.value) {
+        if (e.type === 'mouseenter') {
+            showBoxOptIcon.value = message_id
+
+            return
+        }
+
+        showBoxOptIcon.value = null
+    }
+}
+
+function abrirConversa(mensagem) {
+    emit('abrir-conversa', mensagem)
+}
+
+function scrollToBottom() {
+    const container = chatContainer.value
+
+    if (container) {
+        container.scrollTop = container.scrollHeight
+    }
+}
+
+watch(
+    () => props.mensagens,
+    () => {
+        nextTick(() => scrollToBottom())
+    },
+    { deep: true }
+)
+
+watch(openBoxOpt, newValue => {
+    if (newValue) {
+        document.addEventListener('click', handleClickOutsideBoxOpt)
+
+        return
+    }
+
+    document.removeEventListener('click', handleClickOutsideBoxOpt)
+})
+
+onMounted(() => scrollToBottom())
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', handleClickOutsideBoxOpt)
+})
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .cinza {
     color: darkgray;
 }
@@ -1272,26 +1242,12 @@ export default {
 
 .user_foto {
     border-radius: 50%;
-
     width: 45px !important;
     height: 45px !important;
 }
 
 .cursor-pointer {
     cursor: pointer;
-}
-
-.message .vcard {
-    position: relative;
-    right: 0;
-    padding: 15px 20px;
-    background-color: #efefef;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    word-break: break-all;
-
-    display: flex;
-    flex-direction: column;
 }
 
 .box_abre_selecoes {
@@ -1304,7 +1260,6 @@ export default {
     position: absolute;
     top: 4px;
     right: 8px;
-
     color: #616060;
     font-size: 16px;
 }
@@ -1316,29 +1271,26 @@ export default {
     top: 1.5rem;
     width: 200px;
     padding: 5px 0;
-
     background-color: #fff;
     border-radius: 5px;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-}
 
-.box-opcoes span {
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-weight: 500;
+    span {
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: all 0.2s ease;
 
-    transition: all 0.2s ease;
-}
-
-.box-opcoes span:hover {
-    background-color: #f9f9f9;
+        &:hover {
+            background-color: #f9f9f9;
+        }
+    }
 }
 
 .vcard-header {
     width: 100%;
     display: flex;
     gap: 20px;
-
     align-items: center;
     justify-content: space-around;
 }
@@ -1355,16 +1307,12 @@ export default {
     padding: 20px;
     overflow-y: auto;
     background-color: #f5f1eb;
-}
 
-@media (min-width: 576px) {
-    .chatBox {
+    @media (min-width: 576px) {
         height: 82%;
     }
-}
 
-@media (min-width: 1400px) {
-    .chatBox {
+    @media (min-width: 1400px) {
         height: 86%;
     }
 }
@@ -1381,54 +1329,86 @@ export default {
     position: relative;
     display: flex;
     align-items: center;
+
+    .message-normal {
+        position: relative;
+        right: 0;
+        max-width: 60%;
+        padding: 10px;
+        background-color: #fff;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        white-space: pre-line;
+        word-break: break-word;
+    }
+
+    .message-wrapper,
+    .message-wrapper-list {
+        display: flex;
+        flex-direction: column;
+        width: 70%;
+        gap: 0.5rem;
+
+        .message-normal {
+            position: relative;
+            max-width: 100%;
+            padding: 15px;
+            background-color: #efefef;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            white-space: pre-line;
+            word-break: break-word;
+        }
+    }
+
+    .message-wrapper .message-buttons,
+    .message-wrapper-list .message-container {
+        display: flex;
+        flex-direction: column;
+        max-width: 90%;
+        gap: 0.5rem;
+    }
+
+    .vcard {
+        position: relative;
+        right: 0;
+        padding: 15px 20px;
+        background-color: #efefef;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        word-break: break-all;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .select {
+        background-color: #efefef;
+        border: none;
+        position: absolute;
+        right: 1%;
+        top: 2%;
+        overflow: hidden;
+        width: 50%;
+        font-size: 0.9rem;
+    }
+
+    div img {
+        object-fit: contain;
+        width: 200px;
+        height: 150px;
+    }
+
+    audio {
+        max-width: 90%;
+    }
 }
 
-.message .message-normal {
-    position: relative;
-    right: 0;
-    max-width: 60%;
-    padding: 10px 10px 10px;
-    background-color: #fff;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    white-space: pre-line;
-    word-break: break-word;
-}
 .box-mensagens {
     position: relative;
     display: inline-flex;
     flex-direction: column;
     width: 100%;
-
     margin: 10px 0;
-}
-
-.message .message-wrapper,
-.message .message-wrapper-list {
-    display: flex;
-    flex-direction: column;
-    width: 70%;
-    gap: 0.5rem;
-}
-
-.message-wrapper .message-normal,
-.message-wrapper-list .message-normal {
-    position: relative;
-    max-width: 100%;
-    padding: 15px;
-    background-color: #efefef;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    white-space: pre-line;
-    word-break: break-word;
-}
-
-.message-wrapper .message-buttons,
-.message-wrapper-list .message-container {
-    display: flex;
-    flex-direction: column;
-    max-width: 90%;
-    gap: 0.5rem;
 }
 
 .message-buttons button,
@@ -1439,7 +1419,6 @@ export default {
     width: 30%;
     min-width: 230px;
     padding: 0.4rem 0;
-
     color: #2d3135;
     font-weight: 500;
     border-radius: 0.4rem;
@@ -1447,27 +1426,32 @@ export default {
     transition: transform 150ms ease-in-out;
 }
 
-.message-buttons button:hover,
-.message-buttons button span:hover {
-    transform: scale(1.03);
+.message-buttons {
+    button {
+        &:hover,
+        span:hover {
+            transform: scale(1.03);
+        }
+
+        &:active,
+        span:active {
+            transform: scale(1) translateY(1px);
+        }
+    }
 }
 
-.message-buttons button:active,
-.message-buttons button span:active {
-    transform: scale(1) translateY(1px);
-}
+.message-container {
+    .message-select {
+        display: flex;
+        width: fit-content;
+        padding: 0 0.5rem;
+        background-color: #efefef;
+        border-radius: 10px;
 
-.message-container .message-select {
-    display: flex;
-    width: fit-content;
-    padding: 0 0.5rem;
-
-    background-color: #efefef;
-    border-radius: 10px;
-}
-
-.message-container .message-select select {
-    border: none;
+        select {
+            border: none;
+        }
+    }
 }
 
 #option-list:hover,
@@ -1482,75 +1466,61 @@ export default {
     background-color: #f9f9f9;
 }
 
-.message .select {
-    background-color: #efefef;
-    border: none;
-    position: absolute;
-    right: 1%;
-    top: 2%;
-    overflow: hidden;
-    width: 50%;
-    font-size: 0.9rem;
+.my_message {
+    .box-mensagens,
+    .message-wrapper,
+    .message-wrapper-list {
+        align-items: flex-end;
+    }
+
+    .message-normal {
+        background-color: #d9fdd3;
+    }
+
+    .select {
+        background-color: #d9fdd3;
+        position: absolute;
+        right: 0px;
+        top: 2%;
+        overflow: hidden;
+        width: 50%;
+        font-size: 0.9rem;
+    }
 }
 
-.message div img {
-    object-fit: contain;
-    width: 200px;
-    height: 150px;
-}
-
-.message audio {
-    max-width: 90%;
-}
-
-.my_message .box-mensagens,
-.my_message .message-wrapper,
-.my_message .message-wrapper-list {
-    align-items: flex-end;
-}
-
-.my_message .message-normal,
 .message-wrapper .message-buttons button,
 .message-wrapper-list .message-select,
 .message-wrapper-list .message-select #option-list {
     background-color: #d9fdd3;
 }
 
-.my_message .select {
-    background-color: #d9fdd3;
-    position: absolute;
-    right: 0px;
-    top: 2%;
-    overflow: hidden;
-    width: 50%;
-    font-size: 0.9rem;
-}
+.message-normal {
+    .video-wrapper {
+        max-width: 200px;
 
-.message-normal .video-wrapper {
-    max-width: 200px;
-}
+        button {
+            width: 100%;
+            height: 100%;
+        }
 
-.message-normal .video-wrapper button {
-    width: 100%;
-    height: 100%;
-}
-
-.message-normal .video-wrapper video {
-    width: 100%;
-    height: 100%;
+        video {
+            width: 100%;
+            height: 100%;
+        }
+    }
 }
 
 .wrapper-text-reply {
     display: flex;
     flex-direction: column;
     gap: 0.7rem;
-}
 
-.wrapper-text-reply .text-reply {
-    padding: 12px 10px;
-    background-color: #b5eeb3;
-    border-radius: 10px;
-    filter: opacity(85%);
+    .text-reply {
+        padding: 12px 10px;
+        background-color: #b5eeb3;
+        border-radius: 10px;
+        filter: opacity(85%);
+    }
 }
 
 .conteiner {
@@ -1560,18 +1530,36 @@ export default {
     margin-bottom: 12px;
     cursor: pointer;
     font-size: 22px;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     user-select: none;
-}
 
-.conteiner input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
+    input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
+
+    &:hover input ~ .checkmark {
+        background-color: #ccc;
+    }
+
+    input:checked ~ .checkmark {
+        background-color: #f58634;
+    }
+
+    input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    .checkmark:after {
+        left: 5px;
+        width: 8px;
+        height: 15px;
+        border: solid white;
+        border-width: 0 3px 3px 0;
+        transform: rotate(45deg);
+    }
 }
 
 .checkmark {
@@ -1583,35 +1571,12 @@ export default {
     background-color: #eee;
     border: solid #68737a;
     cursor: pointer;
-}
 
-.conteiner:hover input ~ .checkmark {
-    background-color: #ccc;
-}
-
-.conteiner input:checked ~ .checkmark {
-    background-color: #f58634;
-}
-
-.checkmark:after {
-    content: '';
-    position: absolute;
-    display: none;
-}
-
-.conteiner input:checked ~ .checkmark:after {
-    display: block;
-}
-
-.conteiner .checkmark:after {
-    left: 5px;
-    width: 8px;
-    height: 15px;
-    border: solid white;
-    border-width: 0 3px 3px 0;
-    -webkit-transform: rotate(45deg);
-    -ms-transform: rotate(45deg);
-    transform: rotate(45deg);
+    &:after {
+        content: '';
+        position: absolute;
+        display: none;
+    }
 }
 
 .fundo-transparente {

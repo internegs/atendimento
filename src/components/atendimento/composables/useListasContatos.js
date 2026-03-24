@@ -1,5 +1,6 @@
 import { ref, watch } from 'vue'
 import Api from '@/services/api.js'
+import { base64 } from '@/utils/base64.js'
 
 export function useListasContatos({
     contatoSelecionado,
@@ -83,7 +84,7 @@ export function useListasContatos({
             const response = await Api.post(
                 '/fila_atendimento_todas/ZmlsYWRlYXRlbmRpbWVudG8=?dXNlcl9pZA=MTEy',
                 {
-                    dXNlcl9pZA: btoa(localStorage.getItem('@USER_ID')),
+                    dXNlcl9pZA: base64.encode(localStorage.getItem('@USER_ID')),
                 }
             )
 

@@ -290,7 +290,7 @@
                         </div>
                     </div>
 
-                    <chat-atendimento-contatos-interno
+                    <chat-atendimento-interno
                         :mensagens="mensagens"
                         :idAtendido="foneConversa"
                     />
@@ -478,15 +478,14 @@
                     </div>
 
                     <chat-atendimento
-                        :abrir-conversa="abrirConversaContatoEncaminhado"
                         :mensagens="mensagens"
                         :processando="enviandoMensagem"
                         :status="status_chat"
                         :foneAtendido="foneConversa"
-                        :alterarLayoutBatePapo="alterarLayoutBatePapo"
                         :estado-encaminhar-mensagens="modoEncaminhar"
                         :estado-responder-mensagem="modoResponder"
                         :lista-mensagens-selecionadas="mensagensSelecionadas"
+                        @abrir-conversa="abrirConversaContatoEncaminhado"
                         @abremodal_apagarmensagem="abreModalApagarMensagem"
                         @handle-media="handleModalMedia"
                         @responder-layout="responderLayout"
@@ -947,7 +946,7 @@
             @atualiza-meus-atendimentos="chamarMeusAtendimentos"
         />
 
-        <apagarMensagem
+        <apagar-mensagem
             :mensagemdeleta="mensagemapagar"
             :id_mensagem="message_id"
             :fone="contatoSelecionado.fone"
@@ -1004,7 +1003,7 @@ import { ref, computed, watch, inject, nextTick, onMounted, onBeforeUnmount } fr
 import ListaAtendimentos from '@/components/atendimento/ListaAtendimentos.vue'
 import ListaAtendimentosChatInterno from '@/components/atendimento/ListaAtendimentosChatInterno.vue'
 import ChatAtendimento from '@/components/atendimento/ChatAtendimento.vue'
-import ChatAtendimentoContatosInterno from '@/components/atendimento/ChatAtendimentoContatosInterno.vue'
+import ChatAtendimentoInterno from '@/components/atendimento/ChatAtendimentoInterno.vue'
 import Api from '@/services/api.js'
 import EditarContato from '@/components/atendimento/acao/editarContato.vue'
 import TransferirAtendimento from '@/components/atendimento/acao/transferirAtendimento.vue'
@@ -1199,6 +1198,7 @@ async function marcarConversaVisualizada() {
 async function sair() {
     try {
         await deletarIdb()
+
         middleware.logout()
     } catch (error) {
         console.error(error)
@@ -1948,7 +1948,7 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 * {
     margin: 0;
     padding: 0;
@@ -1980,31 +1980,37 @@ img {
         0 1px 1px 0 rgba(0, 0, 0, 0.06),
         0 2px 5px 0 rgba(0, 0, 0, 0.06);
     overflow: hidden;
-}
 
-.box::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-}
+    &::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
+    }
 
-.box .leftSide {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    flex: 30%;
-    background-color: #fff;
-}
+    .leftSide {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        flex: 30%;
+        background-color: #fff;
+    }
 
-.box .rightSide {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    flex: 70%;
-    height: 100%;
+    .rightSide {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        flex: 70%;
+        height: 100%;
 
-    background-color: #fff;
-    border-left: 3px solid #eaeaea;
+        background-color: #fff;
+        border-left: 3px solid #eaeaea;
+
+        &.apresentacao {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
 }
 
 .contatos {
@@ -2012,20 +2018,6 @@ img {
     overflow-y: auto;
     overflow-x: hidden;
     min-height: 0;
-}
-
-/* Para o chat de mensagens dentro dos componentes filhos */
-.chat-container {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    min-height: 0;
-}
-
-.rightSide.apresentacao {
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .back-logo {
@@ -2046,20 +2038,15 @@ img {
     position: relative;
 }
 
-.settings img {
-    width: 30px;
-    height: 30px;
-}
-
-.settings-mobile img {
-    width: 50%;
-}
-
 .sub-menu {
     position: absolute;
     width: 60px;
     right: -10px;
     z-index: 5;
+
+    button {
+        margin-top: 5px;
+    }
 }
 
 .menu-escolhas {
@@ -2079,10 +2066,12 @@ img {
     box-shadow:
         0 4px 6px -1px rgba(0, 0, 0, 0.1),
         0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
 
-@media (min-width: 900px) {
-    .menu-escolhas {
+    &.on {
+        display: block !important;
+    }
+
+    @media (min-width: 900px) {
         left: -4rem;
     }
 }
@@ -2100,23 +2089,15 @@ img {
     transition: transform 0.2s ease;
     will-change: transform; /* tira borrão da transição do scale */
     backface-visibility: hidden; /* Evita flickering */
-}
 
-.btn-menu:hover {
-    background-color: #f5f2f2;
-    transform: scale(1.01);
-}
+    &:hover {
+        background-color: #f5f2f2;
+        transform: scale(1.01);
+    }
 
-.btn-menu i {
-    font-size: 24px;
-}
-
-.menu-escolhas.on {
-    display: block !important;
-}
-
-.sub-menu button {
-    margin-top: 5px;
+    i {
+        font-size: 24px;
+    }
 }
 
 .header {
@@ -2126,24 +2107,37 @@ img {
     padding-bottom: 1px;
 
     background: #2cacbf;
-}
 
-.header button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 0;
+    button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 0;
 
-    background: #2cacbf;
-    border-radius: 5px;
+        background: #2cacbf;
+        border-radius: 5px;
 
-    transition: background-color 100ms ease;
-}
+        transition: background-color 100ms ease;
 
-.header button:focus {
-    outline: none;
-    border: 2px solid #fcb92c !important;
-    z-index: 10;
+        &:focus {
+            outline: none;
+            border: 2px solid #fcb92c !important;
+            z-index: 10;
+        }
+
+        &:hover {
+            background: #0c9fb4;
+            transform: scale(1.015);
+        }
+
+        &.btn-active {
+            border-bottom: 4px #fe9a2d solid;
+        }
+    }
+
+    @media (max-width: 1400px) {
+        font-size: 0.9em;
+    }
 }
 
 .headerConversation {
@@ -2162,15 +2156,15 @@ img {
     display: flex;
     justify-content: center;
     align-items: center;
-}
 
-#btn-fila div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
+    div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
 
-    gap: 0.4em;
+        gap: 0.4em;
+    }
 }
 
 #btn-atendimentos {
@@ -2178,15 +2172,15 @@ img {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
 
-#btn-atendimentos div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
+    div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
 
-    gap: 0.4em;
+        gap: 0.4em;
+    }
 }
 
 .badge-custom {
@@ -2200,18 +2194,11 @@ img {
     font-size: 10px;
 }
 
-.header button:hover {
-    background: #0c9fb4;
-    transform: scale(1.015);
-}
-
-.btn-opt i {
-    font-size: 20px;
-    padding: 1px 4px;
-}
-
-.header button.btn-active {
-    border-bottom: 4px #fe9a2d solid;
+.btn-opt {
+    i {
+        font-size: 20px;
+        padding: 1px 4px;
+    }
 }
 
 .opt-modal {
@@ -2227,24 +2214,24 @@ img {
     background-color: white;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
     border-radius: 5px;
-}
 
-.opt-modal button {
-    display: flex;
-    width: 100%;
-    justify-content: start;
-    padding: 0.4rem 1.6rem;
+    button {
+        display: flex;
+        width: 100%;
+        justify-content: start;
+        padding: 0.4rem 1.6rem;
 
-    background-color: white;
-    color: #3b4a54;
-    font-weight: bold;
-    transition: all 0.1s ease;
-}
+        background-color: white;
+        color: #3b4a54;
+        font-weight: bold;
+        transition: all 0.1s ease;
 
-.opt-modal button:hover {
-    background: #f4f4f4;
-    transform: scale(1);
-    border-radius: 5px;
+        &:hover {
+            background: #f4f4f4;
+            transform: scale(1);
+            border-radius: 5px;
+        }
+    }
 }
 
 .search {
@@ -2252,33 +2239,33 @@ img {
     grid-column: span 3;
     border-bottom: 2px solid #eaeaea;
     padding: 10px;
-}
 
-.search input {
-    width: 100%;
-    position: relative;
-    padding: 10px 10px 10px 30px;
+    input {
+        width: 100%;
+        position: relative;
+        padding: 10px 10px 10px 30px;
 
-    border-radius: 5px;
-    outline: 0;
-    border: 0;
-    background-color: #eaeaea;
-    font-size: 1.1rem;
-}
+        border-radius: 5px;
+        outline: 0;
+        border: 0;
+        background-color: #eaeaea;
+        font-size: 1.1rem;
 
-.search input:focus {
-    border: 2px solid #c7c7c7c5;
-}
+        &:focus {
+            border: 2px solid #c7c7c7c5;
+        }
+    }
 
-.search .icone-pesquisa {
-    position: absolute;
-    left: 1rem;
-    z-index: 1;
-}
+    .icone-pesquisa {
+        position: absolute;
+        left: 1rem;
+        z-index: 1;
+    }
 
-.search .layoutNovaTransferencia {
-    left: 25px !important;
-    bottom: 66px !important;
+    .layoutNovaTransferencia {
+        left: 25px !important;
+        bottom: 66px !important;
+    }
 }
 
 .bg-message {
@@ -2289,50 +2276,49 @@ img {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-}
 
-.perfil-container button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
+    button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
 
-    background: #ffff;
-    transition:
-        transform 100ms ease-out,
-        background-color 100ms ease-out;
+        background: #ffff;
+        transition:
+            transform 100ms ease-out,
+            background-color 100ms ease-out;
 
-    will-change: transform;
-    backface-visibility: hidden;
-}
+        will-change: transform;
+        backface-visibility: hidden;
 
-.perfil-container button:hover {
-    background-color: #f4f4f4;
-    transform: scale(1.1);
-}
+        &:hover {
+            background-color: #f4f4f4;
+            transform: scale(1.1);
+        }
 
-.perfil-container button:focus {
-    outline: none;
-    border: 2px solid #a7a6a6;
-}
+        &:focus {
+            outline: none;
+            border: 2px solid #a7a6a6;
+        }
 
-.perfil-container button i {
-    font-size: 16px;
+        i {
+            font-size: 16px;
+        }
+    }
 }
 
 .perfil-content {
     display: flex;
     align-items: center;
     gap: 1px;
+
+    img {
+        width: 40px;
+        height: 40px;
+    }
 }
 
-.perfil-content img {
-    width: 40px;
-    height: 40px;
-}
-
-.imgbx img,
 .perfil-content img,
 .perfil-container button {
     border-radius: 50%;
@@ -2356,59 +2342,39 @@ img {
     background-color: #f0f2f5 !important;
 }
 
-.input-group-prepend button {
-    background-color: transparent;
+.input-group-prepend {
+    button {
+        background-color: transparent;
 
-    transition:
-        background-color 200ms ease,
-        transform 200ms ease;
-    will-change: transform;
-    backface-visibility: hidden;
-}
-
-@media (max-width: 550px) {
-    .btn-group {
-        display: none;
+        transition:
+            background-color 200ms ease,
+            transform 200ms ease;
+        will-change: transform;
+        backface-visibility: hidden;
     }
-}
 
-.response-msg-wrapper {
-    border-left: solid 3px;
-    filter: opacity(85%);
-}
+    .btn-escolhas {
+        padding: 6px 5px !important;
 
-.response-btn-close {
-    position: absolute;
-    right: 1rem;
-    top: 0.5rem;
-    background-color: transparent;
-}
+        &:hover {
+            background-color: #e8eaee;
+            transform: scale(1.05);
+        }
 
-.response-btn-close i {
-    color: #6c757d;
+        &:focus {
+            outline: none;
+            border: 2px solid #bbb9b9 !important;
+            border-radius: 50%;
+        }
 
-    transition: all 0.2s ease;
-}
+        i {
+            color: #4d4f5c;
+            transition: all 300ms ease-out;
 
-.response-btn-close i:hover {
-    color: #4d5359;
-}
-
-.response-msg-wrapper dl dt {
-    font-size: 0.8rem;
-}
-
-.response-msg-wrapper dl dd {
-    font-size: 0.83rem;
-}
-
-.response-msg-wrapper .response-msg-img {
-    width: 50px;
-}
-
-@media (min-width: 768px) {
-    .response-msg-wrapper .response-msg-img {
-        width: 60px;
+            &.rotated {
+                transform: rotate(135deg);
+            }
+        }
     }
 }
 
@@ -2417,47 +2383,32 @@ img {
     justify-content: center;
     align-items: center;
     padding: 2px 0px;
-}
 
-.input-group-prepend .btn-escolhas {
-    padding: 6px 5px !important;
-}
+    &:hover {
+        background-color: #e8eaee;
+        transform: scale(1.05);
+    }
 
-.input-group-prepend .btn-escolhas:hover,
-.btn-emoji:hover {
-    background-color: #e8eaee;
-    transform: scale(1.05);
-}
+    &:focus {
+        outline: none;
+        border: 2px solid #bbb9b9 !important;
+        border-radius: 50%;
+    }
 
-.input-group-prepend .btn-escolhas:focus,
-.btn-emoji:focus {
-    outline: none;
-    border: 2px solid #bbb9b9 !important;
-    border-radius: 50%;
-}
-
-.input-group-prepend .btn-escolhas i,
-.btn-emoji i {
-    color: #4d4f5c;
-    transition: all 300ms ease-out;
-}
-
-.input-group-prepend .btn-escolhas i.rotated {
-    transform: rotate(135deg);
+    i {
+        color: #4d4f5c;
+        transition: all 300ms ease-out;
+    }
 }
 
 .icon-size {
     font-size: 11px;
-}
 
-@media (min-width: 576px) {
-    .icon-size {
+    @media (min-width: 576px) {
         font-size: 12px;
     }
-}
 
-@media (min-width: 1400px) {
-    .icon-size {
+    @media (min-width: 1400px) {
         font-size: 14px;
     }
 }
@@ -2473,23 +2424,23 @@ img {
     overflow-y: hidden;
     line-height: 1.4;
     transition: height 100ms ease;
-}
 
-.input-area:focus {
-    overflow-y: auto;
-}
+    &:focus {
+        overflow-y: auto;
+    }
 
-.input-area::-webkit-scrollbar {
-    width: 2px;
-}
+    &::-webkit-scrollbar {
+        width: 2px;
+    }
 
-.input-area::-webkit-scrollbar-track {
-    background: transparent;
-}
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
 
-.input-area::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
+    &::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
 }
 
 .btn-send {
@@ -2502,26 +2453,20 @@ img {
     background-color: #2cacbf;
     border-radius: 50%;
     transition: opacity 200ms ease;
-}
 
-.btn-send:hover {
-    opacity: 0.9;
-}
+    &:hover {
+        opacity: 0.9;
+    }
 
-.btn-send:focus {
-    outline: none;
-    border: 2px solid #bbb9b9 !important;
+    &:focus {
+        outline: none;
+        border: 2px solid #bbb9b9 !important;
+    }
 }
 
 .icon-send {
     width: 1rem;
     height: 1rem;
-}
-
-@media (max-width: 1400px) {
-    .header {
-        font-size: 0.9em;
-    }
 }
 
 @media (max-width: 900px) {
@@ -2558,6 +2503,10 @@ img {
         display: block;
     }
 
+    .btn-group {
+        display: none;
+    }
+
     .btn-send {
         width: 3rem;
         height: 2.6rem;
@@ -2568,10 +2517,10 @@ img {
     display: flex;
     padding: 8px;
     align-items: center;
-}
 
-.layout_encaminharMensagem span {
-    margin-left: auto;
+    span {
+        margin-left: auto;
+    }
 }
 
 .cursor-pointer {

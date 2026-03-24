@@ -1,4 +1,5 @@
 import Axios from 'axios'
+import { base64 } from '@/utils/base64.js'
 
 const API = Axios.create({
     baseURL: 'https://inzupt.com.br/api/api',
@@ -32,15 +33,15 @@ export function enviaMidia(data) {
 }
 
 export async function conversaList(data) {
-    const dataEncripted = btoa(JSON.stringify(data))
+    const dataEncripted = base64.encode(JSON.stringify(data))
 
     const response = await API.post('/conversas_bd/ZmlsYWRlYXRlbmRpbWVudG8=', dataEncripted)
 
-    return JSON.parse(atob(response.data))
+    return JSON.parse(base64.decode(response.data))
 }
 
 export async function sincronizar(data) {
-    const dataEncripted = btoa(JSON.stringify(data))
+    const dataEncripted = base64.encode(JSON.stringify(data))
 
     const response = await API.post('/atendimento/sync/ZmlsYWRlYXRlbmRpbWVudG8=', dataEncripted)
 

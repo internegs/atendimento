@@ -27,6 +27,8 @@ Usa Firebase para mensagens em tempo real e IndexedDB para cache local de conver
 - Alias `@` aponta para `src/`
 - Stores Pinia seguem o padrão `useXxxStore` (ex: `useListStatesStore`)
 - API calls: campos sensíveis no payload são encodados com `btoa()`; endpoints também podem ser base64
+- Estilos de componentes usam `<style lang="scss" scoped>` com aninhamento SCSS
+- Props do tipo `Function` são proibidas — substituir por `defineEmits` + função wrapper local que emite o evento; eventos em kebab-case (ex: `'contato-selecionado'`, `'abrir-conversa'`)
 
 ### Ordem em componentes Vue — Composition API (`<script setup>`)
 `imports` → `defineOptions/Props/Emits` → `Inject/Provide` → variáveis normais (const sem ref) → variáveis reativas (`ref`) → stores pinia → `Composables` → `computed` → funções/métodos → `watch` → lifecycle hooks
@@ -48,7 +50,7 @@ src/
     ui/                — ImgComponent, UiBtnCircle, ProgressBarScreen
     GLOBALS/           — CidadesEstado, container
     mixins/            — IsView.js, ShowsTimes.js (legados)
-  views/           2 páginas: atendimento.vue (main, Options API, ~3156 linhas), ErrorsPage.vue
+  views/           2 páginas: atendimento.vue (main, script setup, ~2600 linhas), ErrorsPage.vue
   stores/          useListStatesStore (estados brasileiros)
   services/        api/api.js, api/newApi.js, api/apiImagem.js · middleware.js · IDBService.js
   utils/           formatters.js, localStorageDecode.js, links.js, useAudioRecorder.js, useTimerControl.js, math.js
