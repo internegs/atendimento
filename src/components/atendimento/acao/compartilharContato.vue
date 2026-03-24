@@ -75,7 +75,7 @@
 
 <script>
 import Container from '@/components/GLOBALS/container.vue'
-import api from '@/services/api/api.js'
+import api from '@/services/api.js'
 
 export default {
     name: 'CompartilharContato',

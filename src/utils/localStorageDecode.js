@@ -1,4 +1,4 @@
-import api from '@/services/api/api.js'
+import api from '@/services/api.js'
 
 export const localStorageDecode = async (token) => {
     try {

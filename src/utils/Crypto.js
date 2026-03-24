@@ -1,11 +1,11 @@
-class CryptoService {
+class Crypto {
     #cryptoKey = null
 
     constructor(cryptoKey) {
         this.#cryptoKey = cryptoKey
     }
 
-    async decrypt(cypher) {
+    async decode(cypher) {
         const buffer = Uint8Array.from(atob(cypher), c => c.charCodeAt(0))
         const iv = buffer.slice(0, 12)
         const data = buffer.slice(12)
@@ -20,4 +20,4 @@ class CryptoService {
     }
 }
 
-export default CryptoService
+export default Crypto

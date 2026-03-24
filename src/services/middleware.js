@@ -1,4 +1,4 @@
-import Api from '@/services/api/api.js'
+import Api from '@/services/api.js'
 import LINKS from '@/utils/links'
 import { localStorageDecode } from '@/utils/localStorageDecode'
 

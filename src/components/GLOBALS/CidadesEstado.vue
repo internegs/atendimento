@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import Api from '@/services/api/api.js'
+import Api from '@/services/api.js'
 import { mapState } from 'pinia'
 import { useListStatesStore } from '@/stores/index.js'
 

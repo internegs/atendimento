@@ -188,9 +188,9 @@
                         <lista-atendimentos-chat-interno
                             v-if="listaContatosInterno"
                             :lista="listaContatosInterno"
-                            :change="abrirConversaChatInterno"
                             :ativado="idContatoAtivo"
-                            :novointerno="qtdmensagensinternas"
+                            :novo-interno="qtdmensagensinternas"
+                            @contato-selecionado="abrirConversaChatInterno"
                         />
 
                         <lista-atendimentos
@@ -1005,7 +1005,7 @@ import ListaAtendimentos from '@/components/atendimento/ListaAtendimentos.vue'
 import ListaAtendimentosChatInterno from '@/components/atendimento/ListaAtendimentosChatInterno.vue'
 import ChatAtendimento from '@/components/atendimento/ChatAtendimento.vue'
 import ChatAtendimentoContatosInterno from '@/components/atendimento/ChatAtendimentoContatosInterno.vue'
-import Api from '@/services/api/api.js'
+import Api from '@/services/api.js'
 import EditarContato from '@/components/atendimento/acao/editarContato.vue'
 import TransferirAtendimento from '@/components/atendimento/acao/transferirAtendimento.vue'
 import apagarMensagem from '@/components/atendimento/acao/apagaMensagem.vue'

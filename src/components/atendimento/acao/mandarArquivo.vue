@@ -115,8 +115,8 @@
 
 <script>
 import Container from '@/components/GLOBALS/container.vue'
-import apiImagem from '@/services/api/apiImagem.js'
-import api from '@/services/api/api.js'
+import apiImagem from '@/services/apiImagem.js'
+import api from '@/services/api.js'
 import * as pdfjsLib from 'pdfjs-dist'
 import 'pdfjs-dist/web/pdf_viewer.css'
 

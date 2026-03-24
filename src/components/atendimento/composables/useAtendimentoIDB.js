@@ -1,6 +1,6 @@
 import { ref, reactive, markRaw } from 'vue'
 import IDBService from '@/services/IDBService.js'
-import { sincronizar } from '@/services/api/newApi.js'
+import { sincronizar } from '@/services/newApi.js'
 
 export function useAtendimentoIDB({
     userId,
@@ -123,8 +123,6 @@ export function useAtendimentoIDB({
 
         const fone = contatoSelecionado.value?.fone ?? null
         const hasContato = [...new Set(contatos)]?.includes(btoa(fone))
-
-        console.log(contatos)
 
         if (conversaAberta.value && hasContato) {
 

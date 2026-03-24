@@ -74,88 +74,75 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: 'ListaAtendimento',
+<script setup>
+import { ref, watch } from 'vue'
 
-    props: {
-        lista: {
-            type: Array,
-        },
-        ativado: {
-            type: Number,
-        },
-        novo: {
-            type: Boolean,
-        },
-        tipo: {
-            type: [String, Number],
-        },
-        qtdNovaMensagem: {
-            type: Object,
-        },
+defineOptions({ name: 'ListaAtendimento' })
+
+const props = defineProps({
+    lista: {
+        type: Array,
     },
+    ativado: {
+        type: Number,
+    },
+    novo: {
+        type: Boolean,
+    },
+    tipo: {
+        type: [String, Number],
+    },
+    qtdNovaMensagem: {
+        type: Object,
+    },
+})
 
-    emits: ['contato-selecionado'],
+const emit = defineEmits(['contato-selecionado'])
 
-    data() {
-        return {
-            novo1: '',
-            cont: 0,
-            errorPhotoList: [],
+const errorPhotoList = ref([])
+
+function setPhotoError(contatoId) {
+    if (!errorPhotoList.value.includes(contatoId)) {
+        errorPhotoList.value.push(contatoId)
+    }
+}
+
+function hasPhotoError(contatoId) {
+    return errorPhotoList.value.includes(contatoId)
+}
+
+function maskPhone(value) {
+    if (!value || value.length === 0) return value
+
+    if (value.length > 13) {
+        if (value?.includes('+')) {
+            return `${value.slice(1, 3)} (${value.slice(3, 5)}) ${value.slice(5, 6)} ${value.slice(6, 10)}-${value.slice(10)}`
+        }
+
+        return value
+    }
+
+    return `+${value.slice(0, 2)} (${value.slice(2, 4)}) ${value.slice(4, 5)} ${value.slice(5, 9)}-${value.slice(9)}`
+}
+
+function selecionarContato(contato) {
+    emit('contato-selecionado', { usuario: contato })
+}
+
+watch(
+    () => props.lista,
+    newVal => {
+        if (newVal && Array.isArray(newVal)) {
+            errorPhotoList.value = newVal
+                .filter(contato => !contato.foto || contato.foto === '' || contato.foto === null)
+                .map(contato => contato.id)
         }
     },
-
-    watch: {
-        lista: {
-            handler(newVal) {
-                if (newVal && Array.isArray(newVal)) {
-                    this.errorPhotoList = this.lista
-                        .filter(
-                            contato => !contato.foto || contato.foto === '' || contato.foto === null
-                        )
-                        .map(contato => contato.id)
-                }
-            },
-            immediate: true,
-        },
-    },
-
-    methods: {
-        setPhotoError(contatoId) {
-            if (!this.errorPhotoList.includes(contatoId)) {
-                this.errorPhotoList.push(contatoId)
-            }
-        },
-
-        hasPhotoError(contatoId) {
-            return this.errorPhotoList.includes(contatoId)
-        },
-
-        maskPhone(value) {
-            if (!value || value.lenght === 0) return value
-
-            if (value.length > 13) {
-                if (value?.includes('+')) {
-                    return `${value.slice(1, 3)} (${value.slice(3, 5)}) ${value.slice(5, 6)} ${value.slice(6, 10)}-${value.slice(10)}`
-                }
-
-                return value
-            }
-
-            return `+${value.slice(0, 2)} (${value.slice(2, 4)}) ${value.slice(4, 5)} ${value.slice(5, 9)}-${value.slice(9)}`
-        },
-
-        selecionarContato(contato) {
-            this.$emit('contato-selecionado', {
-                usuario: contato,
-            })
-        },
-    },
-}
+    { immediate: true }
+)
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 img {
     max-width: 100%;
 }
@@ -164,40 +151,38 @@ img {
     position: relative;
     height: 99%;
     overflow-y: auto;
-}
 
-.chat-list .block {
-    position: relative;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    padding: 10px 15px;
-    gap: 0.5rem;
+    .block {
+        position: relative;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        gap: 0.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        cursor: pointer;
 
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-    cursor: pointer;
-}
+        &.active {
+            background-color: #ebebeb;
+        }
 
-.block .imgbx {
-    position: relative;
-    width: 45px;
-    height: 45px;
-}
+        &:hover {
+            background-color: #f5f5f5;
+        }
 
-.details {
-    margin-left: 10px;
-}
+        .imgbx {
+            position: relative;
+            width: 45px;
+            height: 45px;
 
-.imgbx img,
-.img-text img {
-    border-radius: 50%;
-}
+            img {
+                border-radius: 50%;
+            }
+        }
 
-.block.active {
-    background-color: #ebebeb;
-}
-
-.block:hover {
-    background-color: #f5f5f5;
+        .details {
+            margin-left: 10px;
+        }
+    }
 }
 </style>

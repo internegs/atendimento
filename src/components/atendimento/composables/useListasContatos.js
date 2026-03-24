@@ -1,5 +1,5 @@
 import { ref, watch } from 'vue'
-import Api from '@/services/api/api.js'
+import Api from '@/services/api.js'
 
 export function useListasContatos({
     contatoSelecionado,

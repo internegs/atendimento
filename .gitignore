@@ -21,7 +21,20 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
-*.pem
-
 # Files LLM
-CLAUDE.md
+# CLAUDE.md
+
+# Claude Code
+.claude/
+
+# Serena (MCP tool)
+.serena/
+
+# Yarn Berry
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Expo
+.expo/
