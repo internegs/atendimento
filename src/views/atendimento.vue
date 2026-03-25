@@ -636,14 +636,6 @@
                                         : 'border-color: #0c9fb4'
                                 "
                             >
-                                <button
-                                    type="button"
-                                    class="response-btn-close"
-                                    @click="fecharResponderLayout"
-                                >
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
-
                                 <dl>
                                     <dt>{{ mensagemResponder.nome }}</dt>
 
@@ -652,14 +644,24 @@
                                     </dd>
                                 </dl>
 
-                                <div
-                                    v-if="mensagemResponder.mediaUrl"
-                                    class="me-4 response-msg-img"
-                                >
-                                    <img-component
-                                        :file-url="mensagemResponder.mediaUrl"
-                                        :zoom-enabled="false"
-                                    />
+                                <div class="wrapper-media-close">
+                                    <div
+                                        v-if="mensagemResponder.mediaUrl"
+                                        class="me-4 response-msg-media"
+                                    >
+                                        <img-component
+                                            :file-url="mensagemResponder.mediaUrl"
+                                            :zoom-enabled="false"
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        class="response-btn-close"
+                                        @click="fecharResponderLayout"
+                                    >
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
                                 </div>
                             </div>
                         </transition>
@@ -2311,6 +2313,32 @@ img {
                 max-height: 500px;
 
                 background-color: #f0f2f5 !important;
+
+                .response-msg-wrapper {
+                    border-left: 0.2rem solid;
+
+                    .wrapper-media-close {
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+
+                        .response-msg-media {
+                            width: 4rem;
+                        }
+
+                        .response-btn-close {
+                            padding: 0.5rem;
+                            border-radius: 50%;
+                            color: #495057;
+                            background-color: transparent;
+                            transition: background-color 0.3s ease;
+
+                            &:hover {
+                                background-color: #eaeaea;
+                            }
+                        }
+                    }
+                }
             }
 
             .layout_encaminharMensagem {

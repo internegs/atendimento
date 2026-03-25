@@ -1079,12 +1079,18 @@ const validationMessage = computed(() => {
 function escolhaSelecionado(opcao, mensagem) {
     openBoxOpt.value = null
 
+    const hasMedia =
+        mensagem.url_link &&
+        mensagem.url_link !== '' &&
+        mensagem.url_link !== 'NULL' &&
+        mensagem.url_link !== 'null'
+
     let payload = {
-        id: mensagem.message_id,
-        nome: mensagem.contactName,
-        fone: mensagem.fone_enviado,
-        wook: mensagem.wook,
-        mediaUrl: mensagem.url_link,
+        id: mensagem?.message_id ?? null,
+        nome: mensagem?.contactName ?? null,
+        fone: mensagem?.fone_enviado ?? null,
+        wook: mensagem?.wook ?? null,
+        mediaUrl: hasMedia ? mensagem.url_link : null,
     }
 
     switch (opcao) {
