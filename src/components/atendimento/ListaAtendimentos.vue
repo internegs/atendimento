@@ -143,11 +143,11 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-img {
-    max-width: 100%;
-}
-
 .chat-list {
+    img {
+        max-width: 100%;
+    }
+
     position: relative;
     height: 99%;
     overflow-y: auto;

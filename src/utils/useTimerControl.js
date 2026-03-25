@@ -30,6 +30,7 @@ export default function useTimerControl() {
                     }
 
                     const secFormatted = seconds.value.toString().padStart(2, '0')
+
                     time.value = `${minutes.value}:${secFormatted}`
                 }, 1000)
             }

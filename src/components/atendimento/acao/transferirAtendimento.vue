@@ -1,5 +1,5 @@
 <template>
-    <container>
+    <div class="container-fluid">
         <!-- Modal -->
         <div
             id="transfereAtendimento"
@@ -87,18 +87,17 @@
                 </div>
             </div>
         </div>
-    </container>
+    </div>
 </template>
 
 <script>
-import Container from '@/components/GLOBALS/container.vue'
 import Api from '@/services/api.js'
 import Swal from 'sweetalert2'
 
 export default {
     name: 'transfereAtendimento',
 
-    components: { Container },
+    components: {},
 
     props: {
         id_atendimento: {
@@ -191,13 +190,13 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
 .form-pad {
     padding: 10px 20px !important;
 }
 
-@media (max-width: 600px) {
-    button {
+button {
+    @media (max-width: 600px) {
         width: 100%;
     }
 }

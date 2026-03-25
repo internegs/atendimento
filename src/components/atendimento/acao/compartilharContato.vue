@@ -1,5 +1,5 @@
 <template>
-    <container>
+    <div class="container-fluid">
         <div
             id="compartilharContato"
             class="modal fade"
@@ -70,17 +70,16 @@
                 </div>
             </div>
         </div>
-    </container>
+    </div>
 </template>
 
 <script>
-import Container from '@/components/GLOBALS/container.vue'
 import api from '@/services/api.js'
 
 export default {
     name: 'CompartilharContato',
 
-    components: { Container },
+    components: {},
 
     props: {
         fone: {
@@ -154,27 +153,32 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
 .form-pad {
     padding: 10px 20px !important;
 }
+
 ul {
     list-style: none;
 }
+
 .list {
     width: 100%;
     background-color: #ffffff;
     border-radius: 0 0 5px 5px;
 }
+
 .list-group-item {
     padding: 10px 5px;
     cursor: pointer;
+
+    &:hover {
+        background-color: #dddddd;
+    }
 }
-.list-group-item:hover {
-    background-color: #dddddd;
-}
-@media (max-width: 600px) {
-    button {
+
+button {
+    @media (max-width: 600px) {
         width: 100%;
     }
 }

@@ -1,5 +1,5 @@
 <template>
-    <container>
+    <div class="container-fluid">
         <div
             id="add_user"
             class="offcanvas offcanvas-end"
@@ -153,19 +153,18 @@
                 </div>
             </div>
         </div>
-    </container>
+    </div>
 </template>
 
 <script>
 import Locais from '@/components/GLOBALS/CidadesEstado.vue'
-import Container from '@/components/GLOBALS/container.vue'
 import Api from '@/services/api.js'
 import Swal from 'sweetalert2'
 
 export default {
     name: 'AddUser',
 
-    components: { Container, Locais },
+    components: { Locais },
 
     props: {
         grupos: {

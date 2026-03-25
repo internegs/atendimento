@@ -37,21 +37,13 @@ export default function useAudioRecorder() {
         return time.value
     })
 
-    onUnmounted(() => {
-        if (mediaRecorder && isRecording.value) {
-            stop()
-        }
-
-        if (audioUrl.value) {
-            URL.revokeObjectURL(audioUrl.value)
-        }
-    })
-
-    const start = async () => {
+    async function start() {
         if (isPaused.value) {
             isPaused.value = false
+
             mediaRecorder.resume()
             timer.start()
+
             isRecording.value = true
 
             return
@@ -74,7 +66,7 @@ export default function useAudioRecorder() {
         timer.start()
     }
 
-    const stop = () => {
+    function stop() {
         if (mediaRecorder && isRecording.value) {
             mediaRecorder.stop()
             isRecording.value = false
@@ -87,14 +79,14 @@ export default function useAudioRecorder() {
         }
     }
 
-    const pause = () => {
+    function pause() {
         timer.pause()
         mediaRecorder.pause()
         isRecording.value = false
         isPaused.value = true
     }
 
-    const audioProcess = () => {
+    function audioProcess() {
         if (audioUrl.value) {
             URL.revokeObjectURL(audioUrl.value)
         }
@@ -105,7 +97,7 @@ export default function useAudioRecorder() {
         audioUrl.value = URL.createObjectURL(blob)
     }
 
-    const cancelRecording = async () => {
+    async function cancelRecording() {
         timer.stop()
 
         if (mediaRecorder && isRecording.value) {
@@ -130,6 +122,16 @@ export default function useAudioRecorder() {
         audioChunks = []
         audioStream = null
     }
+
+    onUnmounted(() => {
+        if (mediaRecorder && isRecording.value) {
+            stop()
+        }
+
+        if (audioUrl.value) {
+            URL.revokeObjectURL(audioUrl.value)
+        }
+    })
 
     return {
         isRecording,

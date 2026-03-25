@@ -198,11 +198,8 @@ export function useAtendimentoIDB({
         processadosNestaSessao,
         loadingPage,
         qtdNovaMensagem,
-        initIdbConn,
         useIndexedDb,
-        sincronizarConversas,
         carregarMensagens,
-        decodeList,
         fecharIdb,
         deletarIdb,
     }

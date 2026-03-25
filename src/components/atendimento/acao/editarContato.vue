@@ -1,5 +1,5 @@
-<template>
-    <container>
+ <template>
+    <div class="container-fluid">
         <div
             id="acao_editar"
             class="offcanvas offcanvas-end"
@@ -153,11 +153,10 @@
                 </div>
             </div>
         </div>
-    </container>
+    </div>
 </template>
 
 <script>
-import Container from '@/components/GLOBALS/container.vue'
 import Locais from '@/components/GLOBALS/CidadesEstado.vue'
 import Api from '@/services/api.js'
 import Swal from 'sweetalert2'
@@ -165,7 +164,7 @@ import Swal from 'sweetalert2'
 export default {
     name: 'editarContato',
 
-    components: { Container, Locais },
+    components: { Locais },
 
     props: {
         grupos: {
@@ -363,13 +362,13 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
 .form-pad {
     padding: 10px 20px !important;
 }
 
-@media (max-width: 600px) {
-    button {
+button {
+    @media (max-width: 600px) {
         width: 100%;
     }
 }

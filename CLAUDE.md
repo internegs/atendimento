@@ -43,21 +43,19 @@ Keys relevantes: `@TOKEN`, `@USER_ID`. Populadas via `localStorageDecode()` apó
 ```
 src/
   components/      Componentes UI organizados por domínio:
-    atendimento/       — chat, lista de contatos, ações (enviar mídia, transferir, etc.)
+    atendimento/       — chat, lista de contatos, ações (transferir, encaminhar, etc.)
+        acao/          — AudioRecorderComponent, compartilharContato, editarContato, encaminhaMensagens, transferirAtendimento, ADDUSUARIOVUE
         composables/   — useAtendimentoFirebase, useAtendimentoIDB, useListasContatos e useNotificacaoAtendimento
-    audio/             — player, recorder, uploader, volume-control
-    modals/            — BaseModal + display-media, display-document, display-template-message
-    ui/                — ImgComponent, UiBtnCircle, ProgressBarScreen
-    GLOBALS/           — CidadesEstado, container
-    mixins/            — IsView.js, ShowsTimes.js (legados)
-  views/           2 páginas: atendimento.vue (main, script setup, ~2600 linhas), ErrorsPage.vue
+    modals/            — BaseModal + display-media, display-document, display-media-preview, display-template-message
+    ui/                — ImgComponent · screen-overlay/ProgressBarScreen
+    GLOBALS/           — CidadesEstado
+  views/           2 páginas: atendimento.vue (main, script setup), ErrorsPage.vue
   stores/          useListStatesStore (estados brasileiros)
   services/        api/api.js, api/newApi.js, api/apiImagem.js · middleware.js · IDBService.js
-  utils/           formatters.js, localStorageDecode.js, links.js, useAudioRecorder.js, useTimerControl.js, math.js
+  utils/           formatters.js, localStorageDecode.js, links.js, useAudioRecorder.js, useTimerControl.js, math.js, Crypto.js, base64.js
   firebase/        Inicialização do Firebase + Vue plugin (expõe $firebase, $database, $auth, $storage)
   router/          Rotas: /atendimento/:token?, / (erros), wildcard → /error
   assets/styles/   SCSS: index.scss, mixins.scss, tooltip.scss, transitons.scss
-  mixins/          uploader-props.js
 ```
 
 ## Rotas de API

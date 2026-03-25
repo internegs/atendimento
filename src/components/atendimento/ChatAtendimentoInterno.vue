@@ -130,6 +130,16 @@ onUpdated(() => {
 </script>
 
 <style lang="scss" scoped>
+.user_foto {
+    border-radius: 50%;
+    width: 45px !important;
+    height: 45px !important;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
 .chatBox {
     position: relative;
     width: 100%;
@@ -145,115 +155,105 @@ onUpdated(() => {
     @media (min-width: 1400px) {
         height: 86%;
     }
-}
 
-.user_foto {
-    border-radius: 50%;
-    width: 45px !important;
-    height: 45px !important;
-}
+    .message {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
 
-.cursor-pointer {
-    cursor: pointer;
-}
+        .message-normal {
+            position: relative;
+            right: 0;
+            max-width: 60%;
+            padding: 15px;
+            background-color: #efefef;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            white-space: pre-line;
+            word-break: break-all;
+        }
 
-.box_abre_selecoes {
-    position: absolute;
-    right: 0;
-    top: 0;
-}
+        .select {
+            background-color: #efefef;
+            position: absolute;
+            right: 1%;
+            top: 2%;
+            overflow: hidden;
+            width: 50%;
+            font-size: 0.9rem;
+        }
 
-.abrir-selecoes {
-    position: absolute;
-    top: 4px;
-    right: 8px;
-}
+        div img {
+            object-fit: contain;
+            width: 200px;
+            height: 150px;
+        }
 
-.vcard-header {
-    width: 100%;
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    justify-content: space-around;
-}
+        audio {
+            max-width: 90%;
+        }
 
-.vcard-body {
-    text-align: center;
-    margin-top: 10px;
-}
+        .box_abre_selecoes {
+            position: absolute;
+            right: 0;
+            top: 0;
 
-.message {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
+            .abrir-selecoes {
+                position: absolute;
+                top: 4px;
+                right: 8px;
+            }
+        }
 
-    .message-normal {
-        position: relative;
-        right: 0;
-        max-width: 60%;
-        padding: 15px;
-        background-color: #efefef;
-        border-radius: 10px;
-        font-size: 0.9rem;
-        white-space: pre-line;
-        word-break: break-all;
+        .vcard-header {
+            width: 100%;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .vcard-body {
+            text-align: center;
+            margin-top: 10px;
+        }
     }
 
-    .select {
-        background-color: #efefef;
+    .box-mensagens {
+        width: 100%;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        margin: 10px 0;
+    }
+
+    .my_message {
+        align-self: flex-end;
+
+        .message-normal,
+        .tempo {
+            align-self: flex-end;
+        }
+
+        .message-normal {
+            background-color: #d9fdd3;
+        }
+    }
+
+    .box-opcoes {
+        display: none !important;
+        background-color: #fff;
+        z-index: 5;
         position: absolute;
         right: 1%;
-        top: 2%;
-        overflow: hidden;
-        width: 50%;
-        font-size: 0.9rem;
-    }
-
-    div img {
-        object-fit: contain;
+        top: -130px;
         width: 200px;
-        height: 150px;
-    }
+        padding: 20px;
+        box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 
-    audio {
-        max-width: 90%;
-    }
-}
-
-.box-mensagens {
-    width: 100%;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    margin: 10px 0;
-}
-
-.my_message {
-    align-self: flex-end;
-
-    .message-normal,
-    .tempo {
-        align-self: flex-end;
-    }
-
-    .message-normal {
-        background-color: #d9fdd3;
-    }
-}
-
-.box-opcoes {
-    display: none !important;
-    background-color: #fff;
-    z-index: 5;
-    position: absolute;
-    right: 1%;
-    top: -130px;
-    width: 200px;
-    padding: 20px;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-
-    &.on {
-        display: block !important;
+        &.on {
+            display: block !important;
+        }
     }
 }
 </style>

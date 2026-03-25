@@ -66,14 +66,14 @@ function selecionarContato(contato) {
 </script>
 
 <style lang="scss" scoped>
-img {
-    max-width: 100%;
-}
-
 .chat-list {
     position: relative;
     overflow-y: auto;
     height: calc(100% - 110px);
+
+    img {
+        max-width: 100%;
+    }
 
     .block {
         position: relative;
@@ -96,45 +96,48 @@ img {
             position: relative;
             width: 45px;
             height: 45px;
+
+            img {
+                border-radius: 50%;
+            }
         }
-    }
-}
 
-.img-text {
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-}
+        .img-text {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
 
-.imgbx img,
-.img-text img {
-    border-radius: 50%;
-}
+            img {
+                border-radius: 50%;
+            }
+        }
 
-.details {
-    display: flex;
-    align-items: center;
-    margin: 10px 0 10px 20px;
+        .details {
+            display: flex;
+            align-items: center;
+            margin: 10px 0 10px 20px;
 
-    &.online::before {
-        margin-right: 10px;
-        content: '';
-        display: inline-block;
-        background-color: #00ff00;
-        height: 5px;
-        width: 5px;
-        border-radius: 50%;
-    }
+            &.online::before {
+                margin-right: 10px;
+                content: '';
+                display: inline-block;
+                background-color: #00ff00;
+                height: 5px;
+                width: 5px;
+                border-radius: 50%;
+            }
 
-    &.offline::before {
-        margin-right: 10px;
-        content: '';
-        display: inline-block;
-        background-color: #ff2800;
-        height: 10px;
-        width: 10px;
-        border-radius: 50%;
+            &.offline::before {
+                margin-right: 10px;
+                content: '';
+                display: inline-block;
+                background-color: #ff2800;
+                height: 10px;
+                width: 10px;
+                border-radius: 50%;
+            }
+        }
     }
 }
 </style>
