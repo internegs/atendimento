@@ -117,7 +117,10 @@ export default {
 
 <style scoped lang="scss">
 .container-media {
-    @include flex-col-center();
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
     position: fixed;
     width: 100%;
     height: 100%;

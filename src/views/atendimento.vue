@@ -486,7 +486,6 @@
                         :estado-responder-mensagem="modoResponder"
                         :lista-mensagens-selecionadas="mensagensSelecionadas"
                         @abrir-conversa="abrirConversaContatoEncaminhado"
-                        @abremodal_apagarmensagem="abreModalApagarMensagem"
                         @handle-media="handleModalMedia"
                         @responder-layout="responderLayout"
                     />
@@ -946,13 +945,6 @@
             @atualiza-meus-atendimentos="chamarMeusAtendimentos"
         />
 
-        <apagar-mensagem
-            :mensagemdeleta="mensagemapagar"
-            :id_mensagem="message_id"
-            :fone="contatoSelecionado.fone"
-            @handle-apagar-mensagem="updateMessages"
-        />
-
         <compartilhar-contato
             :fone="contatoSelecionado.fone"
             @handle-encaminhar-contato="updateMessages"
@@ -1056,7 +1048,6 @@ const modoEncaminhar = ref(false)
 const modoResponder = ref(false)
 const mensagensSelecionadas = ref([])
 const mensagemResponder = ref({})
-const mensagemapagar = ref('')
 const message_id = ref(null)
 const opcaoSelecionada = ref('meus_atendimentos')
 const showEmojiPicker = ref(false)
@@ -1590,16 +1581,6 @@ function responderLayout(payload) {
         wook: payload?.wook,
         mediaUrl: payload?.mediaUrl,
     }
-}
-
-function abreModalApagarMensagem(payload) {
-    const abrirmodal = document.querySelector('#apagarmensagemmodal')
-    const modal = bootstrap.Modal.getOrCreateInstance(abrirmodal)
-
-    modal.show()
-
-    mensagemapagar.value = payload.mensagem
-    message_id.value = payload.id
 }
 
 function fecharResponderLayout() {
@@ -2250,6 +2231,7 @@ img {
                             height: 40px;
 
                             background: #ffff;
+                            border-radius: 50%;
                             transition:
                                 transform 100ms ease-out,
                                 background-color 100ms ease-out;
@@ -2281,12 +2263,8 @@ img {
                         img {
                             width: 40px;
                             height: 40px;
+                            border-radius: 50%;
                         }
-                    }
-
-                    .perfil-content img,
-                    .perfil-container button {
-                        border-radius: 50%;
                     }
 
                     .responsive {
