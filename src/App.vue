@@ -2,17 +2,17 @@
     <router-view />
 </template>
 
-<script>
-export default {
-    name: 'App',
+<script setup>
+import { onMounted } from 'vue'
 
-    mounted() {
-        document.querySelectorAll('[data-bs-togle="tooltip"]').forEach(el => {
-            // eslint-disable-next-line no-undef
-            new bootstrap.Tooltip(el, { trigger: 'hover' })
-        })
-    },
-}
+defineOptions({ name: 'Atendimento' })
+
+onMounted(() => {
+    document.querySelectorAll('[data-bs-togle="tooltip"]').forEach(el => {
+        // eslint-disable-next-line no-undef
+        new bootstrap.Tooltip(el, { trigger: 'hover' })
+    })
+})
 </script>
 
 <style>
@@ -51,6 +51,10 @@ button {
 
 .font-roboto {
     font-family: 'Roboto', sans-serif;
+}
+
+li {
+    list-style: none;
 }
 
 ::-webkit-scrollbar-track {

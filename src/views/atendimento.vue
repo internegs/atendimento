@@ -186,8 +186,8 @@
                         <!-- Listagem de Contatos -->
 
                         <lista-atendimentos-chat-interno
-                            v-if="listaContatosInterno"
-                            :lista="listaContatosInterno"
+                            v-if="opcaoSelecionada === 'interno'"
+                            :lista="listaContatos.internos"
                             :ativado="idContatoAtivo"
                             :novo-interno="qtdmensagensinternas"
                             @contato-selecionado="abrirConversaChatInterno"
@@ -223,7 +223,7 @@
                 class="rightSide"
             >
                 <div
-                    v-if="listaContatosInterno"
+                    v-if="isChatInternal"
                     class="chatbox_wrapper d-flex flex-column h-100 w-100"
                 >
                     <div class="headerConversation">
@@ -492,7 +492,7 @@
                 </div>
 
                 <div
-                    v-if="listaContatosInterno"
+                    v-if="listaContatos.internos && listaContatos.internos.length > 0"
                     style="background-color: #f5f1eb"
                 >
                     <div
@@ -992,6 +992,7 @@ const {
         foneConversa.value = meta.fone
         idContatoAtivo.value = meta.id
         atendimentoStatus.value = meta.ativo
+
         marcarConversaVisualizada()
     },
     onSincronizacaoConcluida: () => carregarDadosAdicionais(),
@@ -1001,7 +1002,6 @@ const {
     listaContatos,
     listaContatosSelecionado,
     listaContatosPesquisa,
-    listaContatosInterno,
     listaContatosLoading,
     fila_qtd,
     meusatendimentos_qtd,
@@ -1089,6 +1089,7 @@ async function sair() {
 
 async function abrirConversa(info_user) {
     try {
+        mensagens.value = []
         enviandoMensagem.value = true
         contatoSelecionado.value = info_user.usuario
         const fone = info_user?.usuario?.fone ?? null
@@ -1118,6 +1119,7 @@ async function abrirConversa(info_user) {
         delete qtdNovaMensagem.value[fone]
 
         enviandoMensagem.value = false
+        isChatInternal.value = false
         conversaAberta.value = true
 
         opcaoSelecionada.value = 'meus_atendimentos'
@@ -1182,30 +1184,38 @@ function abrirConversaContatoEncaminhado(info) {
         })
 }
 
-function abrirConversaChatInterno(info_user) {
-    contatoSelecionado.value = info_user.usuario
-    const objConversas = {
-        id: StorageUtil.get('@USER_ID'),
-        id_transferido: contatoSelecionado.value.id,
+async function abrirConversaChatInterno(info_user) {
+    try {
+        contatoSelecionado.value = info_user.usuario
+
+        const objConversas = {
+            id: StorageUtil.get('@USER_ID'),
+            id_transferido: contatoSelecionado.value.id,
+        }
+
+        mensagens.value = []
+
+        const response = await Api.post(
+            '/conversa_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=',
+            objConversas
+        )
+
+        const data = response.data
+
+        if (typeof data.mensagem === 'string') {
+            mensagens.value = []
+        } else {
+            mensagens.value = data?.conversas ?? []
+            foneConversa.value = contatoSelecionado.value.id
+            idContatoAtivo.value = contatoSelecionado.value.id
+            qtdmensagensinternas.value = data.lido
+        }
+
+        isChatInternal.value = true
+        conversaAberta.value = true
+    } catch (error) {
+        console.error(error)
     }
-
-    mensagens.value = []
-    Api.post('/conversa_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', objConversas)
-        .then(response => {
-            const data = response.data.conversas
-
-            if (typeof data.mensagem === 'string') {
-                mensagens.value = []
-            } else {
-                mensagens.value = data
-                foneConversa.value = contatoSelecionado.value.id
-                idContatoAtivo.value = contatoSelecionado.value.id
-                qtdmensagensinternas.value = response.lido
-            }
-        })
-        .catch(error => console.error(error))
-
-    conversaAberta.value = true
 }
 
 function atualizarConversaInterna() {

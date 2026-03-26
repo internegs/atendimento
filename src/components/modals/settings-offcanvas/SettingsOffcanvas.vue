@@ -26,7 +26,7 @@
                 </h2>
 
                 <div class="col-md-12">
-                    <h2 class="text-start fs-4 fw-bold">Notificação de atendimento</h2>
+                    <h2 class="text-start fs-4 fw-bold">Notificações</h2>
 
                     <div class="w-100 d-flex align-items-center mt-3 gap-4">
                         <span class="fs-4 fw-bold">Som:</span>

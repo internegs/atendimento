@@ -3,19 +3,15 @@ import Api from '@/services/api.js'
 import { base64 } from '@/utils/base64.js'
 import StorageUtil from '@/utils/StorageUtil.js'
 
-export function useListasContatos({
-    contatoSelecionado,
-    conversaAberta,
-    opcaoSelecionada,
-}) {
+export function useListasContatos({ contatoSelecionado, conversaAberta, opcaoSelecionada }) {
     const listaContatos = ref({
         fila: [],
         meusAtendimentos: [],
         todos: [],
+        internos: [],
     })
     const listaContatosSelecionado = ref([])
     const listaContatosPesquisa = ref([])
-    const listaContatosInterno = ref(null)
     const listaContatosLoading = ref(false)
     const fila_qtd = ref(0)
     const meusatendimentos_qtd = ref('')
@@ -25,11 +21,6 @@ export function useListasContatos({
 
     async function chamarAtendimentosFila() {
         try {
-            if (listaContatosInterno.value) {
-                conversaAberta.value = false
-            }
-
-            listaContatosInterno.value = null
             pesquisa.value = ''
 
             const response = await Api.post('/fila_atendimento/ZmlsYWRlYXRlbmRpbWVudG8=', {
@@ -51,11 +42,6 @@ export function useListasContatos({
         const fone = contatoSelecionado.value?.fone ?? null
 
         try {
-            if (listaContatosInterno.value) {
-                conversaAberta.value = false
-            }
-
-            listaContatosInterno.value = null
             pesquisa.value = ''
 
             const response = await Api.post('/meus_atendimentos/ZmlsYWRlYXRlbmRpbWVudG8=', {
@@ -75,11 +61,6 @@ export function useListasContatos({
 
     async function chamarTodosAtendimentos() {
         try {
-            if (listaContatosInterno.value) {
-                conversaAberta.value = false
-            }
-
-            listaContatosInterno.value = null
             pesquisa.value = ''
 
             const response = await Api.post(
@@ -97,42 +78,45 @@ export function useListasContatos({
         }
     }
 
-    function chamarMeusChatsInternos() {
-        opcaoSelecionada.value = 'interno'
-        pesquisa.value = ''
-        conversaAberta.value = false
+    async function chamarMeusChatsInternos() {
+        try {
+            pesquisa.value = ''
+            conversaAberta.value = false
 
-        Api.post('/meus_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', {
-            id: StorageUtil.get('@USER_ID'),
-        })
-            .then(response => {
-                const data = response.data
+            const response = await Api.post('/meus_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', {
+                id: StorageUtil.get('@USER_ID'),
+            })
 
-                qtdmensagensinternas.value = data.lido
-                listaContatosInterno.value = data.atendentes
-            })
-            .catch(error => {
-                console.error(error)
-            })
+            const data = response.data
+
+            qtdmensagensinternas.value = data.lido
+            listaContatos.value.internos = data?.atendentes ?? []
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     async function pesquisar() {
-        listaContatosLoading.value = true
-
-        if (pesquisa.value.length === 0) return
-
         try {
+            if (pesquisa.value.length === 0) {
+                listaContatosPesquisa.value = []
+
+                return
+            }
+
+            listaContatosLoading.value = true
+
             const response = await Api.post(`/busca_contatos/ZmlsYWRlYXRlbmRpbWVudG8=`, {
                 id: StorageUtil.get('@USER_ID'),
                 busca: pesquisa.value,
             })
 
-            listaContatosPesquisa.value = response.data.contatos.data
+            listaContatosPesquisa.value = response?.data?.contatos?.data ?? []
+
+            listaContatosLoading.value = false
         } catch (error) {
             console.error(error)
 
-            listaContatosLoading.value = false
-        } finally {
             listaContatosLoading.value = false
         }
     }
@@ -174,25 +158,15 @@ export function useListasContatos({
                 case 'todos':
                     listaContatosSelecionado.value = newVal.todos
                     break
-                case 'interno':
-                    chamarMeusChatsInternos()
-                    break
             }
         },
         { deep: true }
     )
 
-    watch(pesquisa, newValue => {
-        if (newValue.length === 0) {
-            listaContatosPesquisa.value = []
-        }
-    })
-
     return {
         listaContatos,
         listaContatosSelecionado,
         listaContatosPesquisa,
-        listaContatosInterno,
         listaContatosLoading,
         fila_qtd,
         meusatendimentos_qtd,
@@ -202,7 +176,6 @@ export function useListasContatos({
         chamarAtendimentosFila,
         chamarMeusAtendimentos,
         chamarTodosAtendimentos,
-        chamarMeusChatsInternos,
         pesquisar,
     }
 }

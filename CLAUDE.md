@@ -37,7 +37,12 @@ Usa Firebase para mensagens em tempo real e IndexedDB para cache local de conver
 `imports` → `name/Props/Emits` → `data` → `computed` → `methods` → `watch` → lifecycle hooks
 
 ### Acesso ao localStorage
-Keys relevantes: `@TOKEN`, `@USER_ID`. Populadas via `localStorageDecode()` após decodificar o token da rota.
+O projeto usa `StorageUtil` (`src/utils/StorageUtil.js`) como camada única de acesso ao localStorage — não usar `localStorage` diretamente no código da aplicação.
+
+- `StorageUtil.up(token)` é chamado no guard de rota e popula os dados do usuário
+- Todos os dados ficam num objeto JSON base64 na chave `data`, lidos via `StorageUtil.get(key)`
+- **Exceção**: `@TOKEN` é armazenado diretamente (não dentro de `data`) pelo `StorageUtil.up()` — os interceptors das instâncias Axios leem com `localStorage.getItem('@TOKEN')` diretamente
+- Keys relevantes: `@TOKEN`, `@USER_ID`, `@SESSION`, `@MENSAGEM`, `@TIPO`, `@SETOR_ID`, `@USER_NAME`, `@STATUS_NOTIFICACAO`
 
 ## Estrutura de pastas
 ```
@@ -46,13 +51,13 @@ src/
     atendimento/       — chat, lista de contatos, ações (transferir, encaminhar, etc.)
         acao/          — AudioRecorderComponent, compartilharContato, editarContato, encaminhaMensagens, transferirAtendimento, ADDUSUARIOVUE
         composables/   — useAtendimentoFirebase, useAtendimentoIDB, useListasContatos e useNotificacaoAtendimento
-    modals/            — BaseModal + display-media, display-document, display-media-preview, display-template-message
+    modals/            — BaseModal + display-media, display-document, display-media-preview, display-template-message, settings-offcanvas/SettingsOffcanvas
     ui/                — ImgComponent · screen-overlay/ProgressBarScreen
     GLOBALS/           — CidadesEstado
   views/           2 páginas: atendimento.vue (main, script setup), ErrorsPage.vue
   stores/          useListStatesStore (estados brasileiros)
   services/        api/api.js, api/newApi.js, api/apiImagem.js · middleware.js · IDBService.js
-  utils/           formatters.js, localStorageDecode.js, links.js, useAudioRecorder.js, useTimerControl.js, math.js, Crypto.js, base64.js
+  utils/           StorageUtil.js (camada de acesso ao localStorage), formatters.js, links.js, useAudioRecorder.js, useTimerControl.js, math.js, Crypto.js, base64.js, localStorageDecode.js (em desuso)
   firebase/        Inicialização do Firebase + Vue plugin (expõe $firebase, $database, $auth, $storage)
   router/          Rotas: /atendimento/:token?, / (erros), wildcard → /error
   assets/styles/   SCSS: index.scss, mixins.scss, tooltip.scss, transitons.scss
@@ -63,9 +68,9 @@ src/
 ### Instâncias Axios
 - Abaixo está organizado da seguinte forma: **Arquivo** -> **Base URL** -> **Uso**
 
-`src/services/api/api.js` -> `https://inzupt.com/api` -> Endpoints principais (autenticação, conversas, sync)
-`src/services/api/newApi.js` -> `https://inzupt.com.br/api/api` -> Endpoints alternativos/novos
-`src/services/api/apiImagem.js` -> `https://inzupt.com/api` -> Upload de mídia (multipart/form-data)
+`src/services/api.js` -> `https://inzupt.com/api` -> Endpoints principais (autenticação, conversas, sync)
+`src/services/newApi.js` -> `https://inzupt.com.br/api/api` -> Endpoints alternativos/novos
+`src/services/apiImagem.js` -> `https://inzupt.com/api` -> Upload de mídia (multipart/form-data)
 
 ### Endpoints conhecidos
 - `POST /logout/ZmlsYWRlYXRlbmRpbWVudG8=` — Logout

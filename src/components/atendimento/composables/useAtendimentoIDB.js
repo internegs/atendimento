@@ -126,7 +126,6 @@ export function useAtendimentoIDB({
         const hasContato = [...new Set(contatos)]?.includes(base64.encode(fone))
 
         if (conversaAberta.value && hasContato) {
-
             await carregarMensagens(contatoSelecionado.value)
         }
 
@@ -160,10 +159,24 @@ export function useAtendimentoIDB({
         let msgs, meta
 
         if (data && data.length > 0) {
-            meta = { qtd, status: true, fone: contato.fone, id: contato.id, ativo: true }
+            meta = {
+                qtd,
+                status: true,
+                fone: contato.fone,
+                id: contato.id,
+                ativo: true,
+            }
+
             msgs = data
         } else {
-            meta = { qtd: 0, status: false, fone: contato.fone, id: contato.id, ativo: true }
+            meta = {
+                qtd: 0,
+                status: false,
+                fone: contato.fone,
+                id: contato.id,
+                ativo: true,
+            }
+
             msgs = 'Não há conversas para este contato.'
         }
 
