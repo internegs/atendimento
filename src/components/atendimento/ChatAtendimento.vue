@@ -1416,7 +1416,7 @@ onBeforeUnmount(() => {
                 }
 
                 .box-opcoes {
-                    z-index: 5;
+                    z-index: 20 !important;
                     position: absolute;
                     right: 0.5rem;
                     top: 1.5rem;

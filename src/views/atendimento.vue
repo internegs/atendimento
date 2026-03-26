@@ -492,7 +492,7 @@
                 </div>
 
                 <div
-                    v-if="listaContatos.internos && listaContatos.internos.length > 0"
+                    v-if="isChatInternal"
                     style="background-color: #f5f1eb"
                 >
                     <div
@@ -2208,7 +2208,7 @@ img {
             .chatbox_input {
                 position: absolute;
                 bottom: 4px;
-                z-index: 10;
+                z-index: 10 !important;
                 max-height: 500px;
 
                 background-color: #f0f2f5 !important;
