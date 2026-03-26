@@ -63,6 +63,7 @@
 
 <script>
 import Api from '@/services/api.js'
+import StorageUtil from '@/utils/StorageUtil.js'
 import { mapState } from 'pinia'
 import { useListStatesStore } from '@/stores/index.js'
 
@@ -121,7 +122,7 @@ export default {
     methods: {
         async getCidades() {
             await Api.post(`/cidades/ZmlsYWRlYXRlbmRpbWVudG8=`, {
-                id: localStorage.getItem('@USER_ID'),
+                id: StorageUtil.get('@USER_ID'),
                 uf_id: this.data.uf,
             })
                 .then(response => {

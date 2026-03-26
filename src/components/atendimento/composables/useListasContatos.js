@@ -1,6 +1,7 @@
 import { ref, watch } from 'vue'
 import Api from '@/services/api.js'
 import { base64 } from '@/utils/base64.js'
+import StorageUtil from '@/utils/StorageUtil.js'
 
 export function useListasContatos({
     contatoSelecionado,
@@ -32,8 +33,8 @@ export function useListasContatos({
             pesquisa.value = ''
 
             const response = await Api.post('/fila_atendimento/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                id: localStorage.getItem('@USER_ID'),
-                setor_id: localStorage.getItem('@SETOR_ID'),
+                id: StorageUtil.get('@USER_ID'),
+                setor_id: StorageUtil.get('@SETOR_ID'),
             })
 
             const data = response.data
@@ -58,8 +59,8 @@ export function useListasContatos({
             pesquisa.value = ''
 
             const response = await Api.post('/meus_atendimentos/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                id: localStorage.getItem('@USER_ID'),
-                setor_id: localStorage.getItem('@SETOR_ID'),
+                id: StorageUtil.get('@USER_ID'),
+                setor_id: StorageUtil.get('@SETOR_ID'),
                 fone: fone,
             })
 
@@ -84,7 +85,7 @@ export function useListasContatos({
             const response = await Api.post(
                 '/fila_atendimento_todas/ZmlsYWRlYXRlbmRpbWVudG8=?dXNlcl9pZA=MTEy',
                 {
-                    dXNlcl9pZA: base64.encode(localStorage.getItem('@USER_ID')),
+                    dXNlcl9pZA: base64.encode(StorageUtil.get('@USER_ID')),
                 }
             )
 
@@ -102,7 +103,7 @@ export function useListasContatos({
         conversaAberta.value = false
 
         Api.post('/meus_chat_interno/ZmlsYWRlYXRlbmRpbWVudG8=', {
-            id: localStorage.getItem('@USER_ID'),
+            id: StorageUtil.get('@USER_ID'),
         })
             .then(response => {
                 const data = response.data
@@ -122,7 +123,7 @@ export function useListasContatos({
 
         try {
             const response = await Api.post(`/busca_contatos/ZmlsYWRlYXRlbmRpbWVudG8=`, {
-                id: localStorage.getItem('@USER_ID'),
+                id: StorageUtil.get('@USER_ID'),
                 busca: pesquisa.value,
             })
 

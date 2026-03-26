@@ -1,5 +1,6 @@
 import Axios from 'axios'
 import { base64 } from '@/utils/base64.js'
+import StorageUtil from '@/utils/StorageUtil.js'
 
 const API = Axios.create({
     baseURL: 'https://inzupt.com.br/api/api',

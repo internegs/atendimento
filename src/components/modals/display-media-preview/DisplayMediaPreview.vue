@@ -85,6 +85,7 @@ import MediaTemplate from '../media-template/MediaTemplate.vue'
 import api from '@/services/api.js'
 import { formatSize, formatTypeDocument } from '@/utils/formatters'
 import ImgComponent from '@/components/ui/ImgComponent.vue'
+import StorageUtil from '@/utils/StorageUtil.js'
 
 export default {
     name: 'DisplayMediaPreview',
@@ -184,7 +185,7 @@ export default {
 
             try {
                 const obj = {
-                    user_id: localStorage.getItem('@USER_ID'),
+                    user_id: StorageUtil.get('@USER_ID'),
                     fone: this.dataMediaSelected?.recipientFone,
                     midia: this.dataMediaSelected?.dataFile,
                     type: 2,

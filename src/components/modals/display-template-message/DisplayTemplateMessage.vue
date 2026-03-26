@@ -168,6 +168,7 @@ import api from '@/services/api.js'
 import { debounce } from 'lodash-es'
 import Swal from 'sweetalert2'
 import { base64 } from '@/utils/base64.js'
+import StorageUtil from '@/utils/StorageUtil.js'
 
 export default {
     name: 'DisplayTemplateMessage',
@@ -239,7 +240,7 @@ export default {
                 const response = await api.post(
                     'https://inzupt.com/api/templates_meta/ZmlsYWRlYXRlbmRpbWVudG8=',
                     {
-                        dXNlcl9pZA: base64.encode(localStorage.getItem('@USER_ID')),
+                        dXNlcl9pZA: base64.encode(StorageUtil.get('@USER_ID')),
                     },
                     {
                         params: {
@@ -280,7 +281,7 @@ export default {
                 const response = await api.post(
                     `/templates_meta_busca/ZmlsYWRlYXRlbmRpbWVudG8=?YnVzY2E&dXNlcl9pZA`,
                     {
-                        dXNlcl9pZA: base64.encode(localStorage.getItem('@USER_ID')),
+                        dXNlcl9pZA: base64.encode(StorageUtil.get('@USER_ID')),
                         YnVzY2E: this.search,
                     },
                     {
@@ -304,7 +305,7 @@ export default {
 
             try {
                 const obj = {
-                    user_id: localStorage.getItem('@USER_ID'),
+                    user_id: StorageUtil.get('@USER_ID'),
                     nome: this.templateData.nome,
                     fone: this.templateData?.fone,
                     nome_modelo: this.requestData?.mensagem,

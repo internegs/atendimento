@@ -93,6 +93,7 @@
 <script>
 import Api from '@/services/api.js'
 import Swal from 'sweetalert2'
+import StorageUtil from '@/utils/StorageUtil.js'
 
 export default {
     name: 'transfereAtendimento',
@@ -137,7 +138,7 @@ export default {
     methods: {
         chamarAtendentesDisponiveis() {
             Api.post('/atendentes_online/ZmlsYWRlYXRlbmRpbWVudG8=', {
-                id: localStorage.getItem('@USER_ID'),
+                id: StorageUtil.get('@USER_ID'),
             })
                 .then(response => {
                     this.atendentesDisponiveis = response.data.atendentes
@@ -150,7 +151,7 @@ export default {
         transfereAtendimento() {
             try {
                 const objTransfere = {
-                    id: localStorage.getItem('@USER_ID'),
+                    id: StorageUtil.get('@USER_ID'),
                     atendente_id_transfere: this.atendenteSelecionado,
                     id_atendimento: this.id_atendimento,
                 }

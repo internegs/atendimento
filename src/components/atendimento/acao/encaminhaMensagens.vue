@@ -78,6 +78,7 @@
 
 <script>
 import api from '@/services/api.js'
+import StorageUtil from '@/utils/StorageUtil.js'
 
 export default {
     name: 'mandarArquivo',
@@ -133,7 +134,7 @@ export default {
         },
         encaminhaMensagem() {
             let obj = {
-                user_id: localStorage.getItem('@USER_ID'),
+                user_id: StorageUtil.get('@USER_ID'),
                 fone: this.contatoFone,
                 name: this.name,
                 fone_contato: this.fone,
@@ -162,7 +163,7 @@ export default {
             }
 
             api.post(`/busca_contatos/ZmlsYWRlYXRlbmRpbWVudG8=`, {
-                id: localStorage.getItem('@USER_ID'),
+                id: StorageUtil.get('@USER_ID'),
                 busca: this.pesquisa,
             })
                 .then(response => {

@@ -818,121 +818,10 @@
             </div>
         </div>
 
-        <!-- OffCanvas -->
-        <div
-            id="settings"
-            class="offcanvas offcanvas-end"
-            style="width: 35rem"
-            tabindex="-1"
-            aria-labelledby="settings"
-        >
-            <div class="offcanvas-header p-2">
-                <button
-                    type="button"
-                    class="btn btn-danger fs-4 fw-bold ms-auto"
-                    data-bs-dismiss="offcanvas"
-                    aria-label="Close"
-                >
-                    Fechar
-                </button>
-            </div>
-
-            <div class="offcanvas-body">
-                <div class="row container-fluid text-center">
-                    <h2
-                        id="offcanvasRightLabel"
-                        class="offcanvas-title fs-3 fw-bold mb-4"
-                    >
-                        Configurações Área de Atendimento
-                    </h2>
-
-                    <div class="col-md-12">
-                        <h2
-                            style="font-size: 1.5rem"
-                            class="text-start"
-                        >
-                            Notificação de atendimento
-                        </h2>
-
-                        <div class="d-flex justify-content-between mt-4">
-                            <h3
-                                style="font-size: 1rem"
-                                class="text-start"
-                            >
-                                Deseja Ativar notificação?
-                            </h3>
-                            <div class="form-check form-switch">
-                                <input
-                                    id="flexSwitchCheckDefault"
-                                    class="form-check-input fs-2"
-                                    type="checkbox"
-                                    :checked="audioStatus"
-                                    role="switch"
-                                    @change="ativarNotificacao"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div
-            id="settings-mobile"
-            class="offcanvas offcanvas-end"
-            style="width: 90%"
-            tabindex="-1"
-            aria-labelledby="settings-mobile"
-        >
-            <div class="offcanvas-body">
-                <div class="row container-fluid text-center">
-                    <h2
-                        id="offcanvasRightLabel"
-                        class="offcanvas-title fs-3 fw-bold mb-4"
-                    >
-                        Configurações Área de Atendimento
-                    </h2>
-
-                    <div class="col-md-12">
-                        <h2
-                            style="font-size: 1.5rem"
-                            class="text-start"
-                        >
-                            Notificação de atendimento
-                        </h2>
-
-                        <div class="d-flex justify-content-between mt-4">
-                            <h3
-                                style="font-size: 1rem"
-                                class="text-start"
-                            >
-                                Deseja Ativar notificação?
-                            </h3>
-                            <div class="form-check form-switch">
-                                <input
-                                    id="flexSwitchCheckDefault"
-                                    class="form-check-input fs-2"
-                                    type="checkbox"
-                                    :checked="audioStatus"
-                                    role="switch"
-                                    @change="ativarNotificacao"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="offcanvas-header p-2">
-                <button
-                    type="button"
-                    class="btn btn-danger fs-4 fw-bold ms-auto"
-                    data-bs-dismiss="offcanvas"
-                    aria-label="Close"
-                >
-                    Fechar
-                </button>
-            </div>
-        </div>
+        <settings-offcanvas
+            :audio-status="audioStatus"
+            @ativar-notificacao="handleBtnNotification"
+        />
 
         <editar-contato
             :user="contatoSelecionado"
@@ -1013,6 +902,8 @@ import DisplayDocument from '@/components/modals/display-document/DisplayDocumen
 import DisplayTemplateMessage from '@/components/modals/display-template-message/DisplayTemplateMessage.vue'
 import { formatSize, formatTextForLimited } from '@/utils/formatters'
 import DisplayMediaPreview from '@/components/modals/display-media-preview/DisplayMediaPreview.vue'
+import SettingsOffcanvas from '@/components/modals/settings-offcanvas/SettingsOffcanvas.vue'
+import StorageUtil from '@/utils/StorageUtil.js'
 import { useListStatesStore } from '@/stores/index.js'
 import ImgComponent from '@/components/ui/ImgComponent.vue'
 import ProgressBarScreen from '@/components/ui/screen-overlay/ProgressBarScreen.vue'
@@ -1027,7 +918,7 @@ defineOptions({ name: 'Atendimento' })
 
 const database = inject('database')
 
-const getUserId = () => localStorage.getItem('@USER_ID')
+const getUserId = () => StorageUtil.get('@USER_ID')
 const grupos = []
 
 const session = ref('')
@@ -1074,8 +965,7 @@ const {
     audioStatus,
     novaTransferenciaBanner,
     novaMensagemInternaBanner,
-    inicializarAudioStatus,
-    ativarNotificacao,
+    handleBtnNotification,
     tocarSom,
     recebeuNovaTransferencia,
     recebeumensageminterna,
@@ -1179,7 +1069,7 @@ async function carregarDadosAdicionais() {
 async function marcarConversaVisualizada() {
     try {
         await Api.post('/conversas/ZmlsYWRlYXRlbmRpbWVudG8=', {
-            id: localStorage.getItem('@USER_ID'),
+            id: StorageUtil.get('@USER_ID'),
             fone: contatoSelecionado.value.fone,
         })
     } catch (error) {
@@ -1204,7 +1094,7 @@ async function abrirConversa(info_user) {
         const fone = info_user?.usuario?.fone ?? null
 
         const objConversas = {
-            id: localStorage.getItem('@USER_ID'),
+            id: StorageUtil.get('@USER_ID'),
             fone: fone,
             nome_contato: info_user?.usuario?.nome ?? null,
         }
@@ -1244,7 +1134,7 @@ function abrirConversaContatoEncaminhado(info) {
     const nome_contato = info.contactName
 
     const objConversas = {
-        id: localStorage.getItem('@USER_ID'),
+        id: StorageUtil.get('@USER_ID'),
         fone: fone,
         nome_contato: nome_contato,
     }
@@ -1258,7 +1148,7 @@ function abrirConversaContatoEncaminhado(info) {
             notificacao.value = false
 
             Api.post(`/busca_contatos/ZmlsYWRlYXRlbmRpbWVudG8=`, {
-                id: localStorage.getItem('@USER_ID'),
+                id: StorageUtil.get('@USER_ID'),
                 busca: info.mensagem,
             }).then(resposta => {
                 const dados = resposta.data
@@ -1295,7 +1185,7 @@ function abrirConversaContatoEncaminhado(info) {
 function abrirConversaChatInterno(info_user) {
     contatoSelecionado.value = info_user.usuario
     const objConversas = {
-        id: localStorage.getItem('@USER_ID'),
+        id: StorageUtil.get('@USER_ID'),
         id_transferido: contatoSelecionado.value.id,
     }
 
@@ -1320,7 +1210,7 @@ function abrirConversaChatInterno(info_user) {
 
 function atualizarConversaInterna() {
     const objConversas = {
-        id: localStorage.getItem('@USER_ID'),
+        id: StorageUtil.get('@USER_ID'),
         id_transferido: contatoSelecionado.value.id,
     }
 
@@ -1340,7 +1230,7 @@ function atualizarConversaInterna() {
 
 function alternarBloqueioContato(contato_id) {
     Api.post('/bloqueia_contato/ZmlsYWRlYXRlbmRpbWVudG8=', {
-        id: localStorage.getItem('@USER_ID'),
+        id: StorageUtil.get('@USER_ID'),
         contato_id: contato_id,
     })
         .then(response => {
@@ -1408,7 +1298,7 @@ async function enviarMensagem() {
     textareaRows.value = 1
 
     const msgText = mensagem.value
-    const nome = localStorage.getItem(`@USER_NAME`) + '\r\n\t\t' + msgText
+    const nome = StorageUtil.get('@USER_NAME') + '\r\n\t\t' + msgText
 
     const novaMensagemText = {
         mensagem: nome,
@@ -1481,7 +1371,7 @@ function enviarMensagemChatInterno() {
 async function getEstados() {
     try {
         const response = await Api.post(`/cidades/ZmlsYWRlYXRlbmRpbWVudG8=`, {
-            id: localStorage.getItem('@USER_ID'),
+            id: StorageUtil.get('@USER_ID'),
         })
 
         listStatesStore.setStates(response.data.estados)
@@ -1903,8 +1793,8 @@ watch(
 )
 
 onMounted(async () => {
-    session.value = localStorage.getItem('@SESSION') || ''
-    const alerta = localStorage.getItem('@MENSAGEM')
+    session.value = StorageUtil.get('@SESSION') || ''
+    const alerta = StorageUtil.get('@MENSAGEM')
 
     if (alerta === 'browserClose') {
         await Swal.fire(
@@ -1914,8 +1804,7 @@ onMounted(async () => {
         )
     }
 
-    tipo_usuario.value = localStorage.getItem('@TIPO')
-    inicializarAudioStatus()
+    tipo_usuario.value = StorageUtil.get('@TIPO')
 
     iniciarListenersFirebase()
 })

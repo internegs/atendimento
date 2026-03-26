@@ -1,22 +1,22 @@
 import Api from '@/services/api.js'
 import LINKS from '@/utils/links'
-import { localStorageDecode } from '@/utils/localStorageDecode'
 import { base64 } from '@/utils/base64.js'
+import StorageUtil from '@/utils/StorageUtil.js'
 
 export default {
     logout: function (to, from, next) {
         const objEnviaMensagem = {
-            user_id: localStorage.getItem(`@USER_ID`),
+            user_id: StorageUtil.get('@USER_ID'),
         }
 
         Api.post('/logout/ZmlsYWRlYXRlbmRpbWVudG8=', objEnviaMensagem)
             .then(() => {
-                localStorage.clear()
+                StorageUtil.clear()
 
                 window.location.replace(LINKS.login)
             })
             .catch(() => {
-                localStorage.clear()
+                StorageUtil.clear()
 
                 window.location.replace(LINKS.login)
             })
@@ -35,7 +35,7 @@ export default {
             return
         }
 
-        await localStorageDecode(to.params.token)
+        await StorageUtil.up(to.params.token)
 
         next()
     },

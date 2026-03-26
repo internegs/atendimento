@@ -1,27 +1,27 @@
 import { ref } from 'vue'
+import StorageUtil from '@/utils/StorageUtil.js'
 
 export function useNotificacoesAtendimento() {
-    const audioStatus = ref(false)
+    const audioStatus = ref(StorageUtil.get('@STATUS_NOTIFICACAO') === 'true')
     const novaTransferenciaBanner = ref(false)
     const novaMensagemInternaBanner = ref(false)
 
-    function inicializarAudioStatus() {
-        audioStatus.value = localStorage.getItem('@STATUS_NOTIFICACAO') !== 'false'
-    }
+    function handleBtnNotification() {
+        const newStatus = !audioStatus.value
 
-    function ativarNotificacao() {
-        audioStatus.value = !audioStatus.value
-        localStorage.setItem('@STATUS_NOTIFICACAO', audioStatus.value)
+        StorageUtil.set('@STATUS_NOTIFICACAO', String(newStatus))
+        audioStatus.value = newStatus
     }
 
     function tocarSom(somUrl) {
-        if (somUrl) {
-            new Audio(somUrl).play()
+        if (audioStatus.value && somUrl) {
+            new Audio(somUrl).play().catch(() => {})
         }
     }
 
     function recebeuNovaTransferencia() {
         novaTransferenciaBanner.value = true
+
         setTimeout(() => {
             novaTransferenciaBanner.value = false
         }, 1000)
@@ -29,6 +29,7 @@ export function useNotificacoesAtendimento() {
 
     function recebeumensageminterna() {
         novaMensagemInternaBanner.value = true
+
         setTimeout(() => {
             novaMensagemInternaBanner.value = false
         }, 1000)
@@ -38,8 +39,7 @@ export function useNotificacoesAtendimento() {
         audioStatus,
         novaTransferenciaBanner,
         novaMensagemInternaBanner,
-        inicializarAudioStatus,
-        ativarNotificacao,
+        handleBtnNotification,
         tocarSom,
         recebeuNovaTransferencia,
         recebeumensageminterna,

@@ -160,6 +160,7 @@
 import Locais from '@/components/GLOBALS/CidadesEstado.vue'
 import Api from '@/services/api.js'
 import Swal from 'sweetalert2'
+import StorageUtil from '@/utils/StorageUtil.js'
 
 export default {
     name: 'AddUser',
@@ -181,7 +182,7 @@ export default {
                 cel: '(##) #####-####',
             },
             obj: {
-                id: localStorage.getItem('@USER_ID'),
+                id: StorageUtil.get('@USER_ID'),
                 nome: null,
                 contato_id: null,
                 fone: null,
@@ -278,7 +279,7 @@ export default {
 
         resetForm() {
             this.obj = {
-                id: localStorage.getItem('@USER_ID'),
+                id: StorageUtil.get('@USER_ID'),
                 nome: null,
                 contato_id: null,
                 fone: null,

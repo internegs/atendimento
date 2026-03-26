@@ -84,6 +84,7 @@ import MediaTemplate from '../media-template/MediaTemplate.vue'
 import * as pdflib from 'pdfjs-dist'
 import api from '@/services/api.js'
 import { formatSize, formatTypeDocument } from '@/utils/formatters'
+import StorageUtil from '@/utils/StorageUtil.js'
 
 export default {
     name: 'DisplayDocument',
@@ -240,7 +241,7 @@ export default {
             try {
                 if (!this.dataDocumentSelected?.isChatInternal) {
                     const obj = {
-                        user_id: localStorage.getItem('@USER_ID'),
+                        user_id: StorageUtil.get('@USER_ID'),
                         fone: this.dataDocumentSelected?.recipientFone,
                         midia: this.dataDocumentSelected?.dataFile,
                         type: 2,
@@ -255,7 +256,7 @@ export default {
                     await api.post('/envia_midianovo/ZmlsYWRlYXRlbmRpbWVudG8=', binaryObj)
                 } else {
                     const obj = {
-                        id: localStorage.getItem('@USER_ID'),
+                        id: StorageUtil.get('@USER_ID'),
                         id_transferido: this.dataDocumentSelected?.recipientId,
                         midia: this.dataDocumentSelected?.dataFile,
                     }

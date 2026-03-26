@@ -75,6 +75,7 @@
 
 <script>
 import api from '@/services/api.js'
+import StorageUtil from '@/utils/StorageUtil.js'
 
 export default {
     name: 'CompartilharContato',
@@ -106,7 +107,7 @@ export default {
             this.Pesquisar()
 
             this.obj = {
-                user_id: localStorage.getItem('@USER_ID'),
+                user_id: StorageUtil.get('@USER_ID'),
                 fone: this.fone,
                 name: contato.nome,
                 fone_contato: contato.fone,
@@ -139,7 +140,7 @@ export default {
             }
 
             api.post(`/busca_contatos/ZmlsYWRlYXRlbmRpbWVudG8=`, {
-                id: localStorage.getItem('@USER_ID'),
+                id: StorageUtil.get('@USER_ID'),
                 busca: this.pesquisa,
             })
                 .then(response => {
