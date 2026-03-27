@@ -1247,7 +1247,7 @@ function messageReplyName(messageIdReply) {
     const msgReply = searchMessageReply(messageIdReply)
 
     if (msgReply) {
-        return msgReply?.wook === 'onack' ? 'Você' : msgReply?.name
+        return msgReply?.wook === 'onack' ? 'Você' : msgReply?.contactName
     }
 
     return ''
