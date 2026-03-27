@@ -74,6 +74,7 @@
                             @click="handleBoxOpt(mensagem.message_id)"
                         >
                             <i class="fa-solid fa-chevron-down abrir-selecoes"></i>
+
                             <div
                                 v-if="openBoxOpt === mensagem.message_id"
                                 ref="boxOpt"
@@ -107,14 +108,29 @@
 
                     <span v-if="mensagem.status !== 'DELETED'">
                         <div class="wrapper-text-reply">
-                            <span
+                            <div
                                 class="text-reply"
-                                v-html="
-                                    formatMessageWhatsapp(
-                                        formatTextForLimited(mensagem.message_reply, 80)
-                                    )
-                                "
-                            ></span>
+                                :style="{
+                                    backgroundColor:
+                                        mensagem.wook === 'onack' ? '#b5eeb3' : '#f3f3f3',
+                                }"
+                            >
+                                <dl>
+                                    <dt>{{ messageReplyName(mensagem.message_id_reply) }}</dt>
+
+                                    <dd
+                                        v-html="
+                                            formatMessageWhatsapp(
+                                                formatTextForLimited(
+                                                    searchMessageReply(mensagem.message_id_reply)
+                                                        ?.mensagem ?? '',
+                                                    80
+                                                )
+                                            )
+                                        "
+                                    ></dd>
+                                </dl>
+                            </div>
 
                             <span
                                 class="text-normal"
@@ -1217,6 +1233,26 @@ function scrollToBottom() {
     }
 }
 
+function searchMessageReply(messageIdReply) {
+    if (!messageIdReply || messageIdReply === 'NULL') return null
+
+    const message = props.mensagens?.find(msg => msg.message_id === messageIdReply) ?? null
+
+    return message || null
+}
+
+function messageReplyName(messageIdReply) {
+    if (!messageIdReply || messageIdReply === 'NULL') return ''
+
+    const msgReply = searchMessageReply(messageIdReply)
+
+    if (msgReply) {
+        return msgReply?.wook === 'onack' ? 'Você' : msgReply?.name
+    }
+
+    return ''
+}
+
 watch(
     () => props.mensagens,
     () => {
@@ -1445,10 +1481,20 @@ onBeforeUnmount(() => {
                 gap: 0.7rem;
 
                 .text-reply {
+                    @include vertical-col-center();
                     padding: 12px 10px;
-                    background-color: #b5eeb3;
                     border-radius: 10px;
                     filter: opacity(85%);
+
+                    dl {
+                        @include vertical-col-center();
+                        margin: 0;
+                        gap: 0.3rem;
+
+                        dd {
+                            margin: 0;
+                        }
+                    }
                 }
             }
 

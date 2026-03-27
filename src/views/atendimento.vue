@@ -639,9 +639,13 @@
                                 <dl>
                                     <dt>{{ mensagemResponder.nome }}</dt>
 
-                                    <dd>
-                                        {{ formatTextForLimited(mensagemResponder.mensagem, 80) }}
-                                    </dd>
+                                    <dd
+                                        v-html="
+                                            formatMessageWhatsapp(
+                                                formatTextForLimited(mensagemResponder.mensagem, 80)
+                                            )
+                                        "
+                                    ></dd>
                                 </dl>
 
                                 <div class="wrapper-media-close">
@@ -900,7 +904,7 @@ import Swal from 'sweetalert2'
 import DisplayMedia from '@/components/modals/display-media/DisplayMedia.vue'
 import DisplayDocument from '@/components/modals/display-document/DisplayDocument.vue'
 import DisplayTemplateMessage from '@/components/modals/display-template-message/DisplayTemplateMessage.vue'
-import { formatSize, formatTextForLimited } from '@/utils/formatters'
+import { formatMessageWhatsapp, formatSize, formatTextForLimited } from '@/utils/formatters'
 import DisplayMediaPreview from '@/components/modals/display-media-preview/DisplayMediaPreview.vue'
 import SettingsOffcanvas from '@/components/modals/settings-offcanvas/SettingsOffcanvas.vue'
 import StorageUtil from '@/utils/StorageUtil.js'
@@ -1303,53 +1307,56 @@ function encerrarAtendimento(id_atendimento) {
 }
 
 async function enviarMensagem() {
-    if (mensagem.value === '') return
+    try {
+        if (mensagem.value === '') return
 
-    textareaRows.value = 1
+        textareaRows.value = 1
 
-    const msgText = mensagem.value
-    const nome = StorageUtil.get('@USER_NAME') + '\r\n\t\t' + msgText
+        const msgText = mensagem.value
+        const nome = `*${StorageUtil.get('@USER_NAME')}*\r\n\t\t${msgText}`
 
-    const novaMensagemText = {
-        mensagem: nome,
-        type: 'text',
+        const novaMensagemText = {
+            mensagem: nome,
+            type: 'text',
+        }
+
+        mensagem.value = ''
+
+        if (mensagens.value === 'Nao ha mensagem para esse contato') {
+            mensagens.value = 'processando...'
+        } else {
+            mensagens.value.push(novaMensagemText)
+        }
+
+        const objEnviaMensagem = {
+            user_id: getUserId(),
+            fone: contatoSelecionado.value.fone,
+            mensagem: msgText,
+            mensagem_reply: modoResponder.value ? mensagemResponder.value?.mensagem : null,
+            mensagem_id: message_id.value,
+            status: modoResponder.value ? 2 : 1,
+        }
+
+        const response = await Api.post(
+            '/envia_mensagemnova/ZmlsYWRlYXRlbmRpbWVudG8=',
+            objEnviaMensagem
+        )
+
+        if (response.data.erro === 'number_incorret') {
+            await Swal.fire({
+                icon: 'error',
+                title: 'Mensagem não enviada!',
+                text: response.data.retorno + 'Reconecte o celular!',
+            })
+        }
+
+        await carregarMensagens(contatoSelecionado.value)
+
+        fecharResponderLayout()
+        message_id.value = null
+    } catch (error) {
+        console.error(error)
     }
-
-    mensagem.value = ''
-
-    if (mensagens.value == 'Nao ha mensagem para esse contato') {
-        mensagens.value = 'processando...'
-    } else {
-        mensagens.value.push(novaMensagemText)
-    }
-
-    const objEnviaMensagem = {
-        user_id: getUserId(),
-        fone: contatoSelecionado.value.fone,
-        mensagem: msgText,
-        mensagem_reply: modoResponder.value ? mensagemResponder.value?.mensagem : null,
-        mensagem_id: message_id.value,
-        status: modoResponder.value ? 2 : 1,
-    }
-
-    await Api.post('/envia_mensagemnova/ZmlsYWRlYXRlbmRpbWVudG8=', objEnviaMensagem)
-        .then(response => {
-            if (response.data.erro == 'number_incorret') {
-                Swal.fire(
-                    'Mensagem não enviada!',
-                    response.data.retorno + 'Reconecte o celular!',
-                    'error'
-                )
-            }
-
-            carregarMensagens(contatoSelecionado.value)
-        })
-        .catch(error => {
-            console.error(error)
-        })
-
-    fecharResponderLayout()
-    message_id.value = null
 }
 
 function enviarMensagemChatInterno() {
