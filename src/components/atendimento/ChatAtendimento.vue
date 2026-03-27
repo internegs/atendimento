@@ -1202,10 +1202,14 @@ function handleBoxOpt(message_id) {
 
 function handleClickOutsideBoxOpt(e) {
     const btnOpt = e.target.closest('.box_abre_selecoes')
+    const msgNormal = e.target.closest('.message-normal')
 
     if (!btnOpt) {
         openBoxOpt.value = null
-        showBoxOptIcon.value = null
+
+        if (!msgNormal) {
+            showBoxOptIcon.value = null
+        }
     }
 }
 

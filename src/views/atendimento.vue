@@ -1337,6 +1337,8 @@ async function enviarMensagem() {
             status: modoResponder.value ? 2 : 1,
         }
 
+        fecharResponderLayout()
+
         const response = await Api.post(
             '/envia_mensagemnova/ZmlsYWRlYXRlbmRpbWVudG8=',
             objEnviaMensagem
@@ -1352,7 +1354,6 @@ async function enviarMensagem() {
 
         await carregarMensagens(contatoSelecionado.value)
 
-        fecharResponderLayout()
         message_id.value = null
     } catch (error) {
         console.error(error)
